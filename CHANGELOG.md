@@ -4,7 +4,7 @@
 
 ### Added
 
-- Added SCC 1.5.3 support for remote upgrades on NeoForge 1.21.1.
+- Added Super Cool Calculator 1.5.3 support for remote upgrades on NeoForge 1.21.1.
 
 ### Fixed
 
