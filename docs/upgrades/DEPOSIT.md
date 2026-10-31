@@ -14,7 +14,7 @@ Manter os nove slots de filtro existentes e os modos nativos de permissão, bloq
 
 **Implementação atual (2026-10-12):** Deposit permanece o upgrade final da POC: filtros/GUI Sophisticated, vínculo universal, conflitos nos dois sentidos e desvínculo pela receita compartilhada. Sua textura 16×16 parte do ícone avançado original, incluindo o padrão de cantos e pontos de borda, e usa a paleta remota do Magnet; o modelo aponta para o asset local. Compilação e inicialização do cliente passaram; operação, aparência em jogo e regressão por backend ainda não foram validadas após a consolidação. Ver [arquitetura atual](../ARCHITECTURE.md).
 
-**Linha visual (2026-10-31, P07):** no NeoForge 1.21.1, a textura segue a [linha visual dos upgrades remotos](../design/UPGRADE_VISUALS.md): ícone original preservado, um canto por rede, sprite da rede vinculada e animações de vínculo e de troca de rede. O Forge mantém a textura anterior. Compila; a aparência e a animação em jogo ainda não foram conferidas.
+**Linha visual (2026-10-31, P07):** a textura segue a [linha visual dos upgrades remotos](../design/UPGRADE_VISUALS.md): ícone original preservado, um canto por rede, sprite da rede vinculada e animações de vínculo e de troca de rede. Vale para NeoForge 1.21.1 e Forge 1.20.1. Compila nos dois loaders; a aparência e a animação em jogo no Forge ainda não foram conferidas.
 
 **Existente:** item, wrapper, container, aba, vínculo, `DepositService`, `ItemTransferService`, três adaptadores e guard de entrada. `RemoteDepositUpgradeWrapper` usa `DepositFilterLogic` e `ModCoreDataComponents.FILTER_ATTRIBUTES`. O snapshot do destino é consultado apenas no modo `INVENTORY`.
 
