@@ -82,9 +82,12 @@ Each upgrade links to one network endpoint and follows that network's access and
 <p align="center" style="background-color: #F4ECD0; text-align: center;"><img src="https://raw.githubusercontent.com/radaelilucca/mc-sophisticated-backpacks-digital-storage/main/docs/gallery/section-titles/how-do-i-use-it.png" alt="HOW DO I USE IT?" width="371"></p>
 
 1. Hold a Remote Upgrade and **Shift-right-click a compatible network block** to link it. Use an **ME Wireless Access Point** for Applied Energistics 2, a **Controller** for Refined Storage, a **Storage Terminal** for Tom's Simple Storage, or a **Network Antenna** for Super Cool Calculator.
-2. Place the linked upgrade in a backpack upgrade slot and open its tab to configure filters, priorities, or transfer settings.
-3. Craft each Remote Upgrade from its matching advanced Sophisticated Backpacks upgrade, **3 diamonds**, **2 Ender Pearls**, and **2 redstone dust**.
-4. To change networks, link the upgrade to another compatible block. To remove its link while keeping its settings, place the upgrade by itself in a crafting grid.
+2. Watch the upgrade change: its screen turns dark and its icon takes the color of the network (purple for AE2, blue for Refined Storage, oak brown for Tom's Simple Storage, gold for SCC), and a short animation plays when you link or switch networks. The four corners always show which networks are supported.
+3. Place the linked upgrade in a backpack upgrade slot and open its tab to configure filters, priorities, or transfer settings.
+4. Craft each Remote Upgrade from its matching advanced Sophisticated Backpacks upgrade, **3 diamonds**, **2 Ender Pearls**, and **2 redstone dust**.
+5. To change networks, link the upgrade to another compatible block. To remove its link while keeping its settings, place the upgrade by itself in a crafting grid.
+
+<p align="center" style="text-align: center;"><img src="https://raw.githubusercontent.com/radaelilucca/mc-sophisticated-backpacks-digital-storage/main/docs/gallery/upgrade_link_states.png" alt="Remote Feeding Upgrade unlinked, then linked to Applied Energistics 2, Refined Storage, Tom's Simple Storage, and Super Cool Calculator" width="420"></p>
 
 > **Heads up:** Remote access follows your network's range and access rules, including its wireless setup. **Remote Pump** supports fluids with Applied Energistics 2, Refined Storage, and Super Cool Calculator. Tom's Simple Storage is item-only.
 
