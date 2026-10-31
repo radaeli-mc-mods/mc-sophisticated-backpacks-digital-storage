@@ -17,6 +17,18 @@ FIELD = (0x37, 0xAE, 0x6C, 255)
 OUTLINE, FILL, DETAIL = (0x22, 0x16, 0x2D, 255), (0x42, 0x2B, 0x52, 255), (0x1F, 0x71, 0x4B, 255)
 
 
+# Every third step of an animation phase, always ending on its last one; the item model only
+# refreshes each 50 ms tick, so finer strips would not be seen.
+FRAME_STEP = 3
+
+
+def steps(first, last):
+    values = list(range(first, last + 1, FRAME_STEP))
+    if values[-1] != last:
+        values.append(last)
+    return values
+
+
 class Upgrade:
     def __init__(self, name):
         self.name = name
@@ -63,7 +75,7 @@ class Upgrade:
 
         # 1. Rim fills from the network's corner in both directions.
         glints = {(cx, cy): (cx + dx, cy + dy) for cx, cy, dx, dy in CORNERS}
-        for t in range(far + 1):
+        for t in steps(0, far):
             im = start.copy()
             for p, d in dist.items():
                 if d <= t:
@@ -75,7 +87,7 @@ class Upgrade:
         # 2. Screen darkens along the diagonal toward the center; the icon takes the network color.
         filled = out[-1]
         reach = lambda x, y: min((x - 3) + (y - 3), (12 - x) + (12 - y))
-        for t in range(10):
+        for t in steps(0, 9):
             im = filled.copy()
             for x in range(3, 13):
                 for y in range(3, 13):
@@ -85,7 +97,7 @@ class Upgrade:
 
         # 3. Rim retracts the way it came, back to the four network corners.
         wiped = out[-1]
-        for t in range(far, -1, -1):
+        for t in reversed(steps(0, far)):
             im = wiped.copy()
             for p, d in dist.items():
                 if d >= t:

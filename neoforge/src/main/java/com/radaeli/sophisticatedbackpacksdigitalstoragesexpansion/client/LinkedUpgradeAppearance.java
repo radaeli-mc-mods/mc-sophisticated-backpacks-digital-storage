@@ -36,14 +36,14 @@ public final class LinkedUpgradeAppearance {
     private static final List<String> NETWORKS = List.of("ae2", "refinedstorage", "toms_storage", "scc");
     private static final ResourceLocation NETWORK_PROPERTY = id("network");
     private static final ResourceLocation LINK_FRAME_PROPERTY = id("link_frame");
-    // Strip frames: 0 previous state, 1..27 rim fill, 28..37 diagonal screen wipe, 38..64 rim retract.
+    // Strip frames: 0 previous state, 1..10 rim fill, 11..14 diagonal screen wipe, 15..24 rim retract.
     // {first frame, last frame, start ms, duration ms, easing}; mirrors design/upgrade-refresh/timeline.py.
     private static final int EASE_IN_OUT = 0;
     private static final int EASE_OUT = 1;
     private static final int[][] PHASES = {
-            {0, 27, 0, 380, EASE_IN_OUT},
-            {27, 37, 380, 280, EASE_OUT},
-            {37, 64, 720, 360, EASE_IN_OUT}
+            {0, 10, 0, 380, EASE_IN_OUT},
+            {10, 14, 380, 280, EASE_OUT},
+            {14, 24, 720, 360, EASE_IN_OUT}
     };
     private static final float DURATION = PHASES[2][2] + PHASES[2][3];
     private static final Map<Item, Canvas> CANVASES = new HashMap<>();

@@ -10,11 +10,11 @@ def ease_out_cubic(t):
 
 
 # (first strip frame, last strip frame, start ms, duration ms, easing)
-# Strip: 0 unlinked, 1..27 rim fill, 28..37 diagonal wipe, 38..64 rim retract.
+# Strip: 0 unlinked, 1..10 rim fill, 11..14 diagonal wipe, 15..24 rim retract.
 PHASES = [
-    (0, 27, 0, 380, ease_in_out_cubic),
-    (27, 37, 380, 280, ease_out_cubic),
-    (37, 64, 720, 360, ease_in_out_cubic),
+    (0, 10, 0, 380, ease_in_out_cubic),
+    (10, 14, 380, 280, ease_out_cubic),
+    (14, 24, 720, 360, ease_in_out_cubic),
 ]
 DURATION = PHASES[-1][2] + PHASES[-1][3]
 
