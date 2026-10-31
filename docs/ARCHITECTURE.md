@@ -119,7 +119,18 @@ O guard de fluidos começa antes de resolver/consultar a rede e também protege 
 
 Validação da revisão: `build` com Java 21 e 51 testes passaram (21 específicos de Pump/guard), incluindo baldes NeoForge reais, seis tiers, prioridades, quantidades parciais, componentes, reservas e carregamento da classe nativa com Mixin. O JAR atualizado foi gerado em `build/libs`. O cliente que já estava aberto continua com as classes anteriores até reiniciar; os cenários de interação com redes e mundo em [PUMP.md](upgrades/PUMP.md#8-validação-e-aceitação) permanecem pendentes.
 
-Os oito itens usam texturas locais de 16×16 baseadas nos sprites Sophisticated avançados correspondentes. Preservam as silhuetas e os pixels de borda/cantos de cada original; a paleta remota usa verde e roxo no símbolo, amarelo vivo nos cantos preenchidos, branco nos pontos verticais e azul diamante nos horizontais. Todos os modelos apontam para suas texturas próprias. A renderização final dentro do jogo ainda aguarda conferência manual.
+No Forge 1.20.1, os oito itens usam texturas locais de 16×16 baseadas nos sprites Sophisticated avançados correspondentes, com o padrão de borda/cantos e a paleta remota descritos em [P07](UPGRADES.md#P07).
+
+No NeoForge 1.21.1, os oito itens seguem a [linha visual dos upgrades remotos](design/UPGRADE_VISUALS.md). `ClientModEvents` registra cada item em `LinkedUpgradeAppearance`, que define duas propriedades lidas pelas overrides de `models/item/remote_<função>_upgrade.json`:
+
+- `network`: 0 sem vínculo; 1 AE2, 2 Refined Storage, 3 Tom's Simple Storage, 4 SCC. Seleciona `remote_<função>_upgrade_linked_<backend>`.
+- `link_frame`: 1 enquanto a animação toca. Seleciona o modelo `remote_<função>_upgrade_link_canvas`.
+
+`EndpointLinkHandler` grava dentro do vínculo `linked_at` (tick do mundo) e, se o item já estava vinculado, `linked_from` (backend anterior). Durante 1,08 s após `linked_at` (tick do mundo mais o tick parcial), uma linha do tempo com easing escolhe um dos 65 quadros da faixa `textures/link_animation/remote_<função>_upgrade/<anterior>_to_<backend>.png`, onde `<anterior>` é `unlinked` ou um backend. O quadro é enviado com `NativeImage.upload` para a região do sprite canvas no atlas de blocos, só quando muda. As fases são: preenchimento do aro (380 ms, ease-in-out cúbico), escurecimento diagonal (280 ms, ease-out cúbico), pausa de 60 ms e recuo do aro (360 ms, ease-in-out cúbico). Os valores espelham `design/upgrade-refresh/timeline.py`.
+
+As faixas ficam fora dos diretórios do atlas e são lidas sob demanda; o cache é refeito quando o atlas é recarregado. Como a troca passa pelo modelo, a animação aparece em slots, na mão e no mundo, sem mistura entre quadros. Só o nível 0 de mipmap é atualizado: a distância, um item caído pode mostrar o canvas desatualizado durante a animação. Duas pilhas do mesmo upgrade animando ao mesmo tempo compartilham o canvas. Vínculos antigos sem `linked_at` não animam, e o desvínculo pela receita não anima.
+
+`design/upgrade-refresh/export_upgrades.py` gera, a partir de `design/upgrade-refresh/originals/`, os sprites, os modelos e as 160 faixas.
 
 O cliente iniciou com os três backends opcionais carregados e entrou no mundo configurado `New World`. Isso confirma inicialização, registros e aplicação dos Mixins no processo observado; não confirma uso dos upgrades ou cada operação de storage.
 

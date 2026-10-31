@@ -89,7 +89,7 @@ Receita shaped 3×3 compartilhada pelos oito upgrades, com resultado de uma unid
 | Diamante | Upgrade avançado da função | Diamante |
 | Pó de redstone | Vazio | Pó de redstone |
 
-Cada upgrade usa uma textura própria baseada no sprite Sophisticated avançado correspondente, preservando a silhueta e o padrão individual de borda/cantos em 16×16. A paleta remota compartilhada usa verdes (`#37AE6C`, `#1F714B`), roxos (`#422B52`, `#22162D`), amarelo vivo (`#FFD300`) nos cantos preenchidos e pontos de borda brancos (`#FFFFFF`) nas laterais verticais e azul diamante (`#49DDFF`) nas horizontais. Os oito modelos usam as texturas locais correspondentes. Não criar tiers nem variantes por rede. Traduções PT-BR e EN-US devem cobrir nomes, configurações, estados e erros.
+No NeoForge 1.21.1, os oito upgrades seguem a [linha visual dos upgrades remotos](design/UPGRADE_VISUALS.md), aprovada em 2026-10-31: o ícone original de cada upgrade é preservado; moldura de ardósia; um canto por rede (AE2, SCC, TSS, RS); tela verde sem vínculo; tela escura e ícone na cor da rede quando vinculado; animação de vínculo e de troca de rede no slot, na mão e no mundo. O estado visual vem do vínculo, então isso não cria itens nem tiers por rede. No Forge 1.20.1, cada upgrade mantém a textura anterior, baseada no sprite Sophisticated avançado correspondente: silhueta e padrão de borda/cantos preservados em 16×16; paleta remota com verdes (`#37AE6C`, `#1F714B`), roxos (`#422B52`, `#22162D`), amarelo vivo (`#FFD300`) nos cantos, pontos brancos (`#FFFFFF`) nas laterais verticais e azul diamante (`#49DDFF`) nas horizontais. Traduções PT-BR e EN-US devem cobrir nomes, configurações, estados e erros.
 
 <a id="P08"></a>
 ### P08 — Transferência e recuperação

@@ -1,4 +1,38 @@
 {
   "parent": "minecraft:item/handheld",
-  "textures": { "layer0": "sophisticated_backpacks_digital_storages_expansion:item/remote_pickup_upgrade" }
+  "textures": {
+    "layer0": "sophisticated_backpacks_digital_storages_expansion:item/remote_pickup_upgrade"
+  },
+  "overrides": [
+    {
+      "predicate": {
+        "sophisticated_backpacks_digital_storages_expansion:network": 1
+      },
+      "model": "sophisticated_backpacks_digital_storages_expansion:item/remote_pickup_upgrade_linked_ae2"
+    },
+    {
+      "predicate": {
+        "sophisticated_backpacks_digital_storages_expansion:network": 2
+      },
+      "model": "sophisticated_backpacks_digital_storages_expansion:item/remote_pickup_upgrade_linked_refinedstorage"
+    },
+    {
+      "predicate": {
+        "sophisticated_backpacks_digital_storages_expansion:network": 3
+      },
+      "model": "sophisticated_backpacks_digital_storages_expansion:item/remote_pickup_upgrade_linked_toms_storage"
+    },
+    {
+      "predicate": {
+        "sophisticated_backpacks_digital_storages_expansion:network": 4
+      },
+      "model": "sophisticated_backpacks_digital_storages_expansion:item/remote_pickup_upgrade_linked_scc"
+    },
+    {
+      "predicate": {
+        "sophisticated_backpacks_digital_storages_expansion:link_frame": 1
+      },
+      "model": "sophisticated_backpacks_digital_storages_expansion:item/remote_pickup_upgrade_link_canvas"
+    }
+  ]
 }

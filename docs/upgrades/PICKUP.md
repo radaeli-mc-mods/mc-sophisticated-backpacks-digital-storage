@@ -16,6 +16,8 @@ Mochila primeiro mantém o filtro de cada destino, conforme [P05](../UPGRADES.md
 
 **Implementação atual (2026-10-12):** wrapper, filtros, prioridade e serviço de roteamento estão registrados. `PickupContextMixin` usa MixinExtras para delimitar o jogador/evento durante o handler original do Sophisticated; inicialização do cliente passou. Sua textura 16×16 parte do ícone avançado original, incluindo o padrão de cantos e pontos de borda, e usa a paleta remota do Magnet; o modelo aponta para o asset local. Aparência em jogo, coleta, simulação, múltiplas mochilas e sobras ainda precisam de validação manual.
 
+**Linha visual (2026-10-31, P07):** no NeoForge 1.21.1, a textura segue a [linha visual dos upgrades remotos](../design/UPGRADE_VISUALS.md): ícone original preservado, um canto por rede, sprite da rede vinculada e animações de vínculo e de troca de rede. O Forge mantém a textura anterior. Compila; a aparência e a animação em jogo ainda não foram conferidas.
+
 **Verificado:** `IPickupResponseUpgrade.pickup(Level, ItemStack, boolean)` não recebe jogador. `CommonEventHandler.onItemPickup(ItemEntityPickupEvent.Pre)` conhece o jogador e usa simulação antes da execução. `InventoryHelper` tem overloads com/sem jogador, mas o callback do upgrade permanece sem esse argumento.
 
 **Proposto:** contexto transitório de pickup e roteamento compartilhado. Não obter autoridade de um tick anterior ou de GUI previamente aberta.
