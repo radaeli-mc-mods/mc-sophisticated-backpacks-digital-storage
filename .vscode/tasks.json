@@ -54,6 +54,58 @@
       }
     },
     {
+      "label": "Digital Storages Expansion: Verify Forge Production JAR",
+      "type": "process",
+      "command": "powershell.exe",
+      "args": [
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "${workspaceFolder}\\.vscode\\run-gradle.ps1",
+        "--no-daemon",
+        "--no-parallel",
+        ":forge:verifyForgeProductionJar",
+        "--console=plain"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "group": "test",
+      "problemMatcher": "$gradle",
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "clear": true
+      }
+    },
+    {
+      "label": "Digital Storages Expansion: Test Forge Production JAR Verification",
+      "type": "process",
+      "command": "powershell.exe",
+      "args": [
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "${workspaceFolder}\\.vscode\\run-gradle.ps1",
+        "--no-daemon",
+        "--no-parallel",
+        ":forge:testForgeProductionJarVerification",
+        "--console=plain"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "group": "test",
+      "problemMatcher": "$gradle",
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "clear": true
+      }
+    },
+    {
       "label": "Digital Storages Expansion: Build NeoForge",
       "type": "process",
       "command": "powershell.exe",

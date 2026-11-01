@@ -1,0 +1,121 @@
+import groovy.json.JsonOutput
+import groovy.json.JsonSlurper
+import java.util.jar.JarFile
+import java.util.zip.ZipEntry
+import java.util.zip.ZipOutputStream
+
+// Inspect reobfJar's output, not jar's named development artifact in devlibs.
+def productionJar = tasks.named('reobfJar').flatMap { it.archiveFile }
+def mixinConfigName = "${mod_id}.mixins.json".toString()
+def refmapName = "${mod_id}.refmap.json".toString()
+def accessorName = 'com/radaeli/sophisticatedbackpacksdigitalstoragesexpansion/mixin/ItemEntityPickupDelayAccessor'
+
+def verifyProductionJar = { File artifact ->
+    new JarFile(artifact).withCloseable { jar ->
+        def declaredConfigs = jar.manifest?.mainAttributes?.getValue('MixinConfigs')
+                ?.split(',')?.collect { it.trim() } ?: []
+        if (!declaredConfigs.contains(mixinConfigName)) {
+            throw new GradleException("${artifact.name}: manifest does not declare ${mixinConfigName}")
+        }
+        def readJson = { String name ->
+            def entry = jar.getJarEntry(name)
+            if (entry == null) throw new GradleException("${artifact.name}: missing ${name}")
+            jar.getInputStream(entry).withCloseable { stream ->
+                new JsonSlurper().parse(stream, 'UTF-8')
+            }
+        }
+        def config = readJson(mixinConfigName)
+        if (config.refmap != refmapName) {
+            throw new GradleException("${artifact.name}: Mixin config must reference ${refmapName}")
+        }
+        if (!config.mixins?.contains('ItemEntityPickupDelayAccessor') ||
+                jar.getJarEntry("${accessorName}.class") == null) {
+            throw new GradleException("${artifact.name}: pickup delay accessor is missing")
+        }
+        def refmap = readJson(refmapName)
+        // Both the default and Forge's searge context must resolve the int field.
+        if (refmap.mappings?.get(accessorName)?.get('pickupDelay') != 'f_31986_:I' ||
+                refmap.data?.searge?.get(accessorName)?.get('pickupDelay') != 'f_31986_:I') {
+            throw new GradleException("${artifact.name}: pickupDelay must map to f_31986_:I in default and searge contexts")
+        }
+        def embedded = readJson('META-INF/jarjar/metadata.json').jars?.find {
+            it.identifier?.group == 'io.github.llamalad7' && it.identifier?.artifact == 'mixinextras-forge'
+        }
+        if (!embedded?.path || jar.getJarEntry(embedded.path) == null) {
+            throw new GradleException("${artifact.name}: embedded MixinExtras runtime is missing")
+        }
+    }
+}
+
+tasks.register('verifyForgeProductionJar') {
+    group = 'verification'
+    description = 'Checks the Forge production manifest, Mixin refmap and embedded MixinExtras.'
+    dependsOn(tasks.named('reobfJar'))
+    // Optional override lets maintainers audit a previously distributed artifact.
+    def artifact = providers.gradleProperty('forgeProductionJar')
+            .map { rootProject.file(it) }.orElse(productionJar.map { it.asFile })
+    inputs.file(artifact)
+    doLast {
+        verifyProductionJar(artifact.get())
+        logger.lifecycle("Verified Forge production JAR: ${artifact.get().name}")
+    }
+}
+
+tasks.register('testForgeProductionJarVerification') {
+    group = 'verification'
+    description = 'Rejects damaged production JAR fixtures using the production verifier.'
+    dependsOn(tasks.named('reobfJar'))
+    inputs.file(productionJar)
+    doLast {
+        verifyProductionJar(productionJar.get().asFile)
+        def defects = [
+                'missing-reference': [entry: mixinConfigName, message: 'Mixin config must reference',
+                        mutate: { json -> json.remove('refmap') }],
+                'missing-refmap': [entry: refmapName, message: "missing ${refmapName}"],
+                'missing-accessor-mapping': [entry: refmapName, message: 'pickupDelay must map',
+                        mutate: { json -> json.mappings.remove(accessorName); json.data.searge.remove(accessorName) }],
+                'wrong-searge-mapping': [entry: refmapName, message: 'pickupDelay must map',
+                        mutate: { json -> json.data.searge[accessorName].pickupDelay = 'pickupDelay:I' }],
+                'missing-manifest': [entry: 'META-INF/MANIFEST.MF', message: 'manifest does not declare'],
+                'missing-runtime-metadata': [entry: 'META-INF/jarjar/metadata.json',
+                        message: 'missing META-INF/jarjar/metadata.json'],
+                'missing-runtime-declaration': [entry: 'META-INF/jarjar/metadata.json',
+                        message: 'embedded MixinExtras runtime is missing', mutate: { json -> json.jars = [] }]
+        ]
+        defects.each { name, defect ->
+            def fixture = new File(temporaryDir, "${name}.jar")
+            new JarFile(productionJar.get().asFile).withCloseable { source ->
+                new ZipOutputStream(new FileOutputStream(fixture)).withCloseable { output ->
+                    source.entries().each { entry ->
+                        if (entry.name != defect.entry || defect.mutate != null) {
+                            output.putNextEntry(new ZipEntry(entry.name))
+                            source.getInputStream(entry).withCloseable { stream ->
+                                if (entry.name == defect.entry) {
+                                    def json = new JsonSlurper().parse(stream, 'UTF-8')
+                                    defect.mutate(json)
+                                    output.write(JsonOutput.toJson(json).getBytes('UTF-8'))
+                                } else {
+                                    stream.transferTo(output)
+                                }
+                            }
+                            output.closeEntry()
+                        }
+                    }
+                }
+            }
+            try {
+                verifyProductionJar(fixture)
+            } catch (GradleException expected) {
+                if (!expected.message.contains(defect.message)) throw expected
+                logger.lifecycle("Rejected production JAR fixture: ${name}")
+                return
+            }
+            throw new GradleException("Production verifier accepted invalid fixture: ${name}")
+        }
+    }
+}
+
+tasks.named('check') {
+    dependsOn(tasks.named('verifyForgeProductionJar'))
+    dependsOn(tasks.named('testForgeProductionJarVerification'))
+}

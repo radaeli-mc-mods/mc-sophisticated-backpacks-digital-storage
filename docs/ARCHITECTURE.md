@@ -12,6 +12,8 @@ Cada função tem seu próprio item universal, configurado manualmente para um e
 
 ## Estrutura multiloader
 
+No Forge, a configuração Mixin declara explicitamente o refmap gerado para resolver o accessor de `ItemEntity.pickupDelay` em produção (`f_31986_:I`). MixinExtras Forge 0.4.1 acompanha o JAR por Jar-in-Jar para o `PickupContextMixin`, sem depender de outro mod que forneça a biblioteca. O gate `verifyForgeProductionJar` inspeciona o artefato de `reobfJar`; `testForgeProductionJarVerification` exercita arquivos danificados com o mesmo verificador. Esses gates pertencem a `check` e não substituem gameplay, conforme P01/P12 e [MULTILOADER.md](MULTILOADER.md).
+
 O build usa `common`, `neoforge` e `forge`. `common` tem Java 17 sem dependências de Minecraft e suas fontes são incorporadas nos dois artefatos. O código com tipos Minecraft é compilado separadamente no loader correspondente; não existe binário de Minecraft compartilhado entre 1.20.1 e 1.21.1. O estado e os limites de validação do Forge estão em [MULTILOADER.md](MULTILOADER.md).
 
 ## Responsabilidades

@@ -24,6 +24,8 @@ Mochila primeiro mantém o filtro de cada destino, conforme [P05](../UPGRADES.md
 
 ## 4. Implementação
 
+**Gate Forge de empacotamento (P01/P12):** preservar `@Accessor("pickupDelay")` remapeável e declarar o refmap no JSON Mixin. O JAR final precisa conter `pickupDelay → f_31986_:I` nos contextos padrão e `searge`. `verifyForgeProductionJar` confere essa relação após `reobfJar`, e fixtures negativas impedem regressões. Isso não altera elegibilidade: `32767` bloqueia a coleta; delay finito mantém a regra nativa. Ver [validação multiloader](../MULTILOADER.md).
+
 - Item/wrapper: implementar `ITickableUpgrade`, filtros avançados, prioridade e estado de cooldown por wrapper. Não implementar um segundo caminho de coleta normal via `IPickupResponseUpgrade`.
 - Serviço: buscar `ItemEntity` na região nativa de atração; ordenar candidatos por distância e ID de entidade para processamento estável.
 - Elegibilidade: respeitar entidade viva, stack presente, delay infinito (`32767`) e impedimentos de magnetismo nativos. Aplicar `PreventRemoteMovement` no contexto carregado; no contexto colocado, respeitar a exceção Sophisticated `AllowMachineRemoteMovement`. Igualar o comportamento Sophisticated para drops com delay finito ou dono diferente; não contornar proteção de outro mod.
