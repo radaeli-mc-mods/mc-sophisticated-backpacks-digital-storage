@@ -16,11 +16,15 @@ Mochila primeiro mantém o filtro de cada destino, conforme [P05](../UPGRADES.md
 
 **Implementação atual (2026-10-15):** Forge e NeoForge Magnet reutilizam a faixa do item avançado nativo, bloqueadores do Sophisticated via accessor e transferência parcial com atualização do drop. No callback carregado usam o portador; para mochila colocada procuram o jogador real elegível mais próximo dentro de três blocos, validam interação com o bloco e usam a posição da mochila como origem de alcance remoto. A elegibilidade segue o nativo: impede somente o pickup delay infinito (`32767`) e os bloqueadores registrados. `PreventRemoteMovement` bloqueia o Magnet carregado; para mochila colocada, o bloqueio é suspenso quando o drop também tem `AllowMachineRemoteMovement`. Delay finito e dono diferente não bloqueiam a coleta. Os três estados do filtro usam ícones de lista permitida, bloqueada e mochila do atlas Sophisticated. A aparência do item e a coexistência com Pickup ainda aguardam validação em mundo.
 
+**Linha visual (2026-10-31, P07):** a textura segue a [linha visual dos upgrades remotos](../design/UPGRADE_VISUALS.md): ícone original preservado, um canto por rede, sprite da rede vinculada e animações de vínculo e de troca de rede. Vale para NeoForge 1.21.1 e Forge 1.20.1. Compila nos dois loaders; a aparência e a animação em jogo no Forge ainda não foram conferidas.
+
 **Verificado:** Core fornece `ITickableUpgrade`, `ContentsFilterLogic`, `MagnetUpgradeConfig.magnetRange` e `IMagnetPreventionChecker.isBlocked(Entity)`. O wrapper nativo registra checkers por `addMagnetPreventionChecker`; seu conjunto e rotinas de seleção são privados.
 
 **Proposto:** serviço de varredura usando o roteamento do [Pickup](PICKUP.md), consulta ao registro real de bloqueadores por accessor localizado e contexto de tick validado. Não copiar esse registro em cache permanente.
 
 ## 4. Implementação
+
+**Gate Forge de empacotamento (P01/P12):** preservar `@Accessor("pickupDelay")` remapeável e declarar o refmap no JSON Mixin. O JAR final precisa conter `pickupDelay → f_31986_:I` nos contextos padrão e `searge`. `verifyForgeProductionJar` confere essa relação após `reobfJar`, e fixtures negativas impedem regressões. Isso não altera elegibilidade: `32767` bloqueia a coleta; delay finito mantém a regra nativa. Ver [validação multiloader](../MULTILOADER.md).
 
 - Item/wrapper: implementar `ITickableUpgrade`, filtros avançados, prioridade e estado de cooldown por wrapper. Não implementar um segundo caminho de coleta normal via `IPickupResponseUpgrade`.
 - Serviço: buscar `ItemEntity` na região nativa de atração; ordenar candidatos por distância e ID de entidade para processamento estável.

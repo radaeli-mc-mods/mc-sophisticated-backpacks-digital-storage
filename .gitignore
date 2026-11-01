@@ -8,3 +8,4 @@ libs/forge/*.jar
 out/
 .gradle*/
 **/logs/
+design

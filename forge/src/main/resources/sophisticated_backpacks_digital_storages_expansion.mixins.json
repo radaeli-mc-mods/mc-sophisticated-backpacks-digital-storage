@@ -3,6 +3,7 @@
   "minVersion": "0.8",
   "package": "com.radaeli.sophisticatedbackpacksdigitalstoragesexpansion.mixin",
   "compatibilityLevel": "JAVA_17",
+  "refmap": "sophisticated_backpacks_digital_storages_expansion.refmap.json",
   "mixins": [
     "PickupContextMixin",
     "MagnetUpgradeWrapperAccessor",

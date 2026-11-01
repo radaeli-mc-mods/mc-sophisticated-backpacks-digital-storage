@@ -31,6 +31,8 @@ Aplicar [P02 — vínculo e receita compartilhada de desvínculo](../UPGRADES.md
 
 **Seletor de filtros (2026-10-30, P05/P06/P11):** Forge e NeoForge expõem `MatchButton.ALLOW_LIST` no próprio `FilterLogicControl`, com sprites, estados, tooltips e pacote nativos de lista permitida/bloqueada. Lista permitida aceita somente alimentos que correspondam aos filtros; lista bloqueada exclui os correspondentes. O modo salvo é preservado, inclusive ao copiar/reinstalar o upgrade. O container consulta o wrapper atual após sincronização, e fome/ferimento/prioridade/vínculo ficam abaixo da altura real do controle, acomodando a nova linha sem sobreposição. O botão compartilhado de prioridade atualiza o estado local antes de enviar o valor capturado ao servidor, conforme [P05](../UPGRADES.md#P05). Validação visual e alimentação em jogo continuam pendentes (P12).
 
+**Linha visual (2026-10-31, P07):** o Feeding foi o piloto. A textura segue a [linha visual dos upgrades remotos](../design/UPGRADE_VISUALS.md): ícone original preservado, um canto por rede, sprite da rede vinculada e animações de vínculo e de troca de rede. Vale para NeoForge 1.21.1 e Forge 1.20.1. Compila nos dois loaders; a aparência e a animação em jogo no Forge ainda não foram conferidas.
+
 ## 5. Fluxo operacional
 
 1. No tick elegível, validar portador, habilitação e cooldown; resolver pendências anteriores.

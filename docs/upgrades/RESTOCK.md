@@ -14,6 +14,8 @@ Usar filtros avançados de permissão, bloqueio e conteúdo da mochila. O modo p
 
 **Implementação atual (2026-10-12):** serviço de extração, limites de capacidade, recuperação, prioridade fixa rede→mochila, aba manual e receita foram registrados. A UI/serviço reaproveitam `DepositFilterLogic` em modo `INVENTORY` para snapshot do conteúdo, em vez de `ContentsFilterLogic` da especificação inicial. Sua textura 16×16 parte do ícone avançado original, incluindo o padrão de cantos e pontos de borda, e usa a paleta remota do Magnet; o modelo aponta para o asset local. Build e início do cliente passaram; aparência em jogo, filtros e transferências continuam sem prova manual.
 
+**Linha visual (2026-10-31, P07):** a textura segue a [linha visual dos upgrades remotos](../design/UPGRADE_VISUALS.md): ícone original preservado, um canto por rede, sprite da rede vinculada e animações de vínculo e de troca de rede. Vale para NeoForge 1.21.1 e Forge 1.20.1. Compila nos dois loaders; a aparência e a animação em jogo no Forge ainda não foram conferidas.
+
 **Verificado:** Restock nativo usa `ContentsFilterLogic`; seu wrapper expõe `restockFromHandler(IItemHandler)` e `onHandlerInteract`. Essas APIs recebem inventário real, não um snapshot de rede. A base atual só insere na rede e o snapshot existente guarda identidades, não quantidades.
 
 **Proposto:** consulta com contagens, `ItemExtraction`, autorização de extração, motor de rede → inventário e guard externo de saída. Restock é a primeira função consumidora desses contratos, definidos no [plano principal](../UPGRADES.md).

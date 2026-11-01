@@ -60,6 +60,14 @@ dependencies {
     modCompileOnly 'io.github.llamalad7:mixinextras-forge:0.4.1'
     compileOnly 'io.github.llamalad7:mixinextras-common:0.4.1'
     modRuntimeOnly 'io.github.llamalad7:mixinextras-forge:0.4.1'
+    // PickupContextMixin needs MixinExtras in production, including minimal packs.
+    jarJar('io.github.llamalad7:mixinextras-forge') {
+        version {
+            strictly '[0.4.1,)'
+            prefer '0.4.1'
+        }
+        transitive = false
+    }
     compileOnly 'org.appliedenergistics:guideme:20.1.7:api'
     testImplementation 'org.junit.jupiter:junit-jupiter:5.11.4'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
@@ -248,4 +256,6 @@ tasks.named('check') {
     dependsOn(tasks.named('verifyForgeResources'))
     dependsOn(tasks.named('runGameTestServer'))
 }
+
+apply from: rootProject.file('gradle/verify-forge-production-jar.gradle')
 

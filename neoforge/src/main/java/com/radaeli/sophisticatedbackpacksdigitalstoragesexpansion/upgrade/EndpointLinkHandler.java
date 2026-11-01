@@ -41,7 +41,9 @@ public final class EndpointLinkHandler {
             player.displayClientMessage(Component.translatable(connection.status().messageKey()), true);
             return;
         }
+        var previous = EndpointBinding.read(held).map(StorageEndpoint::backendId);
         EndpointBinding.write(held, endpoint);
+        EndpointBinding.markLinked(held, event.getLevel().getGameTime(), previous);
         player.displayClientMessage(Component.translatable("message.sophisticated_backpacks_digital_storages_expansion.linked"), true);
     }
 }
