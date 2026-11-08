@@ -1,0 +1,59 @@
+{
+  "$schema": "https://raw.githubusercontent.com/radaeli-mc-mods/mc-ci/main/schemas/mod-pipeline.schema.json",
+  "displayName": "Sophisticated Backpacks: Digital Storage Expansion (AE2, RS, SCC)",
+  "java": [
+    17,
+    21
+  ],
+  "checks": [
+    ":common:check",
+    ":forge:check",
+    ":neoforge:test"
+  ],
+  "curseforge": {
+    "projectId": "1742266",
+    "releaseType": "auto"
+  },
+  "targets": [
+    {
+      "id": "forge-1.20.1",
+      "task": ":forge:build",
+      "files": [
+        "forge/build/libs/sophisticated_backpacks_digital_storages_expansion-forge-*.jar"
+      ],
+      "loaders": [
+        "forge"
+      ],
+      "gameVersions": [
+        "1.20.1"
+      ],
+      "java": 17,
+      "dependencies": [
+        "sophisticated-backpacks(required)",
+        "applied-energistics-2(optional)",
+        "refined-storage(optional)",
+        "toms-storage(optional)"
+      ]
+    },
+    {
+      "id": "neoforge-1.21.1",
+      "task": ":neoforge:build",
+      "files": [
+        "neoforge/build/libs/sophisticated_backpacks_digital_storages_expansion-neoforge-*.jar"
+      ],
+      "loaders": [
+        "neoforge"
+      ],
+      "gameVersions": [
+        "1.21.1"
+      ],
+      "java": 21,
+      "dependencies": [
+        "sophisticated-backpacks(required)",
+        "applied-energistics-2(optional)",
+        "refined-storage(optional)",
+        "toms-storage(optional)"
+      ]
+    }
+  ]
+}
