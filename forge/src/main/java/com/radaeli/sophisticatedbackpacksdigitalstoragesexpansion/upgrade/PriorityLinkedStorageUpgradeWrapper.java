@@ -17,6 +17,10 @@ public abstract class PriorityLinkedStorageUpgradeWrapper<W extends PriorityLink
     }
 
     public final SourcePriority getSourcePriority() {
+        return readSourcePriority(upgrade);
+    }
+
+    static SourcePriority readSourcePriority(ItemStack upgrade) {
         CompoundTag data = upgrade.getTag();
         if (data == null) {
             return SourcePriority.NETWORK_FIRST;
@@ -28,8 +32,12 @@ public abstract class PriorityLinkedStorageUpgradeWrapper<W extends PriorityLink
     }
 
     public final void setSourcePriority(SourcePriority priority) {
-        upgrade.getOrCreateTag().putString(SOURCE_PRIORITY, priority.getSerializedName());
+        writeSourcePriority(upgrade, priority);
         save();
+    }
+
+    static void writeSourcePriority(ItemStack upgrade, SourcePriority priority) {
+        upgrade.getOrCreateTag().putString(SOURCE_PRIORITY, priority.getSerializedName());
     }
 
     protected final CompoundTag copyUpgradeData() {

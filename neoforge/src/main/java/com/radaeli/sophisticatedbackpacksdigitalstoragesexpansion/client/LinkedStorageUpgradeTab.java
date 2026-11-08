@@ -1,6 +1,7 @@
 package com.radaeli.sophisticatedbackpacksdigitalstoragesexpansion.client;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Supplier;
 
 import net.minecraft.client.Minecraft;
@@ -15,6 +16,7 @@ import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.Dimension;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.Position;
 
 import com.radaeli.sophisticatedbackpacksdigitalstoragesexpansion.storage.StorageText;
+import com.radaeli.sophisticatedbackpacksdigitalstoragesexpansion.storage.StorageEndpoint;
 import com.radaeli.sophisticatedbackpacksdigitalstoragesexpansion.upgrade.LinkedStorageUpgradeContainer;
 
 /** Shared connection controls; each upgrade chooses its own filter and action layout. */
@@ -25,12 +27,16 @@ public abstract class LinkedStorageUpgradeTab<C extends LinkedStorageUpgradeCont
     }
 
     protected final void addConnectionStatus(int offsetX, int offsetY) {
-        addHideableChild(new ConnectionLabel(new Position(x + offsetX, y + offsetY), () -> getContainer().getEndpoint()
+        addHideableChild(connectionLabel(new Position(x + offsetX, y + offsetY), getContainer()::getEndpoint));
+    }
+
+    static WidgetBase connectionLabel(Position position, Supplier<Optional<StorageEndpoint>> endpoint) {
+        return new ConnectionLabel(position, () -> endpoint.get()
                 .map(StorageText::summary)
                 .orElseGet(() -> Component.translatable("gui.sophisticated_backpacks_digital_storages_expansion.not_linked")),
-                () -> getContainer().getEndpoint()
-                        .map(endpoint -> StorageText.endpoint("gui.sophisticated_backpacks_digital_storages_expansion.endpoint", endpoint))
-                        .orElseGet(() -> Component.translatable("item.sophisticated_backpacks_digital_storages_expansion.linked_upgrade.hint"))));
+                () -> endpoint.get()
+                        .map(value -> StorageText.endpoint("gui.sophisticated_backpacks_digital_storages_expansion.endpoint", value))
+                        .orElseGet(() -> Component.translatable("item.sophisticated_backpacks_digital_storages_expansion.linked_upgrade.hint")));
     }
 
     private static final class ConnectionLabel extends WidgetBase {

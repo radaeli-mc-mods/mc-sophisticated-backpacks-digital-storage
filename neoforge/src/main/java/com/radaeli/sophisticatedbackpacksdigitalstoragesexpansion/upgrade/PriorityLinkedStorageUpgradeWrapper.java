@@ -19,6 +19,10 @@ public abstract class PriorityLinkedStorageUpgradeWrapper<W extends PriorityLink
     }
 
     public final SourcePriority getSourcePriority() {
+        return readSourcePriority(upgrade);
+    }
+
+    static SourcePriority readSourcePriority(ItemStack upgrade) {
         CustomData data = upgrade.get(DataComponents.CUSTOM_DATA);
         if (data == null) {
             return SourcePriority.NETWORK_FIRST;
@@ -30,9 +34,13 @@ public abstract class PriorityLinkedStorageUpgradeWrapper<W extends PriorityLink
     }
 
     public final void setSourcePriority(SourcePriority priority) {
+        writeSourcePriority(upgrade, priority);
+        save();
+    }
+
+    static void writeSourcePriority(ItemStack upgrade, SourcePriority priority) {
         CustomData.update(DataComponents.CUSTOM_DATA, upgrade,
                 tag -> tag.putString(SOURCE_PRIORITY, priority.getSerializedName()));
-        save();
     }
 
     protected final CompoundTag copyUpgradeData() {

@@ -33,9 +33,14 @@ final class UpgradeItemSources {
 
     static List<SourceItem> find(PriorityLinkedStorageUpgradeWrapper<?, ?> wrapper, ServerPlayer player,
             SourcePriority priority, Predicate<ItemStack> eligible, Optional<net.minecraft.world.item.Item> knownItem, int needed) {
+        return find(wrapper, player, SourceLocation.carriedBy(player), priority, eligible, knownItem, needed);
+    }
+
+    static List<SourceItem> find(LinkedUpgradeInventory wrapper, ServerPlayer player, SourceLocation location,
+            SourcePriority priority, Predicate<ItemStack> eligible, Optional<net.minecraft.world.item.Item> knownItem, int needed) {
         List<SourceItem> network = new ArrayList<>();
         try (StorageTransferGuard guard = StorageTransferGuard.blockExternalExtraction(wrapper.getStorageWrapper())) {
-            resolveExtractTarget(wrapper, player).ifPresent(target -> {
+            resolveExtractTarget(wrapper, player, location).ifPresent(target -> {
                 for (StoredItemAmount amount : target.queryItems(player, eligible, knownItem, needed)) {
                     ItemStack exemplar = amount.exemplar();
                     if (!exemplar.isEmpty() && amount.amount() > 0 && eligible.test(exemplar)) {
@@ -69,6 +74,11 @@ final class UpgradeItemSources {
 
     static ItemStack extract(PriorityLinkedStorageUpgradeWrapper<?, ?> wrapper, ServerPlayer player,
             SourceItem source, int amount) {
+        return extract(wrapper, player, SourceLocation.carriedBy(player), source, amount);
+    }
+
+    static ItemStack extract(LinkedUpgradeInventory wrapper, ServerPlayer player, SourceLocation location,
+            SourceItem source, int amount) {
         if (amount <= 0) {
             return ItemStack.EMPTY;
         }
@@ -90,7 +100,7 @@ final class UpgradeItemSources {
             }
             ItemStack extracted = source.target().extract(source.stack(), Math.min(available, requested), player);
             if (!extracted.isEmpty() && !ItemStack.isSameItemSameComponents(source.stack(), extracted)) {
-                ItemStack remainder = returnToSource(wrapper, player, source, extracted);
+                ItemStack remainder = returnToSource(wrapper, player, location, source, extracted);
                 if (!remainder.isEmpty()) recover(wrapper, player, remainder);
                 return ItemStack.EMPTY;
             }
@@ -100,16 +110,21 @@ final class UpgradeItemSources {
 
     static ItemStack returnToSource(PriorityLinkedStorageUpgradeWrapper<?, ?> wrapper, ServerPlayer player,
             SourceItem source, ItemStack stack) {
+        return returnToSource(wrapper, player, SourceLocation.carriedBy(player), source, stack);
+    }
+
+    static ItemStack returnToSource(LinkedUpgradeInventory wrapper, ServerPlayer player, SourceLocation location,
+            SourceItem source, ItemStack stack) {
         if (stack.isEmpty()) {
             return ItemStack.EMPTY;
         }
         if (source.target() == null) {
             return wrapper.getStorageWrapper().getInventoryForUpgradeProcessing().insertItem(stack, false);
         }
-        return returnToLinkedNetwork(wrapper, player, stack);
+        return returnToLinkedNetwork(wrapper, player, location, stack);
     }
 
-    static ItemStack recover(PriorityLinkedStorageUpgradeWrapper<?, ?> wrapper, ServerPlayer player, ItemStack stack) {
+    static ItemStack recover(LinkedUpgradeInventory wrapper, ServerPlayer player, ItemStack stack) {
         if (stack.isEmpty()) {
             return ItemStack.EMPTY;
         }
@@ -122,23 +137,28 @@ final class UpgradeItemSources {
 
     static ItemStack returnToLinkedNetwork(PriorityLinkedStorageUpgradeWrapper<?, ?> wrapper, ServerPlayer player,
             ItemStack stack) {
+        return returnToLinkedNetwork(wrapper, player, SourceLocation.carriedBy(player), stack);
+    }
+
+    private static ItemStack returnToLinkedNetwork(LinkedUpgradeInventory wrapper, ServerPlayer player,
+            SourceLocation location, ItemStack stack) {
         if (stack.isEmpty()) {
             return ItemStack.EMPTY;
         }
         try (StorageTransferGuard ignored = StorageTransferGuard.blockExternalInsertion(wrapper.getStorageWrapper())) {
-            return resolveInsertTarget(wrapper, player).map(target -> target.insert(stack, player)).orElse(stack);
+            return resolveInsertTarget(wrapper, player, location).map(target -> target.insert(stack, player)).orElse(stack);
         }
     }
 
-    private static Optional<StorageTarget> resolveExtractTarget(PriorityLinkedStorageUpgradeWrapper<?, ?> wrapper,
-            ServerPlayer player) {
-        return StorageAdapterRegistry.connect(player, wrapper.getEndpoint(), SourceLocation.carriedBy(player),
+    private static Optional<StorageTarget> resolveExtractTarget(LinkedUpgradeInventory wrapper,
+            ServerPlayer player, SourceLocation location) {
+        return StorageAdapterRegistry.connect(player, wrapper.getEndpoint(), location,
                 StorageOperation.EXTRACT).target();
     }
 
-    private static Optional<StorageTarget> resolveInsertTarget(PriorityLinkedStorageUpgradeWrapper<?, ?> wrapper,
-            ServerPlayer player) {
-        return StorageAdapterRegistry.connect(player, wrapper.getEndpoint(), SourceLocation.carriedBy(player),
+    private static Optional<StorageTarget> resolveInsertTarget(LinkedUpgradeInventory wrapper,
+            ServerPlayer player, SourceLocation location) {
+        return StorageAdapterRegistry.connect(player, wrapper.getEndpoint(), location,
                 StorageOperation.INSERT).target();
     }
 

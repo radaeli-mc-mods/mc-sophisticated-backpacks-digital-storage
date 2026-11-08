@@ -14,7 +14,7 @@ import com.radaeli.sophisticatedbackpacksdigitalstoragesexpansion.storage.Endpoi
 import com.radaeli.sophisticatedbackpacksdigitalstoragesexpansion.storage.StorageEndpoint;
 
 public abstract class LinkedStorageUpgradeWrapper<W extends IUpgradeWrapper, T extends LinkedStorageUpgradeItem<W>>
-        extends UpgradeWrapperBase<W, T> implements IIOFilterUpgrade {
+        extends UpgradeWrapperBase<W, T> implements IIOFilterUpgrade, LinkedUpgradeInventory {
     private final FilterLogic externalInputFilter;
     private final FilterLogic externalOutputFilter;
 

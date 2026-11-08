@@ -136,11 +136,12 @@ def sharedResources = tasks.register('prepareSharedForgeResources', Sync) {
             if (details.path.contains('/tags/item/')) {
                 details.path = details.path.replace('/tags/item/', '/tags/items/')
             }
+            details.path = details.path.replace('/recipe/', '/recipes/').replace('/advancement/', '/advancements/')
         }
     }
     into(layout.buildDirectory.dir('generated/sharedResources'))
     doLast {
-        def recipes = fileTree(destinationDir).matching { include('data/**/recipe/*.json') }
+        def recipes = fileTree(destinationDir).matching { include('data/**/recipes/*.json') }
         recipes.each { recipeFile ->
             def recipe = new groovy.json.JsonSlurper().parse(recipeFile)
             if (recipe.result instanceof Map && recipe.result.containsKey('id')) {
@@ -189,6 +190,11 @@ tasks.named('jar', Jar).configure {
 
 processResources {
     dependsOn(sharedResources)
+    def obsoleteRecipeDir = layout.buildDirectory.dir("resources/main/data/${mod_id}/recipe")
+    outputs.upToDateWhen { fileTree(obsoleteRecipeDir).matching { include '**/*.json' }.isEmpty() }
+    doFirst {
+        delete(obsoleteRecipeDir)
+    }
     def properties = [
         version: "${mod_version}+${forge_minecraft_version}",
         mod_id: mod_id,
@@ -219,10 +225,10 @@ tasks.register('verifyForgeResources') {
     dependsOn(tasks.named('processResources'))
     doLast {
         def resources = layout.buildDirectory.dir('resources/main').get().asFile
-        def recipeDir = new File(resources, "data/${mod_id}/recipe")
+        def recipeDir = new File(resources, "data/${mod_id}/recipes")
         ['remote_deposit_upgrade', 'remote_restock_upgrade', 'remote_pickup_upgrade',
          'remote_magnet_upgrade', 'remote_refill_upgrade', 'remote_feeding_upgrade',
-         'remote_alchemy_upgrade', 'remote_pump_upgrade'].each { recipeName ->
+         'remote_alchemy_upgrade', 'remote_pump_upgrade', 'remote_crafting_upgrade'].each { recipeName ->
             def recipeFile = new File(recipeDir, "${recipeName}.json")
             if (!recipeFile.isFile()) {
                 throw new GradleException("Missing Forge recipe: ${recipeFile}")
@@ -231,6 +237,12 @@ tasks.register('verifyForgeResources') {
             if (!(recipe.result instanceof Map) || !recipe.result.item || recipe.result.id) {
                 throw new GradleException("Recipe ${recipeName} does not use the Forge 1.20 result format")
             }
+        }
+        if (!new File(recipeDir, 'unlink_upgrade.json').isFile()) {
+            throw new GradleException('Missing Forge unlink recipe')
+        }
+        if (!fileTree(new File(resources, "data/${mod_id}/recipe")).matching { include '**/*.json' }.isEmpty()) {
+            throw new GradleException('Forge 1.20.1 recipes must use recipes/')
         }
         def pack = new groovy.json.JsonSlurper().parse(new File(resources, 'pack.mcmeta'))
         if (pack.pack.pack_format != 15) {

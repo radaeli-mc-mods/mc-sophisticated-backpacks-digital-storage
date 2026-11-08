@@ -4,7 +4,7 @@
 
 <p align="center" style="background-color: #F4ECD0; text-align: center;"><img src="https://raw.githubusercontent.com/radaelilucca/mc-sophisticated-backpacks-digital-storage/main/docs/gallery/section-titles/what_it_is.png" alt="WHAT IT IS?" width="267"></p>
 
-Your backpack can do more than carry supplies. **Digital Storage Expansion** adds eight upgrades that connect Sophisticated Backpacks to digital storage networks, so you can send items away, restock, and use network supplies while you play.
+Your backpack can do more than carry supplies. **Digital Storage Expansion** adds nine upgrades that connect Sophisticated Backpacks to digital storage networks, so you can send items away, restock, and craft with network supplies while you play.
 
 Each upgrade links to one network endpoint and follows that network's access and range rules. The addon adds item and fluid transfers; it does not add a storage network of its own.
 
@@ -12,70 +12,17 @@ Each upgrade links to one network endpoint and follows that network's access and
 
 <p align="center" style="background-color: #F4ECD0; text-align: center;"><img src="https://raw.githubusercontent.com/radaelilucca/mc-sophisticated-backpacks-digital-storage/main/docs/gallery/section-titles/what_can_it_do.png" alt="WHAT CAN IT DO?" width="375"></p>
 
-<p align="center" style="text-align: center;"><img src="https://raw.githubusercontent.com/radaelilucca/mc-sophisticated-backpacks-digital-storage/main/docs/gallery/upgrades/remote_deposit_upgrade.png" alt="Remote Deposit Upgrade" width="64"></p>
-
-### Remote Deposit
-
-**Clear space after a mining trip with a button in your backpack.** Matching items go into the linked network.
-
-- Use filters to choose what can leave the backpack.
-
-<p align="center" style="text-align: center;"><img src="https://raw.githubusercontent.com/radaelilucca/mc-sophisticated-backpacks-digital-storage/main/docs/gallery/upgrades/remote_restock_upgrade.png" alt="Remote Restock Upgrade" width="64"></p>
-
-### Remote Restock
-
-**Bring supplies from the linked network into your backpack with a button.**
-
-- Use filters to choose which items to retrieve.
-
-<p align="center" style="text-align: center;"><img src="https://raw.githubusercontent.com/radaelilucca/mc-sophisticated-backpacks-digital-storage/main/docs/gallery/upgrades/remote_pickup_upgrade.png" alt="Remote Pickup Upgrade" width="64"></p>
-
-### Remote Pickup
-
-**Send matching items to the network as you pick them up.**
-
-- Choose whether the network or backpack receives them first.
-
-<p align="center" style="text-align: center;"><img src="https://raw.githubusercontent.com/radaelilucca/mc-sophisticated-backpacks-digital-storage/main/docs/gallery/upgrades/remote_magnet_upgrade.png" alt="Remote Magnet Upgrade" width="64"></p>
-
-### Remote Magnet
-
-**Gather nearby item drops and send them to the network or backpack.**
-
-- Use filters to choose what to collect and set which destination gets priority.
-
-<p align="center" style="text-align: center;"><img src="https://raw.githubusercontent.com/radaelilucca/mc-sophisticated-backpacks-digital-storage/main/docs/gallery/upgrades/remote_refill_upgrade.png" alt="Remote Refill Upgrade" width="64"></p>
-
-### Remote Refill
-
-**Keep selected inventory slots stocked while you build or explore.**
-
-- It replenishes them from the linked network or backpack, using your preferred source first.
-
-<p align="center" style="text-align: center;"><img src="https://raw.githubusercontent.com/radaelilucca/mc-sophisticated-backpacks-digital-storage/main/docs/gallery/upgrades/remote_feeding_upgrade.png" alt="Remote Feeding Upgrade" width="64"></p>
-
-### Remote Feeding
-
-**Keep food ready without filling your inventory with meals.**
-
-- It feeds you from the network or backpack when hungry, follows your food filters, and can be set to eat when you are hurt.
-
-<p align="center" style="text-align: center;"><img src="https://raw.githubusercontent.com/radaelilucca/mc-sophisticated-backpacks-digital-storage/main/docs/gallery/upgrades/remote_alchemy_upgrade.png" alt="Remote Alchemy Upgrade" width="64"></p>
-
-### Remote Alchemy
-
-**Use configured consumables automatically when your chosen conditions are met.**
-
-- Choose what to use and whether to take it from the network or backpack first.
-
-<p align="center" style="text-align: center;"><img src="https://raw.githubusercontent.com/radaelilucca/mc-sophisticated-backpacks-digital-storage/main/docs/gallery/upgrades/remote_pump_upgrade.png" alt="Remote Pump Upgrade" width="64"></p>
-
-### Remote Pump
-
-**Move filtered fluids between containers, nearby tanks or world fluids and your linked network or backpack tank.**
-
-- Choose the transfer direction and which storage to use first.
-- Supports fluid transfers with **Applied Energistics 2**, **Refined Storage**, and **Super Cool Calculator**. Tom's Simple Storage is item-only.
+| Icon | Upgrade | What it does |
+| --- | --- | --- |
+| <img src="https://raw.githubusercontent.com/radaelilucca/mc-sophisticated-backpacks-digital-storage/main/docs/gallery/upgrades/remote_deposit_upgrade.png" alt="Remote Deposit" width="48"> | **Remote Deposit** | Send matching items from your backpack to the linked network with a button. Use filters to choose what can leave the backpack. |
+| <img src="https://raw.githubusercontent.com/radaelilucca/mc-sophisticated-backpacks-digital-storage/main/docs/gallery/upgrades/remote_restock_upgrade.png" alt="Remote Restock" width="48"> | **Remote Restock** | Bring supplies from the linked network into your backpack with a button. Use filters to choose which items to retrieve. |
+| <img src="https://raw.githubusercontent.com/radaelilucca/mc-sophisticated-backpacks-digital-storage/main/docs/gallery/upgrades/remote_pickup_upgrade.png" alt="Remote Pickup" width="48"> | **Remote Pickup** | Send matching items to the network as you pick them up. Choose whether the network or backpack receives them first. |
+| <img src="https://raw.githubusercontent.com/radaelilucca/mc-sophisticated-backpacks-digital-storage/main/docs/gallery/upgrades/remote_magnet_upgrade.png" alt="Remote Magnet" width="48"> | **Remote Magnet** | Gather nearby item drops and send them to the network or backpack. Use filters to choose what to collect and set which destination gets priority. |
+| <img src="https://raw.githubusercontent.com/radaelilucca/mc-sophisticated-backpacks-digital-storage/main/docs/gallery/upgrades/remote_refill_upgrade.png" alt="Remote Refill" width="48"> | **Remote Refill** | Keep selected inventory slots stocked while you build or explore. It replenishes them from the linked network or backpack, using your preferred source first. |
+| <img src="https://raw.githubusercontent.com/radaelilucca/mc-sophisticated-backpacks-digital-storage/main/docs/gallery/upgrades/remote_feeding_upgrade.png" alt="Remote Feeding" width="48"> | **Remote Feeding** | Keep food ready without filling your inventory with meals. It feeds you from the network or backpack when hungry, follows your food filters, and can be set to eat when you are hurt. |
+| <img src="https://raw.githubusercontent.com/radaelilucca/mc-sophisticated-backpacks-digital-storage/main/docs/gallery/upgrades/remote_alchemy_upgrade.png" alt="Remote Alchemy" width="48"> | **Remote Alchemy** | Use configured consumables automatically when your chosen conditions are met. Choose what to use and whether to take it from the network or backpack first. |
+| <img src="https://raw.githubusercontent.com/radaelilucca/mc-sophisticated-backpacks-digital-storage/main/docs/gallery/upgrades/remote_pump_upgrade.png" alt="Remote Pump" width="48"> | **Remote Pump** | Move filtered fluids between containers, nearby tanks or world fluids and your linked network or backpack tank. **Tom's Simple Storage** is item-only and does not support this one. |
+| <img src="https://raw.githubusercontent.com/radaelilucca/mc-sophisticated-backpacks-digital-storage/main/docs/gallery/upgrades/remote_crafting_upgrade.png" alt="Remote Crafting" width="48"> | **Remote Crafting** | Choose a recipe in your backpack and click **Fetch ingredients** to fill empty slots from your backpack and linked network. Ingredients already in the grid stay in place. |
 
 ---
 
@@ -84,7 +31,7 @@ Each upgrade links to one network endpoint and follows that network's access and
 1. Hold a Remote Upgrade and **Shift-right-click a compatible network block** to link it. Use an **ME Wireless Access Point** for Applied Energistics 2, a **Controller** for Refined Storage, a **Storage Terminal** for Tom's Simple Storage, or a **Network Antenna** for Super Cool Calculator.
 2. Watch the upgrade change: its screen turns dark and its icon takes the color of the network (purple for AE2, blue for Refined Storage, oak brown for Tom's Simple Storage, gold for SCC), and a short animation plays when you link or switch networks. The four corners always show which networks are supported.
 3. Place the linked upgrade in a backpack upgrade slot and open its tab to configure filters, priorities, or transfer settings.
-4. Craft each Remote Upgrade from its matching advanced Sophisticated Backpacks upgrade, **3 diamonds**, **2 Ender Pearls**, and **2 redstone dust**.
+4. Craft Remote Upgrades with **3 diamonds**, **2 Ender Pearls**, **2 redstone dust**, and the matching advanced Sophisticated Backpacks upgrade. For **Remote Crafting**, use the regular **Crafting Upgrade**.
 5. To change networks, link the upgrade to another compatible block. To remove its link while keeping its settings, place the upgrade by itself in a crafting grid.
 
 <p align="center" style="text-align: center;"><img src="https://raw.githubusercontent.com/radaelilucca/mc-sophisticated-backpacks-digital-storage/main/docs/gallery/upgrade_link_states.png" alt="Remote Feeding Upgrade unlinked, then linked to Applied Energistics 2, Refined Storage, Tom's Simple Storage, and Super Cool Calculator" width="420"></p>

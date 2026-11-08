@@ -21,6 +21,7 @@ Antes de editar código:
 | Feeding / Alimentação | [FEEDING.md](docs/upgrades/FEEDING.md) |
 | Alchemy / Alquimia | [ALCHEMY.md](docs/upgrades/ALCHEMY.md) |
 | Pump / Bomba | [PUMP.md](docs/upgrades/PUMP.md) |
+| Crafting remoto | [CRAFTING.md](docs/upgrades/CRAFTING.md) |
 
 Para mudanças compartilhadas, ler também os planos das funções afetadas. Para uma função nova, definir seu plano individual, referenciar as premissas base e incluí-lo no catálogo e no índice antes de implementar.
 

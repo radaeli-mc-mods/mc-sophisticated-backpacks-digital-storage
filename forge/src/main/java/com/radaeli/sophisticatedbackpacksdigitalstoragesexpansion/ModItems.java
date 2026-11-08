@@ -6,6 +6,7 @@ import net.minecraftforge.registries.RegistryObject;
 import net.minecraftforge.registries.DeferredRegister;
 
 import com.radaeli.sophisticatedbackpacksdigitalstoragesexpansion.upgrade.RemoteDepositUpgradeItem;
+import com.radaeli.sophisticatedbackpacksdigitalstoragesexpansion.upgrade.RemoteCraftingUpgradeItem;
 import com.radaeli.sophisticatedbackpacksdigitalstoragesexpansion.upgrade.RemoteAlchemyUpgradeItem;
 import com.radaeli.sophisticatedbackpacksdigitalstoragesexpansion.upgrade.RemoteFeedingUpgradeItem;
 import com.radaeli.sophisticatedbackpacksdigitalstoragesexpansion.upgrade.RemoteMagnetUpgradeItem;
@@ -35,6 +36,8 @@ public final class ModItems {
             "remote_alchemy_upgrade", RemoteAlchemyUpgradeItem::new);
     public static final RegistryObject<RemotePumpUpgradeItem> REMOTE_PUMP_UPGRADE = ITEMS.register(
             "remote_pump_upgrade", RemotePumpUpgradeItem::new);
+    public static final RegistryObject<RemoteCraftingUpgradeItem> REMOTE_CRAFTING_UPGRADE = ITEMS.register(
+            "remote_crafting_upgrade", RemoteCraftingUpgradeItem::new);
 
     private ModItems() {
     }

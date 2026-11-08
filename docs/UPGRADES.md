@@ -2,7 +2,7 @@
 
 ## Estado e referências
 
-Este documento consolida as decisões aprovadas e os critérios dos oito upgrades. Deposit foi consolidado a partir da POC; os outros sete upgrades, contratos de extração e fluidos, registros, receitas e interfaces foram implementados no código. `compileJava processResources` e a inicialização do cliente com os três backends passaram. Isso não substitui a validação manual por função/backend; os checklists abaixo permanecem como critérios, sem marcar interações de jogo como concluídas.
+Este documento consolida as decisões aprovadas e os critérios dos upgrades universais. Deposit, Restock, Pickup, Magnet, Refill, Feeding, Alchemy, Pump e Crafting têm implementação nos dois loaders. Consulte a arquitetura e cada plano individual para o estado da validação por função e backend.
 
 O módulo Forge 1.20.1 agora também contém os oito upgrades e os adaptadores específicos dos JARs auditados. `:forge:build` passa e produz JAR reobfuscado. A suíte Forge ainda não cobre redes reais nem inicia registries do jogo em GameTests; veja a evidência e os limites atualizados em [MULTILOADER.md](MULTILOADER.md).
 
@@ -22,6 +22,7 @@ Todos os IDs de itens e receitas usam o namespace `sophisticated_backpacks_digit
 | Feeding | `remote_feeding_upgrade` | Sim | Sim | Sim | [Feeding](upgrades/FEEDING.md) |
 | Alchemy | `remote_alchemy_upgrade` | Sim | Sim | Sim | [Alchemy](upgrades/ALCHEMY.md) |
 | Pump | `remote_pump_upgrade` | Sim | Sim | Incompatível com fluidos | [Pump](upgrades/PUMP.md) |
+| Crafting | `remote_crafting_upgrade` | Sim | Sim | Sim | [Crafting](upgrades/CRAFTING.md) |
 
 “Sim” expressa o suporte planejado, não aprovação antecipada dos testes. Tom’s pode ser vinculado ao Pump, mas o item informa incompatibilidade e não executa a função.
 
@@ -82,11 +83,11 @@ Registrar item, `UpgradeType`, wrapper, container e aba; incluir o item na tag `
 <a id="P07"></a>
 ### P07 — Recursos e receitas
 
-Receita shaped 3×3 compartilhada pelos oito upgrades, com resultado de uma unidade: duas pérolas do Ender, três diamantes, duas unidades de pó de redstone e o upgrade Sophisticated avançado da função no centro. Somente o ingrediente central e o resultado variam por função. A célula inferior central fica vazia. Não exigir materiais de um backend específico; IDs dos oito upgrades avançados confirmados no JAR fixado.
+Padrão de receita 3×3 compartilhado pelos upgrades, com resultado de uma unidade. A célula central usa o upgrade Sophisticated avançado da função ou a bancada nativa no caso de Crafting. A célula inferior central fica vazia.
 
 | Pérola do Ender | Diamante | Pérola do Ender |
 | --- | --- | --- |
-| Diamante | Upgrade avançado da função | Diamante |
+| Diamante | Upgrade Sophisticated da função | Diamante |
 | Pó de redstone | Vazio | Pó de redstone |
 
 Nos dois loaders, os oito upgrades seguem a [linha visual dos upgrades remotos](design/UPGRADE_VISUALS.md), aprovada em 2026-10-31: o ícone original de cada upgrade é preservado; moldura de ardósia; um canto por rede (AE2, SCC, TSS, RS); tela verde sem vínculo; tela escura e ícone na cor da rede quando vinculado; animação de vínculo e de troca de rede no slot, na mão e no mundo. O estado visual vem do vínculo, então isso não cria itens nem tiers por rede. O Forge 1.20.1 usa os mesmos sprites, modelos e animação. Traduções PT-BR e EN-US devem cobrir nomes, configurações, estados e erros.
@@ -175,7 +176,8 @@ Referências de código upstream para navegação: [Sophisticated Core](https://
 | 6 | Feeding | Consumo e recipientes seguros. |
 | 7 | Alchemy | Reservas, duração e interrupções. |
 | 8 | Pump | Fluidos AE2/RS, guard de fluidos e incompatibilidade Tom’s. |
-| 9 | Integração final | Catálogo, receitas, documentação e servidor dedicado. |
+| 9 | Crafting | Conversão com preservação da grade, preenchimento parcial e resultado nativo nos dois loaders. |
+| 10 | Integração final | Catálogo, receitas, documentação e servidor dedicado. |
 
 Etapas 2 e 3 dependem da fundação; Magnet reutiliza o roteamento do Pickup; Refill e Feeding reutilizam extração do Restock; Alchemy reutiliza consumo/recuperação do Feeding. Pump acrescenta contratos próprios de fluidos e reutiliza autorização, contexto e reservas.
 
@@ -196,4 +198,4 @@ Manter a arquitetura sincronizada com o código. A implementação foi compilada
 
 ## SCC 1.5.3
 
-NeoForge now includes SCC for all eight universal paths (Pump: fluids without added components). Follow P02–P12 and [SCC phases](integrations/SCC.md); no SCC runtime gate is marked complete. Forge remains on its existing backends.
+NeoForge usa o adaptador SCC 1.5.3 nos nove upgrades. O Pump aceita fluidos sem componentes adicionais. Os cenários em jogo continuam descritos nas [fases do SCC](integrations/SCC.md) e no [plano de Crafting](upgrades/CRAFTING.md). No Forge, os backends são AE2, Refined Storage e Tom’s.

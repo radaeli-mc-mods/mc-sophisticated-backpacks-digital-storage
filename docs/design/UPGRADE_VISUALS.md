@@ -1,6 +1,6 @@
 # Linha visual dos upgrades remotos
 
-Guideline visual dos oito upgrades remotos, aprovada a partir do piloto do Feeding em 2026-10-31. Substitui o padrão de textura anterior de [P07](../UPGRADES.md#P07). Vale para o NeoForge 1.21.1 e o Forge 1.20.1.
+Guideline visual dos upgrades remotos, aprovada a partir do piloto do Feeding em 2026-10-31. Substitui o padrão de textura anterior de [P07](../UPGRADES.md#P07). Vale para o NeoForge 1.21.1 e o Forge 1.20.1.
 
 ![Os oito upgrades: sem vínculo e vinculados a AE2, SCC, TSS e RS](upgrade_visuals_overview.png)
 
@@ -62,7 +62,7 @@ Vincular de novo à mesma rede toca a sequência normalmente. Desvincular pela r
 ## Produção
 
 - `design/upgrade-refresh/upgrade_visuals.py` implementa esta guideline para qualquer upgrade. A paleta e a moldura vêm de `gen_feeding.py`, e o percurso do aro, de `anim_feeding.py`.
-- `design/upgrade-refresh/export_upgrades.py` grava nos recursos do NeoForge, que o Forge reutiliza no build, os sprites, os modelos e as faixas de animação dos oito upgrades.
+- `design/upgrade-refresh/export_upgrades.py` grava nos recursos do NeoForge, que o Forge reutiliza no build, os sprites, os modelos e as faixas de animação dos upgrades. O ícone do Crafting usa a grade 3×3 da bancada original.
 - `design/upgrade-refresh/timeline.py` guarda os tempos e easings, espelhados em `LinkedUpgradeAppearance`. `render_60fps.py <upgrade> <rede> [rede anterior]` gera uma prévia de 60 fps.
 - Um upgrade novo precisa só do sprite original 16×16 em `originals/`, com ícone sobre o fundo `#37AE6C`, e de uma entrada em `UPGRADES` no `upgrade_visuals.py`.
 

@@ -76,5 +76,16 @@
   "gui.sophisticated_backpacks_digital_storages_expansion.filter.block": "Lista de itens bloqueados",
   "gui.sophisticated_backpacks_digital_storages_expansion.filter.storage": "Filtrar por itens armazenados",
   "gui.sophisticated_backpacks_digital_storages_expansion.backpack_first": "Priorizar mochila",
-  "gui.sophisticated_backpacks_digital_storages_expansion.network_first": "Priorizar rede vinculada"
+  "gui.sophisticated_backpacks_digital_storages_expansion.network_first": "Priorizar rede vinculada",
+  "item.sophisticated_backpacks_digital_storages_expansion.remote_crafting_upgrade": "Upgrade de Crafting Remoto",
+  "item.sophisticated_backpacks_digital_storages_expansion.remote_crafting_upgrade.tooltip": "Preencha os ingredientes de uma receita com a mochila ou a rede vinculada.",
+  "message.sophisticated_backpacks_digital_storages_expansion.crafting_conflict": "Só é possível instalar um upgrade de crafting.",
+  "gui.sophisticated_backpacks_digital_storages_expansion.crafting.choose": "Escolher receita",
+  "gui.sophisticated_backpacks_digital_storages_expansion.crafting.fetch": "Buscar ingredientes",
+  "gui.sophisticated_backpacks_digital_storages_expansion.crafting.search": "Buscar por nome do resultado ou ID da receita",
+  "gui.sophisticated_backpacks_digital_storages_expansion.crafting.empty": "Nenhuma receita encontrada",
+  "message.sophisticated_backpacks_digital_storages_expansion.crafting.unavailable": "Essa receita está indisponível.",
+  "message.sophisticated_backpacks_digital_storages_expansion.crafting.incompatible": "Retire os itens incompatíveis da grade.",
+  "message.sophisticated_backpacks_digital_storages_expansion.crafting.ready": "Receita pronta.",
+  "message.sophisticated_backpacks_digital_storages_expansion.crafting.missing": "Slots de ingredientes ainda vazios: %s"
 }

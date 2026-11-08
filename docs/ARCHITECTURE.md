@@ -2,9 +2,9 @@
 
 ## Escopo
 
-O projeto suporta Minecraft 1.21.1/NeoForge 21.1.236/Java 21 e Minecraft 1.20.1/Forge 47.4.10/Java 17. O mod se chama **Sophisticated Backpacks - Digital Storages Expansion**, com ID `sophisticated_backpacks_digital_storages_expansion` e pacote Java `com.radaeli.sophisticatedbackpacksdigitalstoragesexpansion`. Itens e receitas usam esse mesmo namespace. Os oito upgrades têm implementações específicas para as duas plataformas. Forge compila e produz um JAR reobfuscado; integração operacional completa ainda aguarda validação em jogo.
+O projeto suporta Minecraft 1.21.1/NeoForge 21.1.236/Java 21 e Minecraft 1.20.1/Forge 47.4.10/Java 17. O mod se chama **Sophisticated Backpacks - Digital Storages Expansion**, com ID `sophisticated_backpacks_digital_storages_expansion` e pacote Java `com.radaeli.sophisticatedbackpacksdigitalstoragesexpansion`. Itens e receitas usam esse mesmo namespace. Os nove upgrades têm implementações específicas para as duas plataformas. Forge compila e produz um JAR reobfuscado. A validação operacional em jogo é registrada por upgrade.
 
-Os oito upgrades aparecem em uma aba criativa própria. A tooltip base do Sophisticated usa `item.<namespace>.<item>.tooltip`; essa chave está presente em inglês e português para cada upgrade, além das descrições das abas do Sophisticated.
+Os nove upgrades aparecem em uma aba criativa própria. A tooltip base do Sophisticated usa `item.<namespace>.<item>.tooltip`, com textos em inglês e português.
 
 A hierarquia compartilhada das tooltips segue [P02](UPGRADES.md#P02): nome nativo → descrição em `GRAY` → status em `DARK_GRAY`, destacando somente o backend vinculado em `GREEN` → instrução de desvínculo em `DARK_GRAY`, somente se houver vínculo. `LinkedStorageUpgradeItem` preserva as linhas traduzidas pelo Sophisticated e aplica essa apresentação aos oito itens em EN-US/PT-BR. `StorageText.tooltipSummary` estiliza o resumo do item; o resumo das abas permanece independente. Pump acrescenta seu aviso de fluido pendente ao status por `getLinkStatus`, antes da instrução. Endereço avançado usa `DARK_GRAY`; nenhuma rede é resolvida para montar a tooltip.
 
@@ -21,7 +21,7 @@ O build usa `common`, `neoforge` e `forge`. `common` tem Java 17 sem dependênci
 | Parte | Responsabilidade |
 | --- | --- |
 | `LinkedStorageUpgradeItem` | Item Sophisticated, limite por storage, dica de vínculo e tooltip. |
-| `EndpointLinkHandler` | Interação de vínculo para qualquer item que estenda a base; mantém o vínculo anterior quando o novo destino falha. |
+| `EndpointLinkHandler` | Interação de vínculo para itens que implementam `ManuallyLinkedUpgrade`. Mantém o vínculo anterior quando o novo destino falha. |
 | `LinkedStorageUpgradeWrapper` | Leitura, escrita, remoção e salvamento do vínculo pelo ciclo de vida nativo do Sophisticated. Expõe o filtro transitório de proteção de IO. |
 | `LinkedStorageUpgradeContainer` | Validação dos pedidos no servidor, desvínculo, verificação de habilitação e limite de uma operação por tick do container. |
 | `UpgradeOperationContext` | Origem e inventário obtidos do menu atual, após validar container, aba, validade do menu e wrapper instalado. |
@@ -94,8 +94,21 @@ Adaptadores devem devolver sobras válidas do mesmo item e componentes e não al
 | Feeding | Condições nativas, uma unidade por operação e reserva persistida; retorno de recipiente. | Tipos de comida, limiares, efeitos de uso e interrupções. |
 | Alchemy | Definições nativas, condições, duração escalada por ticks e reserva persistida. | Lista extensível, aplicações reais, efeitos e interrupções/reinício. |
 | Pump | Mãos, seis handlers adjacentes e mundo; mochila equipada/na mão/colocada; roteamento parcial, mínimo de um balde, guard de capability em cache e recuperação de reserva mesmo desativado. | Regressão em jogo com AE2/RS, proteção/vaporização e interrupções. |
+| Crafting | Bancada nativa 3×3 com seletor de receitas, busca na mochila e na rede, preenchimento parcial e seleção do resultado nativo. | GUI, recipientes, persistência, multiplayer e redes reais. |
 
-Os controles de prioridade Rede primeiro / Mochila primeiro usam o mesmo botão 16×16 da aba Magnet em Pickup, Magnet, Refill, Feeding, Alchemy e Pump. Os toggles de interação do Pump usam os sprites 16×16 e os tooltips da aba Pump avançada do Sophisticated Core. Na aba Pump, a posição dos controles acompanha a altura do filtro nativo; o vínculo ocupa uma linha separada com 8 px de distância do botão de prioridade, e a aba usa o dimensionamento automático nativo (P02/P06). Seletores por slot ou condição continuam com o controle compacto próprio.
+Os controles de prioridade Rede primeiro / Mochila primeiro usam o mesmo botão 16×16 da aba Magnet em Pickup, Magnet, Refill, Feeding, Alchemy, Pump e Crafting. Os toggles de interação do Pump usam os sprites 16×16 e os tooltips da aba Pump avançada do Sophisticated Core. Na aba Pump, a posição dos controles acompanha a altura do filtro nativo; o vínculo ocupa uma linha separada com 8 px de distância do botão de prioridade, e a aba usa o dimensionamento automático nativo (P02/P06). Seletores por slot ou condição continuam com o controle compacto próprio.
+
+### Crafting remoto
+
+[Plano individual](upgrades/CRAFTING.md) · P01–P08, P10–P12
+
+`RemoteCraftingUpgradeItem`, seu wrapper, container e aba estendem as classes nativas da bancada. O vínculo e o desvínculo usam `ManuallyLinkedUpgrade`, também implementado pela base dos outros itens. A receita `sophisticatedcore:upgrade_next_tier` usa o padrão P07 e copia os dados da bancada original via componentes no NeoForge e NBT no Forge.
+
+O seletor consulta as receitas sincronizadas de formato fixo e sem formato. O servidor recebe o ID da receita e a identidade do menu pelo canal nativo, valida a sessão e resolve a receita no gerenciador atual. A origem vem de `UpgradeOperationContext`, incluindo a posição da mochila colocada. A prioridade usa o mesmo valor persistido dos demais upgrades.
+
+`IngredientAssignment` considera as quantidades estimadas por identidade, preserva as unidades já na grade e maximiza os slots preenchidos. Entre planos igualmente completos, favorece a fonte prioritária. `RemoteCraftingFill` retira uma unidade por vez, recalcula a atribuição a partir do resultado da tentativa e atualiza a grade nativa. `UpgradeItemSources` protege a própria mochila durante consulta e extração e resolve autorização de inserção separadamente para devolver itens recusados. Uma grade completa seleciona o resultado pelo container nativo. Grades parciais mantêm qualquer resultado nativo já disponível.
+
+### Controles e aparência dos upgrades
 
 `PriorityLinkedStorageUpgradeContainer.toggleSourcePriority` atualiza imediatamente o wrapper local e envia o valor selecionado, capturado antes da construção do pacote, seguindo os setters dos controles nativos (P04/P05/P06/P11). O servidor aplica esse valor pelo guard já existente do menu. Pickup/Magnet continuam avaliando filtros por destino: em `Stored content`, mochila vazia e sem memória para o item recusa a entrada mesmo em Mochila primeiro; um item presente somente na rede segue para ela. Essa semântica foi reconfirmada pelo usuário em 2026-10-30 e não foi alterada.
 
@@ -121,7 +134,7 @@ O guard de fluidos começa antes de resolver/consultar a rede e também protege 
 
 Validação da revisão: `build` com Java 21 e 51 testes passaram (21 específicos de Pump/guard), incluindo baldes NeoForge reais, seis tiers, prioridades, quantidades parciais, componentes, reservas e carregamento da classe nativa com Mixin. O JAR atualizado foi gerado em `build/libs`. O cliente que já estava aberto continua com as classes anteriores até reiniciar; os cenários de interação com redes e mundo em [PUMP.md](upgrades/PUMP.md#8-validação-e-aceitação) permanecem pendentes.
 
-Nos dois loaders (NeoForge 1.21.1 e Forge 1.20.1), os oito itens seguem a [linha visual dos upgrades remotos](design/UPGRADE_VISUALS.md). `ClientModEvents` registra cada item em `LinkedUpgradeAppearance`, que define duas propriedades lidas pelas overrides de `models/item/remote_<função>_upgrade.json`:
+Nos dois loaders (NeoForge 1.21.1 e Forge 1.20.1), os itens seguem a [linha visual dos upgrades remotos](design/UPGRADE_VISUALS.md). `ClientModEvents` registra cada item em `LinkedUpgradeAppearance`, que define duas propriedades lidas pelas overrides de `models/item/remote_<função>_upgrade.json`.
 
 - `network`: 0 sem vínculo; 1 AE2, 2 Refined Storage, 3 Tom's Simple Storage, 4 SCC. Seleciona `remote_<função>_upgrade_linked_<backend>`.
 - `link_frame`: 1 enquanto a animação toca. Seleciona o modelo `remote_<função>_upgrade_link_canvas`.
@@ -130,7 +143,7 @@ Nos dois loaders (NeoForge 1.21.1 e Forge 1.20.1), os oito itens seguem a [linha
 
 As faixas ficam fora dos diretórios do atlas e são lidas sob demanda; o cache é refeito quando o atlas é recarregado. Como a troca passa pelo modelo, a animação aparece em slots, na mão e no mundo, sem mistura entre quadros. Só o nível 0 de mipmap é atualizado: a distância, um item caído pode mostrar o canvas desatualizado durante a animação. Duas pilhas do mesmo upgrade animando ao mesmo tempo compartilham o canvas. Vínculos antigos sem `linked_at` não animam, e o desvínculo pela receita não anima.
 
-`design/upgrade-refresh/export_upgrades.py` gera, a partir de `design/upgrade-refresh/originals/`, os sprites, os modelos e as 160 faixas.
+`design/upgrade-refresh/export_upgrades.py` gera os sprites, os modelos e 20 faixas por item a partir de `design/upgrade-refresh/originals/`.
 
 O cliente iniciou com os três backends opcionais carregados e entrou no mundo configurado `New World`. Isso confirma inicialização, registros e aplicação dos Mixins no processo observado; não confirma uso dos upgrades ou cada operação de storage.
 
@@ -191,7 +204,7 @@ Deposit mantém nove filtros nativos, ID e componentes da POC. O conflito com `D
 
 A aba oferece Depositar e um resumo compacto da rede. Dimensão e coordenadas aparecem no tooltip do resumo; o item mostra o endereço no modo de tooltip avançada. O feedback de vínculo é curto. Não existe ação de desvínculo via GUI ou pacote legado.
 
-`UnlinkUpgradeRecipe`, registrada por `ModRecipes`, aceita somente um slot ocupado por qualquer `LinkedStorageUpgradeItem` vinculado nas grades 2×2/3×3. Copia uma unidade e remove somente `remote_storage_link`, preservando componentes, filtros e nome. Aceita também dados de vínculo malformados para permitir sua limpeza. Itens sem vínculo e ingredientes extras não produzem resultado. `canChangeBinding` é o ponto compartilhado para bloquear receita e novo vínculo quando futuros upgrades tiverem reservas pendentes; esses upgrades deverão sobrescrevê-lo conforme P09.
+`UnlinkUpgradeRecipe`, registrada por `ModRecipes`, aceita somente um slot ocupado por qualquer `ManuallyLinkedUpgrade` vinculado nas grades 2×2/3×3. Copia uma unidade e remove somente `remote_storage_link`, preservando componentes, filtros, grade de crafting e nome. Aceita também dados de vínculo malformados para permitir sua limpeza. Itens sem vínculo e ingredientes extras não produzem resultado. `canChangeBinding` permite bloquear o desvínculo e a troca de endpoint quando houver reservas pendentes, conforme P09.
 
 Estas alterações ainda precisam de validação visual e operacional em jogo; não constituem conclusão dos gates P12.
 

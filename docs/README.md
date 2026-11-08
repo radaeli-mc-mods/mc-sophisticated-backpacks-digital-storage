@@ -18,5 +18,6 @@ Player guides: [Linking upgrades](player/linking.md), [Filters and source priori
 - [Feeding](upgrades/FEEDING.md) — alimentação automática do portador.
 - [Alchemy](upgrades/ALCHEMY.md) — consumíveis condicionais para o portador.
 - [Pump](upgrades/PUMP.md) — transferência de fluidos com suporte por capacidade.
+- [Crafting](upgrades/CRAFTING.md) — bancada com busca de ingredientes na rede e na mochila.
 
 - [SCC integration](integrations/SCC.md) — audited APIs, implementation phases and pending runtime matrix.

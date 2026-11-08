@@ -12,7 +12,7 @@ import com.radaeli.sophisticatedbackpacksdigitalstoragesexpansion.storage.Storag
 import com.radaeli.sophisticatedbackpacksdigitalstoragesexpansion.storage.StorageConnection;
 import com.radaeli.sophisticatedbackpacksdigitalstoragesexpansion.storage.StorageEndpoint;
 
-/** Shared linking interaction for every LinkedStorageUpgradeItem, including future upgrade types. */
+/** Shared linking interaction for manually linked upgrades. */
 public final class EndpointLinkHandler {
     private EndpointLinkHandler() {
     }
@@ -22,7 +22,7 @@ public final class EndpointLinkHandler {
             return;
         }
         ItemStack held = player.getItemInHand(event.getHand());
-        if (!(held.getItem() instanceof LinkedStorageUpgradeItem<?> item) || !event.getLevel().mayInteract(player, event.getPos())) {
+        if (!(held.getItem() instanceof ManuallyLinkedUpgrade item) || !event.getLevel().mayInteract(player, event.getPos())) {
             return;
         }
         var identified = StorageAdapterRegistry.identify(event.getLevel(), event.getPos());

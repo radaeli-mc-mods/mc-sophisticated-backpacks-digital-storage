@@ -31,6 +31,7 @@ public final class RemoteUpgradeRegistrations {
         register(ModItems.REMOTE_FEEDING_UPGRADE.getId(), FEEDING);
         register(ModItems.REMOTE_ALCHEMY_UPGRADE.getId(), ALCHEMY);
         register(ModItems.REMOTE_PUMP_UPGRADE.getId(), PUMP);
+        register(ModItems.REMOTE_CRAFTING_UPGRADE.getId(), RemoteCraftingUpgradeContainer.TYPE);
     }
 
     private static <W extends net.p3pp3rf1y.sophisticatedcore.upgrades.IUpgradeWrapper,

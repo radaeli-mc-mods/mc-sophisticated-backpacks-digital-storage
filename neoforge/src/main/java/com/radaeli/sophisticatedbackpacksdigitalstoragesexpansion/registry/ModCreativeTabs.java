@@ -28,6 +28,7 @@ public final class ModCreativeTabs {
                         output.accept(ModItems.REMOTE_FEEDING_UPGRADE.get());
                         output.accept(ModItems.REMOTE_ALCHEMY_UPGRADE.get());
                         output.accept(ModItems.REMOTE_PUMP_UPGRADE.get());
+                        output.accept(ModItems.REMOTE_CRAFTING_UPGRADE.get());
                     })
                     .build());
 

@@ -1,4 +1,4 @@
-"""Remote upgrade visual line (docs/design/UPGRADE_VISUALS.md), generic over the eight upgrades.
+"""Remote upgrade visual line (docs/design/UPGRADE_VISUALS.md).
 
 Each upgrade keeps its original 16x16 icon (design/upgrade-refresh/originals); everything else
 comes from the shared frame, palette and link animation defined here and in gen_feeding.
@@ -11,7 +11,7 @@ from anim_feeding import ORIGIN, ring_distance
 from gen_feeding import CORNERS, NETWORKS, SCREENS, base, paint_corners
 
 ORIGINALS = Path(__file__).resolve().parent / "originals"
-UPGRADES = ["deposit", "restock", "pickup", "magnet", "refill", "feeding", "alchemy", "pump"]
+UPGRADES = ["deposit", "restock", "pickup", "magnet", "refill", "feeding", "alchemy", "pump", "crafting"]
 # Original remote palette roles inside the icon area.
 FIELD = (0x37, 0xAE, 0x6C, 255)
 OUTLINE, FILL, DETAIL = (0x22, 0x16, 0x2D, 255), (0x42, 0x2B, 0x52, 255), (0x1F, 0x71, 0x4B, 255)

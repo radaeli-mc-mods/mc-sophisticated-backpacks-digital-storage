@@ -76,5 +76,16 @@
   "gui.sophisticated_backpacks_digital_storages_expansion.filter.block": "Block list",
   "gui.sophisticated_backpacks_digital_storages_expansion.filter.storage": "Match stored items",
   "gui.sophisticated_backpacks_digital_storages_expansion.backpack_first": "Backpack first",
-  "gui.sophisticated_backpacks_digital_storages_expansion.network_first": "Linked network first"
+  "gui.sophisticated_backpacks_digital_storages_expansion.network_first": "Linked network first",
+  "item.sophisticated_backpacks_digital_storages_expansion.remote_crafting_upgrade": "Remote Crafting Upgrade",
+  "item.sophisticated_backpacks_digital_storages_expansion.remote_crafting_upgrade.tooltip": "Fill a recipe's ingredients from your backpack or linked storage.",
+  "message.sophisticated_backpacks_digital_storages_expansion.crafting_conflict": "Only one crafting upgrade can be installed.",
+  "gui.sophisticated_backpacks_digital_storages_expansion.crafting.choose": "Choose recipe",
+  "gui.sophisticated_backpacks_digital_storages_expansion.crafting.fetch": "Fetch ingredients",
+  "gui.sophisticated_backpacks_digital_storages_expansion.crafting.search": "Search by result name or recipe ID",
+  "gui.sophisticated_backpacks_digital_storages_expansion.crafting.empty": "No matching recipes",
+  "message.sophisticated_backpacks_digital_storages_expansion.crafting.unavailable": "This recipe is unavailable.",
+  "message.sophisticated_backpacks_digital_storages_expansion.crafting.incompatible": "Remove incompatible items from the crafting grid.",
+  "message.sophisticated_backpacks_digital_storages_expansion.crafting.ready": "Recipe ready.",
+  "message.sophisticated_backpacks_digital_storages_expansion.crafting.missing": "Ingredient slots still missing: %s"
 }

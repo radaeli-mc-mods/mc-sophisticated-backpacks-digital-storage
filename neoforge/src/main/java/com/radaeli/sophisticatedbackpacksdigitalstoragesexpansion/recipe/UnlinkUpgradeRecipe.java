@@ -9,7 +9,7 @@ import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.level.Level;
 
 import com.radaeli.sophisticatedbackpacksdigitalstoragesexpansion.storage.EndpointBinding;
-import com.radaeli.sophisticatedbackpacksdigitalstoragesexpansion.upgrade.LinkedStorageUpgradeItem;
+import com.radaeli.sophisticatedbackpacksdigitalstoragesexpansion.upgrade.ManuallyLinkedUpgrade;
 
 /** Removes only the endpoint; filter settings and all other components survive crafting. */
 public final class UnlinkUpgradeRecipe extends CustomRecipe {
@@ -22,7 +22,7 @@ public final class UnlinkUpgradeRecipe extends CustomRecipe {
         for (int slot = 0; slot < input.size(); slot++) {
             ItemStack stack = input.getItem(slot);
             if (stack.isEmpty()) continue;
-            if (!found.isEmpty() || !(stack.getItem() instanceof LinkedStorageUpgradeItem<?> item)
+            if (!found.isEmpty() || !(stack.getItem() instanceof ManuallyLinkedUpgrade item)
                     || !EndpointBinding.hasBinding(stack) || !item.canChangeBinding(stack)) {
                 return ItemStack.EMPTY;
             }

@@ -12,6 +12,7 @@ import net.p3pp3rf1y.sophisticatedcore.client.gui.UpgradeGuiManager;
 import com.radaeli.sophisticatedbackpacksdigitalstoragesexpansion.ModItems;
 import com.radaeli.sophisticatedbackpacksdigitalstoragesexpansion.SophisticatedBackpacksDigitalStoragesExpansion;
 import com.radaeli.sophisticatedbackpacksdigitalstoragesexpansion.upgrade.RemoteDepositUpgradeRegistration;
+import com.radaeli.sophisticatedbackpacksdigitalstoragesexpansion.upgrade.RemoteCraftingUpgradeContainer;
 import com.radaeli.sophisticatedbackpacksdigitalstoragesexpansion.upgrade.RemoteRestockUpgradeRegistration;
 import com.radaeli.sophisticatedbackpacksdigitalstoragesexpansion.upgrade.RemoteUpgradeRegistrations;
 
@@ -25,7 +26,7 @@ public final class ClientModEvents {
         event.enqueueWork(() -> {
             Stream.of(ModItems.REMOTE_DEPOSIT_UPGRADE, ModItems.REMOTE_RESTOCK_UPGRADE, ModItems.REMOTE_PICKUP_UPGRADE,
                     ModItems.REMOTE_MAGNET_UPGRADE, ModItems.REMOTE_REFILL_UPGRADE, ModItems.REMOTE_FEEDING_UPGRADE,
-                    ModItems.REMOTE_ALCHEMY_UPGRADE, ModItems.REMOTE_PUMP_UPGRADE)
+                    ModItems.REMOTE_ALCHEMY_UPGRADE, ModItems.REMOTE_PUMP_UPGRADE, ModItems.REMOTE_CRAFTING_UPGRADE)
                     .forEach(item -> LinkedUpgradeAppearance.register(item.get(), item.getId().getPath()));
             MinecraftForge.EVENT_BUS.addListener(RemoteRefillUpgradeTab::appendTargetSlotTooltip);
             UpgradeGuiManager.registerTab(RemoteDepositUpgradeRegistration.CONTAINER_TYPE, RemoteDepositUpgradeTab::new);
@@ -36,6 +37,7 @@ public final class ClientModEvents {
             UpgradeGuiManager.registerTab(RemoteUpgradeRegistrations.FEEDING, RemoteFeedingUpgradeTab::new);
             UpgradeGuiManager.registerTab(RemoteUpgradeRegistrations.ALCHEMY, RemoteAlchemyUpgradeTab::new);
             UpgradeGuiManager.registerTab(RemoteUpgradeRegistrations.PUMP, RemotePumpUpgradeTab::new);
+            UpgradeGuiManager.registerTab(RemoteCraftingUpgradeContainer.TYPE, RemoteCraftingUpgradeTab::new);
         });
     }
 }

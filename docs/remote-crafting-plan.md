@@ -1,0 +1,25 @@
+# Remote Crafting Upgrade
+
+## Experiência do jogador
+
+Adicionar uma **bancada remota 3×3** que ocupa um slot de upgrade e substitui a bancada normal da mochila. O jogador escolhe uma receita na própria aba e clica em **Buscar ingredientes**. A bancada preserva os ingredientes compatíveis que já estão na grade, preenche os slots vazios que conseguir e informa quantos ainda faltam. O jogador retira o resultado pelo slot de crafting do Sophisticated.
+
+- O seletor funciona com os mods obrigatórios e usa as receitas sincronizadas pelo jogo. Oferece busca pelo nome do resultado ou ID da receita, com ícone e nome para distinguir os resultados. A seleção fica na sessão da aba. A primeira versão cobre receitas `crafting_shaped` e `crafting_shapeless` do jogo e de datapacks.
+- Reusar o controle **Rede primeiro / Mochila primeiro**, com **Rede primeiro** como padrão. A outra fonte cobre o déficit. Se a rede estiver inacessível ou o upgrade estiver desvinculado, o botão usa os ingredientes disponíveis na mochila. O inventário do jogador continua disponível para preenchimento manual.
+- Cada clique prepara **uma execução**. Uma grade já completa para a receita fica como está. Uma grade com itens incompatíveis pede que o jogador os retire antes de buscar ingredientes. O resultado, os recipientes retornáveis e os controles nativos de crafting continuam sob responsabilidade do Sophisticated.
+
+## Implementação
+
+1. **Registrar a bancada nos dois loaders.** Criar `remote_crafting_upgrade` como item universal, limitado a um por mochila e incompatível com a bancada normal nas duas ordens de instalação. Estender as classes nativas de item, wrapper, container e aba de crafting, cujas assinaturas foram conferidas nos JARs fixados. Extrair uma interface comum para que a bancada participe do vínculo manual e da receita compartilhada de desvínculo. Reusar o formato de vínculo, a persistência da prioridade e a linha visual do addon. A receita segue o padrão P07 com `sophisticatedbackpacks:crafting_upgrade` no centro. A conversão preserva os nove slots da bancada original, seus controles salvos e o nome personalizado, usando os componentes do NeoForge e o NBT do Forge. Incluir os textos em PT-BR e EN-US.
+
+2. **Adicionar o seletor e a ação ao container nativo.** O seletor abre sobre a aba e fecha ao escolher uma receita ou pressionar Esc. A escolha só altera a seleção visual. O botão envia o ID da receita e a identidade do menu pelo canal de configuração do Sophisticated. No servidor, validar o menu, a aba, a bancada instalada e a interação com a mochila. Resolver a receita novamente no `RecipeManager` e aplicar as regras de crafting do mundo. Limitar o preenchimento a uma ação por tick e usar a posição derivada do menu para aplicar o acesso nativo da rede, tanto na mochila carregada quanto na colocada.
+
+3. **Planejar e preencher só o déficit.** Em receitas com formato, aceitar a posição e o espelhamento compatíveis com os itens presentes. Em uma grade vazia, usar o canto superior esquerdo e a orientação original. Em receitas sem formato, associar os itens já colocados a ingredientes compatíveis e preencher os slots livres em ordem. Usar a quantidade disponível por identidade para preencher o máximo de slots, favorecendo a fonte prioritária entre soluções igualmente completas. Isso evita gastar uma variante que serve para um ingrediente específico num slot que aceitaria várias alternativas. Reusar as consultas e a extração dos adaptadores e validar cada unidade real antes de inseri-la na grade nativa.
+
+4. **Tratar transferência parcial e recuperação.** Aplicar o guard de extração da própria mochila durante a consulta e a retirada remota. Se o estoque real ficar abaixo da estimativa, tentar a outra fonte para o déficit e manter os ingredientes já colocados. Se um item extraído for recusado, devolver à origem quando possível, depois à mochila e ao mecanismo nativo de recuperação do jogador. A devolução à rede exige autorização independente de inserção. Quando a grade corresponder à receita escolhida, indicar essa receita ao container nativo para resolver resultados concorrentes.
+
+## Verificação e entrega
+
+- **Lógica e persistência.** Verificar receitas com e sem formato, grade parcial e incompatível, ingredientes repetidos, alternativas sobrepostas, ambas as prioridades e extração parcial. Conferir a conservação dos itens ao converter, remover, reinstalar e desvincular a bancada, inclusive quando a grade contém itens com componentes.
+- **Em jogo, nos dois loaders.** Testar seleção e crafting sem visualizador de receitas, resultado e recipientes nativos, reabertura da mochila, pedidos de menu obsoleto e coexistência com outros upgrades. Validar AE2, Refined Storage e Tom’s em ambas as plataformas e SCC no NeoForge, incluindo acesso negado, queda de rede, mochila exposta à própria rede e servidor dedicado. Registrar separadamente os resultados de build e de gameplay.
+- **Documentação.** O [plano individual](upgrades/CRAFTING.md) e a [arquitetura](ARCHITECTURE.md#crafting-remoto) registram o comportamento implementado e os cenários a validar. [Premissas P01–P12](UPGRADES.md#P01)
