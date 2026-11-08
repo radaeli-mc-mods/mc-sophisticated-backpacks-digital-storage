@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.5.0] - 2026-11-08
+
+### Added
+
+- Added Remote Crafting, which fills empty crafting slots with ingredients from your backpack and linked network for a recipe you choose.
+
+### Fixed
+
+- Restored remote upgrade crafting recipes and the unlink recipe on Forge 1.20.1.
+
 ## [0.4.1] - 2026-11-01
 
 ### Fixed
