@@ -1,0 +1,19 @@
+{
+  "type": "sophisticatedcore:upgrade_next_tier",
+  "category": "misc",
+  "pattern": [
+    "EDE",
+    "DUD",
+    "R R"
+  ],
+  "key": {
+    "E": "minecraft:ender_pearl",
+    "D": "minecraft:diamond",
+    "U": "sophisticatedbackpacks:crafting_upgrade",
+    "R": "minecraft:redstone"
+  },
+  "result": {
+    "id": "sophisticated_backpacks_digital_storages_expansion:remote_crafting_upgrade",
+    "count": 1
+  }
+}

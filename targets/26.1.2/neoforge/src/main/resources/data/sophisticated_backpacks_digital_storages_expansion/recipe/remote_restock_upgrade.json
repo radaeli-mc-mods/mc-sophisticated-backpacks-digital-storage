@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "EDE",
+    "DUD",
+    "R R"
+  ],
+  "key": {
+    "E": "minecraft:ender_pearl",
+    "D": "minecraft:diamond",
+    "U": "sophisticatedbackpacks:advanced_restock_upgrade",
+    "R": "minecraft:redstone"
+  },
+  "result": {
+    "id": "sophisticated_backpacks_digital_storages_expansion:remote_restock_upgrade",
+    "count": 1
+  }
+}
