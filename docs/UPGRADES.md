@@ -71,6 +71,8 @@ Pickup e Magnet selecionam destino; Refill, Feeding e Alchemy selecionam fonte. 
 
 Sem conexão ou permissão para a rede, o caminho local pode funcionar nas funções compatíveis. Falta de vínculo também não deve ampliar acesso remoto. Pump vinculado a backend sem fluidos pausa toda a função e mostra incompatibilidade, mesmo com tanque local.
 
+Essa prioridade se aplica ao upgrade Remote Refill. O toggle nativo `Refill crafting grid` do Crafting remoto tenta as fontes locais do Sophisticated primeiro e consulta a rede vinculada somente para o déficit, independentemente da prioridade da busca de receita.
+
 Prioridade não substitui o filtro de cada destino. Em Pickup/Magnet com `Stored content`, Mochila primeiro aceita localmente somente itens presentes na mochila ou aprovados pela memória nativa; espaço livre sozinho não aprova um item. Se apenas a rede contiver o item, ele segue para a rede. Essa regra foi reconfirmada pelo usuário em 2026-10-30. O botão compartilhado atualiza o wrapper local imediatamente, como os controles Sophisticated, e envia o valor escolhido ao servidor; a operação continua sujeita à validação server-side de P04.
 
 Deposit e Restock têm direção fixa e não exibem prioridade: mochila → rede e rede → mochila, respectivamente. Não há interação de transferência por Shift + clique em containers externos nesta etapa.

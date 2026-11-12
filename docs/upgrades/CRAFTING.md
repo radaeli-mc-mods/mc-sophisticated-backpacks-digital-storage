@@ -22,6 +22,16 @@ Em 2026-11-08, o build passou nos dois loaders. A suíte comum verificou a atrib
 
 Verificar conversão e persistência, posições e espelhamentos, alternativas sobrepostas, prioridades, extrações parciais, recuperação, resultados concorrentes, recarga de datapacks e acesso inválido. A validação manual em cliente e servidor dedicado com AE2, Refined Storage, Tom’s e SCC onde suportado permanece aberta.
 
+## POC opcional com JEI — NeoForge 1.21.1
+
+JEI `19.64.0.455` é compilado como API opcional e adicionado apenas ao runtime de desenvolvimento do target NeoForge 1.21.1. O JAR do addon não empacota JEI; Forge 1.20.1 e NeoForge 26.1.2 não recebem esta integração.
+
+O plugin JEI registra um handler para o menu nativo `BackpackContainer` e `RecipeTypes.CRAFTING`. Primeiro, ele chama o handler nativo do Sophisticated. Se ele retornar um erro apresentado ao jogador e existir um endpoint salvo no Upgrade de Crafting Remoto, o POC libera o botão “+”; ao clicar, envia a receita pelo container do upgrade. O servidor revalida menu, upgrade, receita, regra de crafting, acesso e filtros como no botão Buscar ingredientes. Esse caminho inclui também o inventário do jogador para completar receitas com fontes mistas. Sem Shift, o handler nativo executa a transferência normal e o addon só assume quando faltarem ingredientes. Com Shift, ele usa o handler nativo apenas para validar a receita e envia a operação ao servidor, que planeja quantas execuções cabem no estoque combinado e nos limites dos slots e transfere quantidades por ingrediente. Se não houver estoque para uma execução completa, mantém o fallback de preenchimento parcial. Sem vínculo, o fluxo permanece nativo.
+
+No NeoForge 1.21.1, o callback nativo de `Refill crafting grid` tenta primeiro o armazenamento da mochila e o inventário do jogador. Se faltar a unidade consumida, o wrapper remoto consulta e extrai uma unidade compatível da rede vinculada, usando o contexto da aba aberta e os adaptadores de armazenamento existentes. Esta extensão sempre prioriza as fontes locais nesse callback, independentemente da prioridade usada pelo botão Buscar ingredientes, e não muda o preenchimento do JEI.
+
+O POC segue o registro de transfer handlers usado por `UseCraftingRecipeTransfer` do AE2 JEI Integration e pelos handlers de crafting grid da Refined Storage JEI Integration. No JEI fixado, o registro associa um handler a uma classe de container e tipo de receita; a entrada da mochila do Sophisticated usa `BackpackContainer` e `RecipeTypes.CRAFTING`. A integração depende da ordem de plugins para substituir essa entrada. Em 2026-11-12, o usuário confirmou em jogo o funcionamento das integrações implementadas, incluindo o botão “+”, o Shift para crafting em lote e o reabastecimento remoto após craft. A validação multiplayer permanece aberta (P12).
+
 ## Target NeoForge 26.1.2
 
 O porte desta função preserva seu comportamento e as premissas P01–P12 aplicáveis. A implementação específica e os testes ficam no target 26.1.2; versões antigas conservam suas próprias fontes. APIs fixadas, transferência transacional, matriz por backend e evidências são registradas no [plano de porte](../PORT_26_1_2.md). Implementação, testes automatizados e aceitação manual são estados distintos.

@@ -22,6 +22,8 @@ public final class RemoteCraftingUpgradeContainer extends CraftingUpgradeContain
     private static final String RECIPE = "remoteCraftingRecipe";
     private static final String MENU = "remoteCraftingMenu";
     private static final String PRIORITY = "remoteCraftingPriority";
+    private static final String JEI_REQUEST = "remoteCraftingJeiRequest";
+    private static final String JEI_MAX_TRANSFER = "remoteCraftingJeiMaxTransfer";
     private static final String MESSAGE = "message.sophisticated_backpacks_digital_storages_expansion.crafting.";
 
     private ResourceLocation selectedRecipe;
@@ -67,6 +69,15 @@ public final class RemoteCraftingUpgradeContainer extends CraftingUpgradeContain
         }
     }
 
+    public void requestJeiIngredients(ResourceLocation recipeId, boolean maxTransfer) {
+        selectedRecipe = recipeId;
+        CompoundTag data = request();
+        data.putString(RECIPE, recipeId.toString());
+        data.putBoolean(JEI_REQUEST, true);
+        data.putBoolean(JEI_MAX_TRANSFER, maxTransfer);
+        sendDataToServer(() -> data);
+    }
+
     private CompoundTag request() {
         CompoundTag data = new CompoundTag();
         data.putInt(MENU, player.containerMenu.containerId);
@@ -90,12 +101,15 @@ public final class RemoteCraftingUpgradeContainer extends CraftingUpgradeContain
                         ? SourcePriority.BACKPACK_FIRST : SourcePriority.NETWORK_FIRST);
             } else if (data.contains(RECIPE, Tag.TAG_STRING)
                     && remoteWrapper().beginFill(serverPlayer.serverLevel().getGameTime())) {
-                fill(context, data.getString(RECIPE));
+                boolean fromJei = data.contains(JEI_REQUEST, Tag.TAG_BYTE) && data.getBoolean(JEI_REQUEST);
+                boolean maxTransfer = fromJei && data.contains(JEI_MAX_TRANSFER, Tag.TAG_BYTE)
+                        && data.getBoolean(JEI_MAX_TRANSFER);
+                fill(context, data.getString(RECIPE), fromJei, maxTransfer);
             }
         });
     }
 
-    private void fill(UpgradeOperationContext context, String recipeId) {
+    private void fill(UpgradeOperationContext context, String recipeId, boolean fromJei, boolean maxTransfer) {
         ResourceLocation id = recipeId.length() <= 512 ? ResourceLocation.tryParse(recipeId) : null;
         ServerPlayer serverPlayer = context.player();
         if (id == null) {
@@ -114,7 +128,7 @@ public final class RemoteCraftingUpgradeContainer extends CraftingUpgradeContain
             feedback(serverPlayer, "unavailable");
             return;
         }
-        int missing = RemoteCraftingFill.fill(context, remoteWrapper(), getCraftMatrix(), recipe);
+        int missing = RemoteCraftingFill.fill(context, remoteWrapper(), getCraftMatrix(), recipe, fromJei, maxTransfer);
         if (missing < 0) {
             feedback(serverPlayer, "incompatible");
         } else if (missing == 0) {
