@@ -5,5 +5,20 @@ allprojects {
  identity.each { k, v -> ext.set(k.toString(), providers.gradleProperty(k.toString()).getOrElse(v.toString())) }
  group = mod_group_id
  version = mod_version
- repositories { mavenCentral(); maven { url = 'https://maven.neoforged.net/releases' }; exclusiveContent { forRepository { maven { url = 'https://api.modrinth.com/maven' } }; filter { includeGroup 'maven.modrinth' } } }
+ repositories {
+  // NeoForm's external tools depend on ASM. Resolve it from a separate Central mirror so
+  // transient missing artifacts from repo.maven.apache.org do not fail the 26.1.2 matrix.
+  exclusiveContent {
+   forRepository {
+    maven {
+     name = 'googleMavenCentralAsmMirror'
+     url = 'https://maven-central.storage-download.googleapis.com/maven2/'
+    }
+   }
+   filter { includeGroup 'org.ow2.asm' }
+  }
+  mavenCentral()
+  maven { url = 'https://maven.neoforged.net/releases' }
+  exclusiveContent { forRepository { maven { url = 'https://api.modrinth.com/maven' } }; filter { includeGroup 'maven.modrinth' } }
+ }
 }
