@@ -6,3 +6,64 @@ permissions: {contents: read}
 jobs:
   ci:
     uses: radaeli-mc-mods/mc-ci/.github/workflows/mod-ci.yml@main
+
+  legacy-tests:
+    name: Regression / ${{ matrix.id }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {id: forge-1.20.1, minecraft: '1.20.1', loader: forge, java: '17'}
+          - {id: neoforge-1.21.1, minecraft: '1.21.1', loader: neoforge, java: '21'}
+    steps:
+      - uses: actions/checkout@v7
+        with: {persist-credentials: false}
+      - uses: radaeli-mc-mods/mc-ci/actions/setup-build@main
+        with: {java: '${{ matrix.java }}'}
+      - name: Preserved regression suites
+        shell: bash
+        run: |
+          set -o pipefail
+          ./gradlew :common:check :check-${{ matrix.id }} --console=plain --stacktrace 2>&1 | tee regression-${{ matrix.id }}.log
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: regression-${{ matrix.id }}
+          path: |
+            common/build/reports/**
+            common/build/test-results/**
+            targets/${{ matrix.minecraft }}/${{ matrix.loader }}/build/reports/**
+            targets/${{ matrix.minecraft }}/${{ matrix.loader }}/build/test-results/**
+            regression-*.log
+            runs/**/logs/**
+          if-no-files-found: error
+
+  integration-26:
+    name: NeoForge 26.1.2 / ${{ matrix.profile }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        profile: [none, ae2, rs, toms, scc, all]
+    steps:
+      - uses: actions/checkout@v7
+        with: {persist-credentials: false}
+      - uses: radaeli-mc-mods/mc-ci/actions/setup-build@main
+        with: {java: '25'}
+      - name: Unit tests and native network GameTests
+        working-directory: targets/26.1.2
+        shell: bash
+        run: |
+          set -o pipefail
+          sh ./gradlew :neoforge:check -PbackendProfile=${{ matrix.profile }} --console=plain --stacktrace 2>&1 | tee integration-${{ matrix.profile }}.log
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: integration-26.1.2-${{ matrix.profile }}
+          path: |
+            targets/26.1.2/neoforge/build/reports/**
+            targets/26.1.2/neoforge/build/test-results/**
+            targets/26.1.2/integration-*.log
+            runs/26.1.2/gametest-*/logs/**
+          if-no-files-found: error

@@ -3,12 +3,14 @@
   "displayName": "Sophisticated Backpacks: Digital Storage Expansion (AE2, RS, SCC)",
   "java": [
     17,
-    21
+    21,
+    25
   ],
   "checks": [
     ":common:check",
-    ":forge:check",
-    ":neoforge:test"
+    ":check-forge-1.20.1",
+    ":check-neoforge-1.21.1",
+    ":check-neoforge-26.1.2"
   ],
   "curseforge": {
     "projectId": "1742266",
@@ -17,9 +19,9 @@
   "targets": [
     {
       "id": "forge-1.20.1",
-      "task": ":forge:build",
+      "task": ":verify-forge-1.20.1",
       "files": [
-        "forge/build/libs/sophisticated_backpacks_digital_storages_expansion-forge-*.jar"
+        "targets/1.20.1/forge/build/libs/sophisticated_backpacks_digital_storages_expansion-*+1.20.1-forge.jar"
       ],
       "loaders": [
         "forge"
@@ -37,9 +39,9 @@
     },
     {
       "id": "neoforge-1.21.1",
-      "task": ":neoforge:build",
+      "task": ":verify-neoforge-1.21.1",
       "files": [
-        "neoforge/build/libs/sophisticated_backpacks_digital_storages_expansion-neoforge-*.jar"
+        "targets/1.21.1/neoforge/build/libs/sophisticated_backpacks_digital_storages_expansion-*+1.21.1-neoforge.jar"
       ],
       "loaders": [
         "neoforge"
@@ -50,6 +52,27 @@
       "java": 21,
       "dependencies": [
         "sophisticated-backpacks(required)",
+        "applied-energistics-2(optional)",
+        "refined-storage(optional)",
+        "toms-storage(optional)"
+      ]
+    },
+    {
+      "id": "neoforge-26.1.2",
+      "task": ":verify-neoforge-26.1.2",
+      "files": [
+        "targets/26.1.2/neoforge/build/libs/sophisticated_backpacks_digital_storages_expansion-*+26.1.2-neoforge.jar"
+      ],
+      "loaders": [
+        "neoforge"
+      ],
+      "gameVersions": [
+        "26.1.2"
+      ],
+      "java": 25,
+      "dependencies": [
+        "sophisticated-backpacks(required)",
+        "sophisticated-core(required)",
         "applied-energistics-2(optional)",
         "refined-storage(optional)",
         "toms-storage(optional)"
