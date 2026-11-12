@@ -1,38 +1,52 @@
-plugins {
-    id 'base'
-    id 'net.neoforged.moddev' version '2.0.144' apply false
-    id 'net.neoforged.moddev.legacyforge' version '2.0.144' apply false
+plugins { id 'java-base' }
+allprojects { group = mod_group_id; version = mod_version; repositories { mavenCentral() } }
+def targets = ['forge-1.20.1': ['1.20.1','forge',17], 'neoforge-1.21.1': ['1.21.1','neoforge',21], 'neoforge-26.1.2': ['26.1.2','neoforge',25]]
+def windows = System.getProperty('os.name').startsWith('Windows')
+def wrapper = windows ? ['cmd.exe','/d','/c','gradlew.bat'] : ['sh','./gradlew']
+def profiles = ['none','ae2','rs','toms','scc','all']
+def integrationTasks = []
+profiles.eachWithIndex { profile, index ->
+ def task = tasks.register('check-neoforge-26.1.2-' + profile, Exec) {
+  group = 'verification'
+  workingDir 'targets/26.1.2'
+  commandLine wrapper + [':neoforge:check', '--console=plain', '-PbackendProfile=' + profile, '-Pmod_version=' + mod_version]
+  doFirst { environment 'JAVA_HOME', javaToolchains.launcherFor { languageVersion = JavaLanguageVersion.of(25) }.get().metadata.installationPath.asFile.absolutePath }
+ }
+ if (index > 0) task.configure { mustRunAfter integrationTasks[index - 1] }
+ integrationTasks.add(task)
 }
-
-group = mod_group_id
-version = mod_version
-
-allprojects {
-    group = mod_group_id
-    version = mod_version
-
-    repositories {
-        mavenCentral()
-        exclusiveContent {
-            forRepository {
-                maven {
-                    name = 'Modrinth'
-                    url = 'https://api.modrinth.com/maven'
-                }
-            }
-            filter {
-                includeGroup 'maven.modrinth'
-            }
-        }
-    }
+targets.each { id, target ->
+ def launcher = javaToolchains.launcherFor { languageVersion = JavaLanguageVersion.of(target[2]) }
+ def legacyScc = id == 'neoforge-1.21.1' ? tasks.register('check-neoforge-1.21.1-scc', Exec) {
+  group = 'verification'
+  workingDir 'targets/1.21.1'
+  commandLine wrapper + [':neoforge:test', '-PsccTests', '--console=plain', '-Pmod_version=' + mod_version]
+  doFirst { environment 'JAVA_HOME', launcher.get().metadata.installationPath.asFile.absolutePath }
+ } : null
+ if (id == 'neoforge-26.1.2') tasks.register('check-' + id) { group = 'verification'; dependsOn integrationTasks }
+ else tasks.register('check-' + id, Exec) {
+  group = 'verification'
+  workingDir 'targets/' + target[0]
+  commandLine wrapper + [':' + target[1] + ':check', '--console=plain', '-Pmod_version=' + mod_version]
+  doFirst { environment 'JAVA_HOME', launcher.get().metadata.installationPath.asFile.absolutePath }
+ }
+ if (legacyScc != null) tasks.named('check-' + id).configure { dependsOn legacyScc }
+ def buildTask = tasks.register('build-' + id, Exec) {
+  group = 'build'
+  workingDir 'targets/' + target[0]
+  commandLine wrapper + [':' + target[1] + ':build', '--console=plain', '-Pmod_version=' + mod_version]
+  doFirst { environment 'JAVA_HOME', launcher.get().metadata.installationPath.asFile.absolutePath }
+ }
+ if (legacyScc != null) buildTask.configure { dependsOn legacyScc }
+ if (id == 'neoforge-26.1.2') buildTask.configure { mustRunAfter integrationTasks }
+ tasks.register('verify-' + id, Exec) {
+  group = 'verification'
+  dependsOn buildTask
+  def artifact = 'targets/' + target[0] + '/' + target[1] + '/build/libs/' + mod_id + '-' + mod_version + '+' + target[0] + '-' + target[1] + '.jar'
+  commandLine 'node', 'tools/verify-jar.mjs', artifact, target[0], target[1], target[2].toString(), mod_id, mod_version
+ }
 }
-
-tasks.register('buildAll') {
-    group = 'build'
-    description = 'Checks the shared core and builds the Forge 1.20.1 and NeoForge 1.21.1 artifacts.'
-    dependsOn(':common:check', ':forge:build', ':neoforge:build')
-}
-
-tasks.named('build') {
-    dependsOn(':common:check', ':forge:build', ':neoforge:build')
-}
+tasks.register('buildAll') { group = 'build'; dependsOn ':common:check', 'check-neoforge-26.1.2'; dependsOn targets.keySet().collect { 'verify-' + it } }
+tasks.register('checkAll') { group = 'verification'; dependsOn ':common:check'; dependsOn targets.keySet().collect { 'check-' + it } }
+tasks.named('build') { dependsOn 'buildAll' }
+tasks.named('check') { dependsOn 'checkAll' }

@@ -3,10 +3,10 @@ plugins {
 }
 
 group = mod_group_id
-version = mod_version
+version = "${mod_version}+${minecraft_version}-neoforge"
 
 base {
-    archivesName = "${mod_id}-neoforge"
+    archivesName = mod_id
 }
 
 java {
@@ -21,13 +21,13 @@ neoForge {
     runs {
         client {
             client()
-            gameDirectory = project.file('../runs/client')
+            gameDirectory = project.file('../../../runs/1.21.1/client')
             programArgument '--quickPlaySingleplayer'
             programArgument 'New World'
         }
         server {
             server()
-            gameDirectory = project.file('../runs/server')
+            gameDirectory = project.file('../../../runs/1.21.1/server')
             programArgument '--nogui'
         }
     }
@@ -49,11 +49,10 @@ configurations {
 }
 
 dependencies {
-    implementation project(':common')
-    compileOnly files('../libs/scc-1.5.3.jar')
-    testCompileOnly files('../libs/scc-1.5.3.jar')
-    if (providers.gradleProperty('sccTests').isPresent()) testRuntimeOnly files('../libs/scc-1.5.3.jar')
-    localRuntime files('../libs/scc-1.5.3.jar')
+    compileOnly files('../../../libs/scc-1.5.3.jar')
+    testCompileOnly files('../../../libs/scc-1.5.3.jar')
+    if (providers.gradleProperty('sccTests').isPresent()) testRuntimeOnly files('../../../libs/scc-1.5.3.jar')
+    localRuntime files('../../../libs/scc-1.5.3.jar')
     compileOnly 'io.github.llamalad7:mixinextras-neoforge:0.5.3'
     localRuntime 'io.github.llamalad7:mixinextras-neoforge:0.5.3'
     testImplementation 'org.junit.jupiter:junit-jupiter:5.11.4'
@@ -77,6 +76,8 @@ dependencies {
 tasks.named('test', Test).configure {
     useJUnitPlatform()
     if (providers.gradleProperty('sccTests').isPresent()) {
+        reports.junitXml.outputLocation = layout.buildDirectory.dir('test-results/scc-contract')
+        reports.html.outputLocation = layout.buildDirectory.dir('reports/tests/scc-contract')
         maxHeapSize = '2G'
         include '**/SccNativeContractTest*', '**/SccAccessPolicyTest*'
     } else {
@@ -110,13 +111,13 @@ tasks.withType(JavaCompile).configureEach {
     options.release = java_version as int
 }
 
-sourceSets.main.java.srcDir('../common/src/main/java')
+sourceSets.main.java.srcDir('../../../common/src/main/java')
 
 tasks.register('verifySccJar') {
-    inputs.file('../libs/scc-1.5.3.jar')
+    inputs.file('../../../libs/scc-1.5.3.jar')
     doLast {
         def digest = java.security.MessageDigest.getInstance('SHA-256')
-        file('../libs/scc-1.5.3.jar').withInputStream { stream ->
+        file('../../../libs/scc-1.5.3.jar').withInputStream { stream ->
             byte[] buffer = new byte[8192]
             int length
             while ((length = stream.read(buffer)) != -1) digest.update(buffer, 0, length)
@@ -127,3 +128,5 @@ tasks.register('verifySccJar') {
     }
 }
 tasks.named('compileJava') { dependsOn('verifySccJar') }
+
+sourceSets.main.resources.srcDir('../../../shared/src/main/resources')
