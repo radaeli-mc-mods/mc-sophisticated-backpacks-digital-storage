@@ -1,0 +1,48 @@
+import groovy.json.JsonSlurper
+import java.security.MessageDigest
+
+def audited = new JsonSlurper().parse(rootProject.file('dependencies.lock.json'))
+def profile = providers.gradleProperty('backendProfile').getOrElse('none')
+def profiles = ['none': [], 'ae2': ['ae2'], 'rs': ['refinedstorage'],
+                'toms': ['toms_storage'], 'scc': ['scc'],
+                'all': ['ae2', 'refinedstorage', 'toms_storage', 'scc']]
+if (!profiles.containsKey(profile)) throw new GradleException("Unknown backendProfile: ${profile}")
+ext.backendProfile = profile
+def required = ['sophisticatedcore', 'sophisticatedbackpacks']
+def paths = audited.collectEntries { dep -> [(dep.id): rootProject.file("../../libs/26.1.2/${dep.file}")] }
+tasks.register('verifyAuditedDependencies') {
+    inputs.file(rootProject.file('dependencies.lock.json'))
+    outputs.upToDateWhen { false }
+    doLast {
+        // A failed new invocation must not leave an old successful integration summary behind.
+        project.layout.buildDirectory.file('reports/integration/' + profile + '/summary.json').get().asFile.delete()
+        audited.each { dep ->
+            def artifact = paths[dep.id]
+            if (!artifact.isFile()) {
+                if (!dep.url) throw new GradleException("Missing audited dependency: ${artifact}")
+                artifact.parentFile.mkdirs()
+                def temporary = new File(artifact.parentFile, artifact.name + '.part')
+                try {
+                    new URI(dep.url).toURL().withInputStream { input -> temporary.withOutputStream { it << input } }
+                    def hash = MessageDigest.getInstance('SHA-256').digest(temporary.bytes).encodeHex().toString()
+                    if (hash != dep.sha256) throw new GradleException("SHA-256 mismatch for ${dep.file}")
+                    java.nio.file.Files.move(temporary.toPath(), artifact.toPath(), java.nio.file.StandardCopyOption.REPLACE_EXISTING)
+                } finally { temporary.delete() }
+            }
+            def hash = MessageDigest.getInstance('SHA-256').digest(artifact.bytes).encodeHex().toString()
+            if (hash != dep.sha256) throw new GradleException("SHA-256 mismatch for ${dep.file}")
+        }
+    }
+}
+dependencies {
+    compileOnly files(paths.values())
+    testImplementation files(required.collect { paths[it] })
+    testCompileOnly files(paths.values())
+    localRuntime files((required + profiles[profile]).collect { paths[it] })
+    testRuntimeOnly files(profiles[profile].collect { paths[it] })
+    if ('ae2' in profiles[profile]) {
+        localRuntime files(paths.guideme)
+        testRuntimeOnly files(paths.guideme)
+    }
+}
+tasks.withType(JavaCompile).configureEach { dependsOn 'verifyAuditedDependencies' }

@@ -1,0 +1,52 @@
+[
+  {
+    "id": "sophisticatedcore",
+    "file": "sophisticatedcore-26.1.2-1.5.34.2469.jar",
+    "url": "https://edge.forgecdn.net/files/9555/011/sophisticatedcore-26.1.2-1.5.34.2469.jar",
+    "sha256": "86514300588b4c0e7c4582acac69b57299a4a4fea2841f5229cc577f531f0d43",
+    "version": "26.1.2-1.5.34.2469"
+  },
+  {
+    "id": "sophisticatedbackpacks",
+    "file": "sophisticatedbackpacks-26.1.2-3.26.20.2250.jar",
+    "url": "https://edge.forgecdn.net/files/9555/009/sophisticatedbackpacks-26.1.2-3.26.20.2250.jar",
+    "sha256": "9adbeea7d24821269870a00edaf26336fd091eb478404e9b4693b7f932f24df6",
+    "version": "26.1.2-3.26.20.2250"
+  },
+  {
+    "id": "ae2",
+    "file": "appliedenergistics2-26.1.13-beta.jar",
+    "url": "https://cdn.modrinth.com/data/XxWD5pD3/versions/nVSxZcom/appliedenergistics2-26.1.13-beta.jar",
+    "sha256": "6474119c645a21f509da518845ab42bff84d496f80a86ce5e551d7a4745b4893",
+    "version": "26.1.13-beta"
+  },
+  {
+    "id": "refinedstorage",
+    "file": "refinedstorage-neoforge-3.2.1.jar",
+    "url": "https://cdn.modrinth.com/data/KDvYkUg3/versions/P12kjgPK/refinedstorage-neoforge-3.2.1.jar",
+    "sha256": "689916dbd53de7215175cbe89c3904b326db3d28460827d8c03d2694e5762ccf",
+    "version": "3.2.1"
+  },
+  {
+    "id": "toms_storage",
+    "file": "toms_storage-26.1-2.10.3.jar",
+    "url": "https://cdn.modrinth.com/data/XZNI4Cpy/versions/6dinsQOX/toms_storage-26.1-2.10.3.jar",
+    "sha256": "881aefc784fd4ec0c8d2e22f8236212082a2c3d185ca51fc5c3a9242789e5859",
+    "version": "26.1-2.10.3"
+  },
+  {
+    "id": "scc",
+    "file": "scc-1.6.5.jar",
+    "url": null,
+    "sha256": "6fb0be9547c9aa8ea01adaa91fa846a43ca14256a8a5716bec87cbc3a6b65eb0",
+    "version": "1.6.5",
+    "origin": "User-supplied audited JAR, versioned in libs/26.1.2 with SCC-LICENSE"
+  },
+  {
+    "id": "guideme",
+    "file": "guideme-26.1.14-beta.jar",
+    "url": "https://cdn.modrinth.com/data/Ck4E7v7R/versions/Vvte0XiA/guideme-26.1.14-beta.jar",
+    "sha256": "28887ce18eddd4107722899248ae36cea31fba4696522563703ecf093a42b4a3",
+    "version": "26.1.14-beta"
+  }
+]

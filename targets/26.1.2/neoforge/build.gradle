@@ -1,0 +1,197 @@
+plugins {
+    id 'net.neoforged.moddev'
+}
+
+group = mod_group_id
+version = "${mod_version}+${minecraft_version}-neoforge"
+
+base {
+    archivesName = mod_id
+}
+
+java {
+    toolchain.languageVersion = JavaLanguageVersion.of(java_version as int)
+    withSourcesJar()
+}
+
+sourceSets { gameTest { compileClasspath += sourceSets.main.output + sourceSets.main.compileClasspath; runtimeClasspath += sourceSets.main.output + sourceSets.main.runtimeClasspath } }
+
+neoForge {
+    version = neoforge_version
+    addModdingDependenciesTo(sourceSets.gameTest)
+    accessTransformers.from('src/main/resources/META-INF/accesstransformer.cfg')
+
+    runs {
+        client {
+            client()
+            gameDirectory = project.file('../../../runs/26.1.2/client')
+            programArgument '--quickPlaySingleplayer'
+            programArgument 'New World'
+        }
+        gameTestServer {
+            type = 'gameTestServer'
+            sourceSet = sourceSets.gameTest
+            gameDirectory = project.file('../../../runs/26.1.2/gametest-' + providers.gradleProperty('backendProfile').getOrElse('none'))
+            systemProperty 'neoforge.enabledGameTestNamespaces', 'digitalstorage_tests'
+            systemProperty 'digitalstorage.backendProfile', providers.gradleProperty('backendProfile').getOrElse('none')
+            programArgument '--report'
+            programArgument layout.buildDirectory.file('reports/integration/' + providers.gradleProperty('backendProfile').getOrElse('none') + '/gametest.xml').get().asFile.absolutePath
+        }
+        server {
+            server()
+            gameDirectory = project.file('../../../runs/26.1.2/server')
+            programArgument '--nogui'
+        }
+    }
+
+    mods {
+        digitalstorage_tests { sourceSet sourceSets.gameTest }
+        "${mod_id}" {
+            sourceSet sourceSets.main
+        }
+    }
+
+    unitTest {
+        enable()
+        testedMod = mods[mod_id]
+        loadedMods = [mods[mod_id]]
+    }
+}
+
+configurations {
+    runtimeClasspath.extendsFrom localRuntime
+}
+
+apply from: rootProject.file('../../gradle/audited-dependencies.gradle')
+
+dependencies {
+ compileOnly 'io.github.llamalad7:mixinextras-neoforge:0.5.3'
+ testImplementation 'org.junit.jupiter:junit-jupiter:5.11.4'
+ testImplementation 'net.neoforged:testframework:26.1.2.124'
+ testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+tasks.named('test', Test).configure {
+    useJUnitPlatform()
+    systemProperty 'digitalstorage.backendProfile', backendProfile
+    outputs.dir(layout.buildDirectory.dir('reports/tests/' + backendProfile))
+    reports.junitXml.outputLocation = layout.buildDirectory.dir('test-results/' + backendProfile)
+    reports.html.outputLocation = layout.buildDirectory.dir('reports/tests/' + backendProfile)
+    maxHeapSize = '2G'
+    if (!(backendProfile in ['scc','all'])) exclude '**/SccNativeContractTest*'
+}
+
+processResources {
+    def properties = [
+        version: "${mod_version}+${minecraft_version}",
+        mod_id: mod_id,
+        mod_name: mod_name,
+        mod_description: mod_description,
+        mod_authors: mod_authors,
+        mod_license: mod_license,
+        minecraft_version: minecraft_version,
+        neoforge_version: neoforge_version,
+        neoforge_loader_version_range: neoforge_loader_version_range
+    ]
+    inputs.properties(properties)
+    filesMatching('META-INF/neoforge.mods.toml') {
+        expand(properties)
+    }
+    filesMatching('pack.mcmeta') {
+        expand(properties)
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+    options.release = java_version as int
+}
+
+sourceSets.main.java.srcDir('../../../common/src/main/java')
+
+
+tasks.withType(JavaCompile).configureEach { options.compilerArgs += ['-Xmaxerrs', '1000'] }
+
+neoForge.runs.configureEach { run ->
+ run.loadedMods = (run.name == 'gameTestServer' || run.name.startsWith('restart')) ? [neoForge.mods[mod_id], neoForge.mods.digitalstorage_tests] : [neoForge.mods[mod_id]]
+}
+
+['prepare', 'verify'].each { phase ->
+ neoForge.runs.create('restart' + phase.capitalize()) {
+  type = 'gameTestServer'
+  sourceSet = sourceSets.gameTest
+  gameDirectory = project.file('../../../runs/26.1.2/restart')
+  systemProperty 'neoforge.enabledGameTestNamespaces', 'digitalstorage_tests'
+  systemProperty 'digitalstorage.backendProfile', 'all'
+  systemProperty 'digitalstorage.restartPhase', phase
+  programArgument '--report'
+  programArgument layout.buildDirectory.file('reports/restart/' + phase + '/gametest.xml').get().asFile.absolutePath
+ }
+}
+
+tasks.named('check') { dependsOn 'runGameTestServer' }
+if (backendProfile == 'all') tasks.named('check') { dependsOn 'runRestartVerify' }
+
+tasks.named('test', Test) {
+ afterSuite { descriptor, result ->
+  if (descriptor.parent == null && (result.testCount == 0 || result.skippedTestCount != 0)) {
+   throw new GradleException('The mandatory JUnit profile ran no tests or skipped tests')
+  }
+ }
+}
+
+def validateNativeReport = { File report, int expected ->
+ if (!report.isFile()) throw new GradleException('Missing native GameTest XML report: ' + report)
+ def factory = javax.xml.parsers.DocumentBuilderFactory.newInstance()
+ factory.setFeature('http://apache.org/xml/features/disallow-doctype-decl', true)
+ def document = factory.newDocumentBuilder().parse(report)
+ def cases = document.getElementsByTagName('testcase')
+ def names = (0..<cases.length).collect { cases.item(it).getAttribute('name') }.findAll { it.startsWith('digitalstorage_tests:') }
+ if (names.size() != expected || names.toSet().size() != expected
+     || document.getElementsByTagName('failure').length != 0 || document.getElementsByTagName('skipped').length != 0) {
+  throw new GradleException('Incomplete GameTest report: expected ' + expected + ', discovered ' + names.size() + ' in ' + report)
+ }
+ return names.size()
+}
+
+['prepare', 'verify'].each { phase ->
+ def suffix = phase.capitalize()
+ def report = layout.buildDirectory.file('reports/restart/' + phase + '/gametest.xml')
+ def logs = tasks.register('collectRestart' + suffix + 'Logs', Copy) {
+  from project.file('../../../runs/26.1.2/restart/logs')
+  into layout.buildDirectory.dir('reports/restart/' + phase + '/logs')
+ }
+ tasks.named('runRestart' + suffix) {
+  finalizedBy logs
+  doFirst {
+   if (backendProfile != 'all') throw new GradleException('Restart tests require -PbackendProfile=all')
+   report.get().asFile.parentFile.mkdirs()
+   report.get().asFile.delete()
+  }
+  doLast { validateNativeReport(report.get().asFile, 5) }
+ }
+}
+tasks.named('runRestartVerify') { dependsOn 'runRestartPrepare' }
+tasks.named('runRestartPrepare') { mustRunAfter 'runGameTestServer' }
+
+def integrationLogs = tasks.register('collectIntegrationLogs', Copy) {
+ from project.file('../../../runs/26.1.2/gametest-' + backendProfile + '/logs')
+ into layout.buildDirectory.dir('reports/integration/' + backendProfile + '/logs')
+}
+tasks.named('runGameTestServer') {
+ finalizedBy integrationLogs
+ def report = layout.buildDirectory.file('reports/integration/' + backendProfile + '/gametest.xml')
+ doFirst {
+  report.get().asFile.parentFile.mkdirs()
+  report.get().asFile.delete()
+ }
+ doLast {
+  def expected = backendProfile == 'none' ? 1 : backendProfile == 'all' ? 81 : 21
+  def discovered = validateNativeReport(report.get().asFile, expected)
+  def summary = layout.buildDirectory.file('reports/integration/' + backendProfile + '/summary.json').get().asFile
+  summary.parentFile.mkdirs()
+  summary.text = groovy.json.JsonOutput.prettyPrint(groovy.json.JsonOutput.toJson([profile: backendProfile, requiredAddonTests: discovered, result: 'passed'])) + '\n'
+ }
+}
+
+sourceSets.main.resources.srcDir('../../../shared/src/main/resources')

@@ -1,0 +1,14 @@
+{
+  "replace": false,
+  "values": [
+    "sophisticated_backpacks_digital_storages_expansion:remote_deposit_upgrade",
+    "sophisticated_backpacks_digital_storages_expansion:remote_restock_upgrade",
+    "sophisticated_backpacks_digital_storages_expansion:remote_pickup_upgrade",
+    "sophisticated_backpacks_digital_storages_expansion:remote_magnet_upgrade",
+    "sophisticated_backpacks_digital_storages_expansion:remote_refill_upgrade",
+    "sophisticated_backpacks_digital_storages_expansion:remote_feeding_upgrade",
+    "sophisticated_backpacks_digital_storages_expansion:remote_alchemy_upgrade",
+    "sophisticated_backpacks_digital_storages_expansion:remote_pump_upgrade",
+    "sophisticated_backpacks_digital_storages_expansion:remote_crafting_upgrade"
+  ]
+}

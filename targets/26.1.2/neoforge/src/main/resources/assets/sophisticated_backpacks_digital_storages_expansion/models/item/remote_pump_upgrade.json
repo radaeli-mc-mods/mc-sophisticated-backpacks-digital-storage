@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/handheld",
+  "textures": {
+    "layer0": "sophisticated_backpacks_digital_storages_expansion:item/remote_pump_upgrade"
+  }
+}
