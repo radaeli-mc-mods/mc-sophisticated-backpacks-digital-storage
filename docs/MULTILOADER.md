@@ -1,74 +1,51 @@
 # Base multiloader
 
-## Implementação
+## Estrutura e versões
 
-O projeto entrega módulos Gradle `common`, `neoforge` e `forge`, com um JAR independente por loader. `common` compila em Java 17 e contém apenas código sem dependências de Minecraft. As APIs e classes Minecraft são compiladas por plataforma; não há um binário Minecraft compartilhado entre as duas versões.
+A raiz coordena builds independentes por Minecraft, seguindo vertical-trapdoors. `common` usa Java 17 sem Minecraft; suas fontes são incorporadas em cada target. As APIs de Minecraft e dos backends são compiladas separadamente.
 
-O módulo `forge` contém os oito upgrades remotos: Deposit, Restock, Pickup, Magnet, Refill, Feeding, Alchemy e Pump. O código inclui registros, abas/configuração Sophisticated, persistência NBT, desvínculo, recursos 1.20.1, adaptadores de itens para AE2 15.x/Refined Storage 1.x/Tom's Storage 1.7.x e adaptadores de fluidos para AE2/Refined Storage. Tom's informa incompatibilidade de fluidos. Os adaptadores opcionais são carregados apenas quando o respectivo mod está instalado.
-
-Regras e wrappers Minecraft foram portados para fontes Forge e NeoForge separadas. No estado atual, a única classe Java compartilhada em `common` é `TransferQuantities`; ampliar a extração de regras puras continua sendo uma melhoria arquitetural possível, sem mudar os contratos funcionais.
-
-## Versões e build
-
-| Módulo | Minecraft | Loader | Java |
+| Target | Loader | Java | Gradle |
 | --- | --- | --- | --- |
-| `forge` | 1.20.1 | Forge 47.4.10 | 17 |
-| `neoforge` | 1.21.1 | NeoForge 21.1.236 | 21 |
-| `common` | independente | — | 17 |
+| 1.20.1 | Forge 47.4.10 | 17 | 8.11.1 |
+| 1.21.1 | NeoForge 21.1.236 | 21 | 8.11.1 |
+| 26.1.2 | NeoForge 26.1.2.124 | 25 | 9.4.0 |
 
-As dependências de desenvolvimento estão fixadas por artefatos Maven do Modrinth em `forge/build.gradle` e `neoforge/build.gradle`. O build Forge usa ModDevGradle Legacy Forge, gera refmap, inclui `MixinConfigs` e reobfusca o JAR com `reobfJar`. Os mods de storage não são incorporados ao artefato.
+Forge contém os nove upgrades e AE2/RS/Tom's. NeoForge inclui também SCC. Tom's não oferece fluidos; SCC limita fluidos às identidades preservadas por sua API. O [porte 26.1.2](PORT_26_1_2.md) segue P01–P12 e os planos individuais.
 
-## Validação feita
+## Comandos
 
-### Gate do artefato Forge de produção — P01/P12
-
-Com Java 21 para executar Gradle e toolchain Java 17 disponível para Forge:
+Na raiz, com JDKs 17, 21 e 25:
 
 ```powershell
-.\gradlew.bat :forge:build
+.\gradlew.bat checkAll
+.\gradlew.bat buildAll
+.\gradlew.bat verify-forge-1.20.1
+.\gradlew.bat verify-neoforge-1.21.1
+.\gradlew.bat verify-neoforge-26.1.2
+```
+
+Cada versão também aceita tarefas locais do loader. A partir de `targets/1.20.1`:
+
+```powershell
 .\gradlew.bat :forge:verifyForgeProductionJar
 .\gradlew.bat :forge:testForgeProductionJarVerification
 ```
 
-Os dois novos gates integram `:forge:check` e dependem de `reobfJar`. Inspecionam o JAR em `forge/build/libs`, não o JAR de desenvolvimento em `forge/build/devlibs` nem somente os recursos processados. O verificador exige `MixinConfigs` no manifesto, a configuração com referência explícita ao refmap, o recurso referenciado, a classe do accessor e o mapeamento `pickupDelay → f_31986_:I` nos contextos padrão e `searge`. Também exige a declaração Jar-in-Jar de MixinExtras e seu JAR incorporado, necessário ao `PickupContextMixin` em instalações mínimas. A versão incorporada é 0.4.1; o intervalo `[0.4.1,)` permite a seleção compartilhada por Jar-in-Jar.
+O override `-PforgeProductionJar=C:/path/addon.jar` continua disponível; caminhos relativos agora são relativos ao build `targets/1.20.1`.
 
-O teste usa o mesmo verificador contra sete cópias temporárias: referência ausente, refmap ausente, mapeamento do accessor ausente, contexto `searge` incorreto, manifesto ausente, metadados Jar-in-Jar ausentes e declaração MixinExtras ausente. Cada caso deve falhar pelo motivo esperado. Os arquivos ficam apenas em `build/tmp`.
+Artefatos: `targets/<minecraft>/<loader>/build/libs/<mod_id>-<mod_version>+<minecraft>-<loader>.jar`. A identidade e a versão vêm das propriedades da raiz, incluindo override de CI. Os verificadores coordenados rejeitam metadados, bytecode, recursos e empacotamento incompatíveis.
 
-Para auditar um artefato anterior, sem substituí-lo:
+## Gates e evidência
 
-```powershell
-.\gradlew.bat :forge:verifyForgeProductionJar -PforgeProductionJar=C:/path/to/addon.jar
-```
+Os gates Forge continuam em `:forge:check`: JAR reobfuscado, refmap de `pickupDelay`, configuração Mixin, MixinExtras Jar-in-Jar e sete fixtures negativas. O JAR em `build/devlibs` não é a distribuição. A suíte 1.21.1 e seu perfil SCC foram preservados. `check-neoforge-1.21.1-scc` executa os cinco testes legados desse perfil e pertence aos gates de check/build 1.21.1, com relatórios separados.
 
-O caminho relativo é resolvido a partir da raiz do repositório. Essa opção altera somente o arquivo inspecionado; `reobfJar` continua como pré-requisito do gate. Falha de validação encerra a tarefa com erro.
+Para 26.1.2, cada perfil executa JUnit com o servidor efêmero oficial e GameTests com redes nativas. Use `-PbackendProfile=none|ae2|rs|toms|scc|all` a partir do target. O CI executa os seis perfis em jobs independentes e publica relatórios/logs mesmo em falha. A raiz oferece `check-neoforge-26.1.2` para a matriz completa, em sequência para não compartilhar outputs entre processos simultâneos.
 
-O JSON Forge declara `sophisticated_backpacks_digital_storages_expansion.refmap.json`; gerar e empacotar o arquivo sozinho não basta para selecioná-lo no Mixin. O accessor permanece remapeável, e os Mixins das APIs Sophisticated mantêm `remap = false`. Não há alteração de IDs, NBT ou regras do Magnet.
+A reorganização passou nas suítes Forge 1.20.1 e NeoForge 1.21.1. Registros finais e limites: [26.1.2](PORT_26_1_2.md#evidências-e-aceitação). GUI, sprites/animações, single player e multiplayer exigem validação adicional P12. Migração de mundos entre versões não integra esses testes.
 
-### Validação de runtime
+## Registros anteriores à reorganização
 
-O build inclui os GameTests do ambiente de desenvolvimento. Para conferir a distribuição, usar Java 17 e carregar o JAR reobfuscado em instâncias isoladas de Minecraft 1.20.1/Forge 47.4.10 e 47.4.26, fora de `runClient` e sem flags de remapeamento de desenvolvimento. Começar apenas com addon/Core/Backpacks; depois conferir Core 1.5.21.2444, Backpacks 3.26.19.2239 e o conjunto de mods do caso investigado.
-
-Registrar separadamente inicialização até o menu, entrada em mundo novo, servidor dedicado e cenários do [Magnet](upgrades/MAGNET.md): delay infinito/finito, sobras parciais e coexistência com Pickup. Uma falha posterior deve ser investigada a partir do primeiro erro causal do novo log. Não considerar aprovação de build ou inspeção de ZIP como aprovação desses cenários.
-
-Os resultados atuais de execução estão registrados ao final deste documento; as tabelas abaixo preservam o levantamento inicial da base multiloader.
-
-| Verificação | Resultado | Limite da evidência |
-| --- | --- | --- |
-| `:common:test` | 3 testes aprovados | Contrato aritmético independente de Minecraft. |
-| `:neoforge:test --rerun-tasks` | 51 testes aprovados | Suíte existente da linha 1.21.1. |
-| `:forge:test` | 1 teste aprovado | Contrato de permissão INSERT/EXTRACT; não inicializa o jogo. |
-| `:forge:build` | Aprovado | Compilação, JAR Forge reobfuscado, recursos, tag `tags/items`, oito receitas e configuração Mixin. |
-
-O artefato gerado é `forge/build/libs/sophisticated_backpacks_digital_storages_expansion-forge-0.1.0.jar`. A inspeção do JAR confirmou as oito classes de item, receitas, tag `sophisticatedbackpacks:upgrade` e configuração Mixin. O ambiente de testes JUnit Forge não inicializa registries de Minecraft; por isso, o teste Forge atual permanece restrito a lógica pura.
-
-## Validação ainda necessária
-
-Não foram executados GameTests Forge, boot de cliente/servidor com o JAR final, nem cenários com redes reais AE2, Refined Storage e Tom's Storage. Permanecem pendentes a matriz de cinco perfis de backends, persistência em mundo, permissões/alcance, GUI sincronizada, troca de topologia e validação manual em cliente e servidor dedicado. Compilar e empacotar não comprova esses cenários.
-
-As receitas e assets partem dos recursos 1.21.1. O build converte o campo `result.id` para `result.item`, move tags de `tags/item` para `tags/items`, e usa `pack_format: 15` no Forge. As diferenças de API de filtros, hooks, capabilities e NBT ficam no código específico de cada módulo.
-
-Os contratos funcionais e limites de cada upgrade permanecem em [UPGRADES.md](UPGRADES.md) e nos [planos individuais](upgrades/).
-
+Os comandos, caminhos e versões abaixo registram verificações históricas; os caminhos atuais são os descritos acima.
 ## Resultado da correção de empacotamento — 2026-11-01
 
 - `gradlew.bat :forge:build`: aprovado, incluindo 1 teste JUnit, 10 GameTests Forge e os gates do JAR final. O verificador aceitou o corrigido e rejeitou as sete fixtures danificadas. O JAR original 0.4.0 também foi rejeitado pela ausência da referência ao refmap.

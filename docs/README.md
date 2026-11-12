@@ -4,8 +4,9 @@ Player guides: [Linking upgrades](player/linking.md), [Filters and source priori
 
 - [PRD do MVP](PRD.md) — requisitos, conectividade e critérios de aceitação para depósitos de mochila em sistemas de storage digital.
 - [Arquitetura implementada](ARCHITECTURE.md) — responsabilidades compartilhadas, contratos, proteções e estado atual da integração.
-- [Planos dos upgrades universais](UPGRADES.md) — premissas aprovadas, contratos, sequência e critérios de validação dos oito upgrades.
-- [Base multiloader](MULTILOADER.md) — implementação Forge 1.20.1, artefatos e evidências de validação pendentes.
+- [Planos dos upgrades universais](UPGRADES.md) — premissas aprovadas, contratos, sequência e critérios de validação dos nove upgrades.
+- [Porte NeoForge 26.1.2](PORT_26_1_2.md) — decisões aprovadas, contratos transacionais e matriz automatizada.
+- [Base multiloader](MULTILOADER.md) — três targets, comandos, artefatos e limites de validação.
 - [Linha visual dos upgrades remotos](design/UPGRADE_VISUALS.md) — guideline de sprites, cores por rede e animações de vínculo.
 
 ## Planos por upgrade
