@@ -21,3 +21,9 @@ O seletor usa as receitas sincronizadas, com busca por nome do resultado ou ID. 
 Em 2026-11-08, o build passou nos dois loaders. A suíte comum verificou a atribuição por capacidade, ingredientes sobrepostos, prioridade e preservação da grade. O NeoForge decodificou a receita empacotada e confirmou a preservação dos componentes nativos na conversão. O servidor GameTest do Forge carregou a receita e verificou a preservação do NBT, o preenchimento parcial e a conclusão de uma receita com formato, além de alternativas sobrepostas e rejeição de uma grade incompatível numa receita sem formato.
 
 Verificar conversão e persistência, posições e espelhamentos, alternativas sobrepostas, prioridades, extrações parciais, recuperação, resultados concorrentes, recarga de datapacks e acesso inválido. A validação manual em cliente e servidor dedicado com AE2, Refined Storage, Tom’s e SCC onde suportado permanece aberta.
+
+## Target NeoForge 26.1.2
+
+O porte desta função preserva seu comportamento e as premissas P01–P12 aplicáveis. A implementação específica e os testes ficam no target 26.1.2; versões antigas conservam suas próprias fontes. APIs fixadas, transferência transacional, matriz por backend e evidências são registradas no [plano de porte](../PORT_26_1_2.md). Implementação, testes automatizados e aceitação manual são estados distintos.
+
+A exceção de networking autorizada pelo usuário limita o payload próprio S2C ao catálogo paginado; consulta e ações continuam no container Sophisticated. O servidor valida sessão/menu/aba, receita e limite por tick (P06). GameTests verificam preenchimento com as duas prioridades, resultado shaped, preenchimento parcial shapeless e devolução dos três baldes de uma receita de bolo; JUnit cobre conversão e codecs (P08/P09/P12). A evidência automatizada não encerra a aceitação manual P12.

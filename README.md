@@ -46,10 +46,13 @@ These upgrades do not create wireless access or bypass your storage network's pe
 
 Install the mod on **both the client and server**.
 
+- **Minecraft 26.1.2 · NeoForge 26.1.2.124+ · Java 25** — Sophisticated Backpacks 3.26.20+ and Sophisticated Core 1.5.34+.
 - **Minecraft 1.21.1 · NeoForge 21.1.236+** — Sophisticated Backpacks 3.26.3+ and Sophisticated Core 1.5.1+.
 - **Minecraft 1.20.1 · Forge 47.4.10+** — Sophisticated Backpacks 3.26.12+ and Sophisticated Core 1.5.10+.
 
-Connect each upgrade to the network you use: **Applied Energistics 2** (19.2.18+ on NeoForge; 15.4.11 on Forge), **Refined Storage** (2.0.9+ on NeoForge; 1.12.4 on Forge), **Tom's Simple Storage** (2.4.2+ on NeoForge; 1.7.1 on Forge), or **Super Cool Calculator** (1.5.3+ on NeoForge 1.21.1). You can use more than one network; each upgrade keeps the network you link it to.
+For **26.1.2**, use **AE2 26.1.13-beta** with **GuideME 26.1.14-beta**, **Refined Storage 3.2.1**, **Tom's Storage 2.10.3**, or **SCC 1.6.5**.
+
+On the earlier Minecraft versions, connect each upgrade to the network you use: **Applied Energistics 2** (19.2.18+ on NeoForge; 15.4.11 on Forge), **Refined Storage** (2.0.9+ on NeoForge; 1.12.4 on Forge), **Tom's Simple Storage** (2.4.2+ on NeoForge; 1.7.1 on Forge), or **Super Cool Calculator** (1.5.3+ on NeoForge 1.21.1). You can use more than one network; each upgrade keeps the network you link it to.
 
 For full setup instructions, filter behavior, and upgrade details, see the [documentation](https://mods.radaeli.dev/en/mods/sophisticated-backpack-is-addon/): [linking](https://mods.radaeli.dev/en/mods/sophisticated-backpack-is-addon/player/linking), [filters and source priority](https://mods.radaeli.dev/en/mods/sophisticated-backpack-is-addon/player/filters), and the [upgrade catalog](https://mods.radaeli.dev/en/mods/sophisticated-backpack-is-addon/player/upgrades).
 

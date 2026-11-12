@@ -66,3 +66,9 @@ Em jogo: consumir blocos, tochas e foguetes, trocar o item do slot, selecionar b
 ## SCC integration
 
 The NeoForge path includes SCC 1.5.3 through the shared adapters. Follow the function-specific phase and acceptance criteria in [SCC integration](../integrations/SCC.md), together with P02–P12. Implementation is present; network/GUI/runtime acceptance remains pending. Pump remote support is limited to fluids without added components.
+
+## Target NeoForge 26.1.2
+
+O porte desta função preserva seu comportamento e as premissas P01–P12 aplicáveis. A implementação específica e os testes ficam no target 26.1.2; versões antigas conservam suas próprias fontes. APIs fixadas, transferência transacional, matriz por backend e evidências são registradas no [plano de porte](../PORT_26_1_2.md). Implementação, testes automatizados e aceitação manual são estados distintos.
+
+O target adapta os acessos a inventário/hotbar e os recursos nativos, mantendo o cálculo de déficit e a validação de slots (P04/P05/P08). Os GameTests verificam o preenchimento do portador com as duas prioridades e recursos locais/remotos. A evidência automatizada não encerra a aceitação manual P12.

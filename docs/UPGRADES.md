@@ -4,7 +4,7 @@
 
 Este documento consolida as decisões aprovadas e os critérios dos upgrades universais. Deposit, Restock, Pickup, Magnet, Refill, Feeding, Alchemy, Pump e Crafting têm implementação nos dois loaders. Consulte a arquitetura e cada plano individual para o estado da validação por função e backend.
 
-O módulo Forge 1.20.1 agora também contém os oito upgrades e os adaptadores específicos dos JARs auditados. `:forge:build` passa e produz JAR reobfuscado. A suíte Forge ainda não cobre redes reais nem inicia registries do jogo em GameTests; veja a evidência e os limites atualizados em [MULTILOADER.md](MULTILOADER.md).
+Forge 1.20.1 e NeoForge 1.21.1 preservam suas suítes e os nove upgrades em builds independentes. Forge produz JAR reobfuscado. NeoForge 26.1.2 concentra a nova matriz de redes reais. Comandos, evidências e limites ficam em [MULTILOADER.md](MULTILOADER.md) e no [porte 26.1.2](PORT_26_1_2.md).
 
 A [arquitetura atual](ARCHITECTURE.md) descreve a base existente. O [PRD](PRD.md) permanece como registro do MVP original. Em caso de diferença de escopo, este documento e os planos individuais definem a evolução posterior ao MVP.
 
@@ -32,6 +32,8 @@ As âncoras explícitas `P01` a `P12` são referências estáveis. Os planos ind
 
 <a id="P01"></a>
 ### P01 — Plataforma e dependências
+
+O target adicional Minecraft 26.1.2 usa NeoForge 26.1.2.124 e Java 25, em build independente. JARs, estrutura e gates estão no [porte 26.1.2](PORT_26_1_2.md); as dependências abaixo continuam sendo a baseline 1.21.1.
 
 NeoForge: Minecraft 1.21.1, NeoForge 21.1.236 e Java 21. Forge: Minecraft 1.20.1, Forge 47.4.10 e Java 17. O pacote base é `com.radaeli.sophisticatedbackpacksdigitalstoragesexpansion`. Sophisticated Core e Backpacks são obrigatórios; os backends são opcionais e suas classes permanecem isoladas nos adaptadores. O ID do mod é `sophisticated_backpacks_digital_storages_expansion`; os IDs persistidos de itens e receitas mantêm o namespace anterior para compatibilidade dentro de cada versão de Minecraft. As implementações e os gates de runtime por plataforma estão em [MULTILOADER.md](MULTILOADER.md); build aprovado não declara os cenários de jogo concluídos.
 
@@ -78,7 +80,7 @@ Deposit e Restock têm direção fixa e não exibem prioridade: mochila → rede
 
 Usar o ciclo de vida de upgrades, componentes, filtros, controles e callbacks do Sophisticated. Um upgrade por função, incompatível com todas as versões básicas/avançadas nativas correspondentes. A validação precisa funcionar nas duas ordens de instalação; não bloquear funções diferentes, como Pickup e Magnet.
 
-Registrar item, `UpgradeType`, wrapper, container e aba; incluir o item na tag `sophisticatedbackpacks:upgrade`. Não introduzir um networking paralelo ao fluxo do Sophisticated.
+Registrar item, `UpgradeType`, wrapper, container e aba; incluir o item na tag `sophisticatedbackpacks:upgrade`. Não introduzir um networking paralelo ao fluxo do Sophisticated. Exceção aprovada pelo usuário para 26.1.2: payload S2C somente do catálogo transitório de receitas de Crafting; consulta, ações e validação continuam no container nativo. Ver [contrato do catálogo](PORT_26_1_2.md#exceção-aprovada-para-o-catálogo-de-crafting).
 
 <a id="P07"></a>
 ### P07 — Recursos e receitas

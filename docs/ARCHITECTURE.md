@@ -2,7 +2,7 @@
 
 ## Escopo
 
-O projeto suporta Minecraft 1.21.1/NeoForge 21.1.236/Java 21 e Minecraft 1.20.1/Forge 47.4.10/Java 17. O mod se chama **Sophisticated Backpacks - Digital Storages Expansion**, com ID `sophisticated_backpacks_digital_storages_expansion` e pacote Java `com.radaeli.sophisticatedbackpacksdigitalstoragesexpansion`. Itens e receitas usam esse mesmo namespace. Os nove upgrades têm implementações específicas para as duas plataformas. Forge compila e produz um JAR reobfuscado. A validação operacional em jogo é registrada por upgrade.
+O projeto contém também o target Minecraft 26.1.2/NeoForge 26.1.2.124/Java 25, descrito no [porte](PORT_26_1_2.md). As evidências de teste e a aceitação manual são separadas (P12). As plataformas preservadas são Minecraft 1.21.1/NeoForge 21.1.236/Java 21 e Minecraft 1.20.1/Forge 47.4.10/Java 17. O mod se chama **Sophisticated Backpacks - Digital Storages Expansion**, com ID `sophisticated_backpacks_digital_storages_expansion` e pacote Java `com.radaeli.sophisticatedbackpacksdigitalstoragesexpansion`. Itens e receitas usam esse mesmo namespace. Os nove upgrades têm implementações específicas para os três targets. Forge compila e produz um JAR reobfuscado. A validação operacional em jogo é registrada por upgrade.
 
 Os nove upgrades aparecem em uma aba criativa própria. A tooltip base do Sophisticated usa `item.<namespace>.<item>.tooltip`, com textos em inglês e português.
 
@@ -14,7 +14,7 @@ Cada função tem seu próprio item universal, configurado manualmente para um e
 
 No Forge, a configuração Mixin declara explicitamente o refmap gerado para resolver o accessor de `ItemEntity.pickupDelay` em produção (`f_31986_:I`). MixinExtras Forge 0.4.1 acompanha o JAR por Jar-in-Jar para o `PickupContextMixin`, sem depender de outro mod que forneça a biblioteca. O gate `verifyForgeProductionJar` inspeciona o artefato de `reobfJar`; `testForgeProductionJarVerification` exercita arquivos danificados com o mesmo verificador. Esses gates pertencem a `check` e não substituem gameplay, conforme P01/P12 e [MULTILOADER.md](MULTILOADER.md).
 
-O build usa `common`, `neoforge` e `forge`. `common` tem Java 17 sem dependências de Minecraft e suas fontes são incorporadas nos dois artefatos. O código com tipos Minecraft é compilado separadamente no loader correspondente; não existe binário de Minecraft compartilhado entre 1.20.1 e 1.21.1. O estado e os limites de validação do Forge estão em [MULTILOADER.md](MULTILOADER.md).
+A raiz coordena `common` e builds independentes em `targets/1.20.1/forge`, `targets/1.21.1/neoforge` e `targets/26.1.2/neoforge`. `common` tem Java 17 sem dependências de Minecraft e suas fontes são incorporadas nos três artefatos. O código com tipos Minecraft é compilado separadamente no loader correspondente; não existe binário de Minecraft compartilhado entre versões. O estado e os limites de validação do Forge estão em [MULTILOADER.md](MULTILOADER.md).
 
 ## Responsabilidades
 
@@ -223,3 +223,15 @@ Restock inicializa INVENTORY apenas quando não há configuração salva; recons
 A ausência de transferência manual relatada em Tom’s/SCC ainda exige reprodução com rede real. Testes isolados de filtro não comprovam descoberta da topologia, sincronização da GUI ou permissões em mundo. Validar os três modos, reabertura/reinstalação/reinício, conteúdo somente em cada destino, memória, componentes, ambas as prioridades e redes cheias/offline. Gates de jogo de P12 permanecem abertos; publicação no portal continua adiada conforme o plano SCC.
 
 Verificação desta correção: `gradlew.bat build` passou em ambos os loaders; suíte NeoForge com 61 testes e zero falhas, incluindo sete regressões novas de filtros, persistência, prioridades/sobras e snapshot manual. GameTests existentes do Forge executados pelo build. JARs 0.2.0 gerados nos diretórios de build de cada loader. Isso não valida redes reais ou GUI; o sintoma manual relatado permanece sem reprodução em mundo.
+
+## Contratos específicos de 26.1.2
+
+P01/P04/P06/P08–P12 e os nove planos individuais orientam o target. `LocalItemAccess` e `LocalFluidAccess` delimitam operações locais transacionais antes de chamadas remotas imediatas. `ResourceSnapshots` é uma visão nativa somente de leitura para filtros por conteúdo. `TransactionalItemBuffer` e `PickupReservation` reservam a coleta no journal da transação chamadora e só a entregam após commit. `GuardedFluidResourceHandler` protege capabilities nativas já em cache.
+
+Receitas usam ingredientes 26.1.2, NBT usa getters opcionais com validação de tipos, e Crafting consulta o `RecipeManager` do servidor. A exceção S2C aprovada transmite somente o catálogo paginado por sessão. A UI usa `GuiGraphicsExtractor` e os novos eventos de entrada; o visual de vínculo usa definições de item com propriedade de range registrada e upload no atlas de itens. Detalhes e gates: [porte 26.1.2](PORT_26_1_2.md).
+
+No adaptador Tom’s 26.1.2, `NetworkInventory.getAccess` resolve a visão nativa. O tracker é inicializado com `getChangeTracker` antes da primeira operação, sem depender de abrir o terminal. Snapshots de inventários agregados percorrem os trackers filhos nativos para observar mudanças no mesmo tick; inserção/extração continuam passando por `pushStack`/`pullStack` do terminal. Filtros nativos não são contornados. Falhas externas de Pickup com resultado incerto mantêm a reserva persistida em quarentena e bloqueiam repetição automática.
+
+P04/P08/P10 em 26.1.2: o contexto Pickup consulta capacidade antes de o handler nativo abrir a transação raiz, usando o mesmo provedor de mochilas, opção de mochila vestida e resolvedor de hosts vinculados do Sophisticated. O callback revalida acesso/filtro e limita a reserva à capacidade estimada e à oferta; a entrega continua após commit. No Tom’s, a estimativa usa a visão transacional nativa com abort e a execução continua pelo terminal. Redes e mochilas cheias preservam a entidade original nos cenários nativos de capacidade finita.
+
+A entrega Pickup grava o marcador de operação em andamento antes de cada destino imediato e grava a sobra conhecida após o retorno. Se a sessão termina com esse marcador salvo, a reconstrução não reenvia automaticamente a reserva. Exceções de recuperação mantêm o último checkpoint em quarentena e são registradas sem interromper o callback que atualiza a entidade original. Isso não promete atomicidade de persistência entre storages distintos (P08/P09).

@@ -1,6 +1,6 @@
 # Upgrade catalog
 
-All eight upgrades use the same item-linking system and can connect to AE2, Refined Storage, or Tom's Simple Storage. SCC 1.5.3 or newer is also supported on NeoForge 1.21.1.
+All nine upgrades use the same item-linking system and can connect to AE2, Refined Storage, or Tom's Simple Storage. SCC 1.5.3+ is supported on NeoForge 1.21.1; use SCC 1.6.5 on NeoForge 26.1.2.
 
 | Icon | Upgrade | Function |
 | --- | --- | --- |
@@ -12,5 +12,7 @@ All eight upgrades use the same item-linking system and can connect to AE2, Refi
 | <img src="https://raw.githubusercontent.com/radaelilucca/mc-sophisticated-backpacks-digital-storage/main/docs/gallery/upgrades/remote_feeding_upgrade.png" alt="Remote Feeding" width="32"> | Remote Feeding | Feed the player carrying the backpack with configured food when hunger or injury conditions are met. |
 | <img src="https://raw.githubusercontent.com/radaelilucca/mc-sophisticated-backpacks-digital-storage/main/docs/gallery/upgrades/remote_alchemy_upgrade.png" alt="Remote Alchemy" width="32"> | Remote Alchemy | Automatically use configured consumables when each filter slot's condition is met. |
 | <img src="https://raw.githubusercontent.com/radaelilucca/mc-sophisticated-backpacks-digital-storage/main/docs/gallery/upgrades/remote_pump_upgrade.png" alt="Remote Pump" width="32"> | Remote Pump | Transfer filtered fluids between the backpack tank or network and containers, nearby fluid handlers, or world fluids. Tom's Simple Storage is item-only. |
+
+| <img src="https://raw.githubusercontent.com/radaelilucca/mc-sophisticated-backpacks-digital-storage/main/docs/gallery/upgrades/remote_crafting_upgrade.png" alt="Remote Crafting" width="32"> | Remote Crafting | Choose a recipe and fetch missing ingredients from the backpack and linked network, preserving occupied slots. |
 
 See [Linking upgrades](linking.md) and [Filters and source priority](filters.md) for setup and configuration details.

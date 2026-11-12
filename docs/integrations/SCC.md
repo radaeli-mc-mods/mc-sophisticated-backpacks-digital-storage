@@ -2,7 +2,7 @@
 
 ## Artifact and scope
 
-Minecraft 1.21.1 / NeoForge 21.1.236 / Java 21 only. Backend ID: `scc`.
+Historical baseline below: Minecraft 1.21.1 / NeoForge 21.1.236 / Java 21. The additional 26.1.2 target is documented in its section at the end. Backend ID: `scc`.
 Audited input: `scc-1.5.3.jar`, SHA-256
 `e81ed8d3fdab7ce9bc35efc58036b63dcb6baefd07613156599dd638f8e84d3c`.
 Discovery used JAR metadata, javap bytecode and Vineflower output. Decompiled dependency code is not distributed.
@@ -84,3 +84,9 @@ this discovery/implementation plan must not be published in the portal.
 - `:neoforge:test :neoforge:build -PsccTests` passed with five tests and SCC 1.5.3 loaded by NeoForge. Tests cover finite/infinite/dimensional coverage and the native fluid store's component-sensitive drain and simulation. This profile requires a 2 GB test heap.
 - JAR inspection confirms adapter classes are packaged and dependency SCC classes are not embedded. Translation JSON parses and git diff whitespace checks pass.
 - These tests do not mount a real SCC network or exercise GUI/gameplay, crafting reservations, compressed conservation, permission revocation or multiplayer. All corresponding runtime acceptance gates above remain open. No release readiness is claimed; public portal documentation remains deferred.
+
+## SCC 1.6.5 — target 26.1.2
+
+O adaptador específico de 26.1.2 usa o JAR 1.6.5 fornecido, SHA-256 `6fb0be9547c9aa8ea01adaa91fa846a43ca14256a8a5716bec87cbc3a6b65eb0`. A licença acompanha o artefato em `libs/26.1.2`. Os nove upgrades entram na matriz SCC do [porte](../PORT_26_1_2.md), incluindo Crafting. Permanecem os contratos de segurança, alcance na origem, reservas/descompressão nativas e rejeição de fluidos com componentes adicionais. Os registros anteriores desta página descrevem especificamente a baseline 1.21.1/SCC 1.5.3.
+
+In 26.1.2, native security is tested both with its default disabled setting and enabled PUT-only/TAKE-only policies. Fluid QUERY follows TAKE; INSERT follows PUT. Native compression is configured before the network tick cache is initialized. Real fixtures verify nine-unit and four-unit decompression, including returned surplus and simulation without writes. Test-only recipes stay outside the distribution JAR.

@@ -85,3 +85,9 @@ Em jogo: água/lava e fluido modded, recipientes empilhados e com capability, ta
 ## SCC integration
 
 The NeoForge path includes SCC 1.5.3 through the shared adapters. Follow the function-specific phase and acceptance criteria in [SCC integration](../integrations/SCC.md), together with P02–P12. Implementation is present; network/GUI/runtime acceptance remains pending. Pump remote support is limited to fluids without added components.
+
+## Target NeoForge 26.1.2
+
+O porte desta função preserva seu comportamento e as premissas P01–P12 aplicáveis. A implementação específica e os testes ficam no target 26.1.2; versões antigas conservam suas próprias fontes. APIs fixadas, transferência transacional, matriz por backend e evidências são registradas no [plano de porte](../PORT_26_1_2.md). Implementação, testes automatizados e aceitação manual são estados distintos.
+
+O target usa `ResourceHandler<FluidResource>` na capability externa e uma fachada local transacional. O guard consulta o UUID em cada acesso e protege referências em cache. GameTests verificam um balde nos dois sentidos com as duas prioridades, recusa Tom’s e identidades com componentes em AE2/RS; SCC mantém a recusa de componentes adicionais (P03/P08/P09/P10). A evidência automatizada não encerra a aceitação manual P12.
