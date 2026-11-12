@@ -10,3 +10,16 @@ out/
 .gradle*/
 **/logs/
 design
+
+libs/26.1.2/*.jar
+!libs/26.1.2/scc-1.6.5.jar
+
+/targets/*/*.log
+/baseline.log
+
+/legacy-artifacts.log
+/artifact-26.log
+/matrix-26.log
+/final-build.log
+/legacy-scc.log
+/final-check.log

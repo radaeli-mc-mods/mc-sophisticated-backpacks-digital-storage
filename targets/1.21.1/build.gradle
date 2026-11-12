@@ -1,0 +1,9 @@
+plugins { id 'base'; id 'net.neoforged.moddev' version '2.0.144' apply false }
+def identity = new Properties()
+file('../../gradle.properties').withInputStream { identity.load(it) }
+allprojects {
+ identity.each { k, v -> ext.set(k.toString(), providers.gradleProperty(k.toString()).getOrElse(v.toString())) }
+ group = mod_group_id
+ version = mod_version
+ repositories { mavenCentral(); maven { url = 'https://maven.neoforged.net/releases' }; exclusiveContent { forRepository { maven { url = 'https://api.modrinth.com/maven' } }; filter { includeGroup 'maven.modrinth' } } }
+}
