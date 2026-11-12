@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -19,6 +20,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.neoforged.neoforge.client.event.RenderFrameEvent;
 import org.slf4j.Logger;
 
 import com.radaeli.sophisticatedbackpacksdigitalstoragesexpansion.SophisticatedBackpacksDigitalStoragesExpansion;
@@ -63,6 +65,15 @@ public final class LinkedUpgradeAppearance {
         return canvas.show(stack) ? 5 : networkIndex(stack);
     }
 
+    static void uploadPendingFrames(RenderFrameEvent.Pre event) {
+        if (!RenderSystem.isOnRenderThread()) return;
+        CANVASES.values().forEach(Canvas::uploadPendingFrame);
+    }
+
+    public static boolean isAnimating(ItemStack stack) {
+        return CANVASES.containsKey(stack.getItem()) && networkIndex(stack) != 0 && frameAt(stack) >= 0;
+    }
+
     static int networkIndex(ItemStack stack) {
         return EndpointBinding.read(stack).map(endpoint -> NETWORKS.indexOf(endpoint.backendId()) + 1).orElse(0);
     }
@@ -99,6 +110,7 @@ public final class LinkedUpgradeAppearance {
         private final String itemName;
         private final Identifier spriteId;
         private final Map<String, Optional<NativeImage>> strips = new HashMap<>();
+        private final AtomicReference<FrameRequest> pendingFrame = new AtomicReference<>();
         private TextureAtlasSprite sprite;
         private String uploaded = "";
 
@@ -111,11 +123,33 @@ public final class LinkedUpgradeAppearance {
         boolean show(ItemStack stack) {
             int network = networkIndex(stack);
             int frame = frameAt(stack);
-            if (network == 0 || frame < 0 || !RenderSystem.isOnRenderThread()) return false;
+            if (network == 0 || frame < 0) return false;
             String from = EndpointBinding.linkedFrom(stack).filter(NETWORKS::contains).orElse("unlinked");
             String strip = from + "_to_" + NETWORKS.get(network - 1);
-            Optional<NativeImage> image = strip(strip);
-            if (image.isEmpty()) return false;
+
+            FrameRequest request = new FrameRequest(strip, frame);
+            if (RenderSystem.isOnRenderThread()) {
+                // A direct render pass supersedes any frame requested during GUI extraction.
+                pendingFrame.set(null);
+                upload(request);
+            } else {
+                // GUI item models are resolved while the frame is extracted, before GPU drawing.
+                // Keep the latest frame and upload it from RenderFrameEvent.Pre on the render thread.
+                pendingFrame.set(request);
+            }
+            return true;
+        }
+
+        private void uploadPendingFrame() {
+            FrameRequest request = pendingFrame.getAndSet(null);
+            if (request != null) upload(request);
+        }
+
+        private void upload(FrameRequest request) {
+            String key = request.strip + "#" + request.frame;
+            if (key.equals(uploaded)) return;
+            Optional<NativeImage> image = strip(request.strip);
+            if (image.isEmpty()) return;
 
             // AtlasManager is keyed by atlas definition IDs (minecraft:items), not texture paths
             // (minecraft:textures/atlas/items.png).
@@ -127,21 +161,17 @@ public final class LinkedUpgradeAppearance {
                 uploaded = "";
                 strips.values().forEach(value -> value.ifPresent(NativeImage::close));
                 strips.clear();
-                image = strip(strip);
-                if (image.isEmpty()) return false;
+                image = strip(request.strip);
+                if (image.isEmpty()) return;
             }
-            String key = strip + "#" + frame;
-            if (!key.equals(uploaded)) {
-                var atlasTexture = atlas.getTexture();
-                // getX/getY point to the packed slot, which includes a one-pixel gutter. UV origin
-                // points to the first visible texel; writing at the slot origin clips and shifts it.
-                int textureX = Math.round(sprite.getU0() * atlasTexture.getWidth(0));
-                int textureY = Math.round(sprite.getV0() * atlasTexture.getHeight(0));
-                RenderSystem.getDevice().createCommandEncoder().writeToTexture(atlasTexture,
-                        image.get(), 0, 0, textureX, textureY, sprite.contents().width(), sprite.contents().height(), 0, frame * 16);
-                uploaded = key;
-            }
-            return true;
+            var atlasTexture = atlas.getTexture();
+            // getX/getY point to the packed slot, which includes a one-pixel gutter. UV origin
+            // points to the first visible texel; writing at the slot origin clips and shifts it.
+            int textureX = Math.round(sprite.getU0() * atlasTexture.getWidth(0));
+            int textureY = Math.round(sprite.getV0() * atlasTexture.getHeight(0));
+            RenderSystem.getDevice().createCommandEncoder().writeToTexture(atlasTexture,
+                    image.get(), 0, 0, textureX, textureY, sprite.contents().width(), sprite.contents().height(), 0, request.frame * 16);
+            uploaded = key;
         }
 
         private Optional<NativeImage> strip(String name) {
@@ -157,5 +187,8 @@ public final class LinkedUpgradeAppearance {
                 }
             });
         }
+    }
+
+    private record FrameRequest(String strip, int frame) {
     }
 }

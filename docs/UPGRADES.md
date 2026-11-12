@@ -92,7 +92,7 @@ Padrão de receita 3×3 compartilhado pelos upgrades, com resultado de uma unida
 | Diamante | Upgrade Sophisticated da função | Diamante |
 | Pó de redstone | Vazio | Pó de redstone |
 
-Nos dois loaders, os oito upgrades seguem a [linha visual dos upgrades remotos](design/UPGRADE_VISUALS.md), aprovada em 2026-10-31: o ícone original de cada upgrade é preservado; moldura de ardósia; um canto por rede (AE2, SCC, TSS, RS); tela verde sem vínculo; tela escura e ícone na cor da rede quando vinculado; animação de vínculo e de troca de rede no slot, na mão e no mundo. O estado visual vem do vínculo, então isso não cria itens nem tiers por rede. O Forge 1.20.1 usa os mesmos sprites, modelos e animação. Traduções PT-BR e EN-US devem cobrir nomes, configurações, estados e erros.
+Nos targets Forge 1.20.1, NeoForge 1.21.1 e NeoForge 26.1.2, os oito upgrades seguem a [linha visual dos upgrades remotos](design/UPGRADE_VISUALS.md), aprovada em 2026-10-31: o ícone original de cada upgrade é preservado; moldura de ardósia; um canto por rede (AE2, SCC, TSS, RS); tela verde sem vínculo; tela escura e ícone na cor da rede quando vinculado; animação de vínculo e de troca de rede no slot, na mão e no mundo. O estado visual vem do vínculo, então isso não cria itens nem tiers por rede. O Forge 1.20.1 usa os mesmos sprites, modelos e animação. Traduções PT-BR e EN-US devem cobrir nomes, configurações, estados e erros.
 
 <a id="P08"></a>
 ### P08 — Transferência e recuperação

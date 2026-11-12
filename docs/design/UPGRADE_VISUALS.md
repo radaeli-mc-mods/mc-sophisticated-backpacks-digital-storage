@@ -1,6 +1,6 @@
 # Linha visual dos upgrades remotos
 
-Guideline visual dos upgrades remotos, aprovada a partir do piloto do Feeding em 2026-10-31. Substitui o padrão de textura anterior de [P07](../UPGRADES.md#P07). Vale para o NeoForge 1.21.1 e o Forge 1.20.1.
+Guideline visual dos upgrades remotos, aprovada a partir do piloto do Feeding em 2026-10-31. Substitui o padrão de textura anterior de [P07](../UPGRADES.md#P07). Vale para o NeoForge 1.21.1 e 26.1.2, e para o Forge 1.20.1.
 
 ![Os oito upgrades: sem vínculo e vinculados a AE2, SCC, TSS e RS](upgrade_visuals_overview.png)
 
@@ -64,6 +64,9 @@ Vincular de novo à mesma rede toca a sequência normalmente. Desvincular pela r
 - `design/upgrade-refresh/upgrade_visuals.py` implementa esta guideline para qualquer upgrade. A paleta e a moldura vêm de `gen_feeding.py`, e o percurso do aro, de `anim_feeding.py`.
 - `design/upgrade-refresh/export_upgrades.py` grava nos recursos do NeoForge, que o Forge reutiliza no build, os sprites, os modelos e as faixas de animação dos upgrades. O ícone do Crafting usa a grade 3×3 da bancada original.
 - `design/upgrade-refresh/timeline.py` guarda os tempos e easings, espelhados em `LinkedUpgradeAppearance`. `render_60fps.py <upgrade> <rede> [rede anterior]` gera uma prévia de 60 fps.
+- No NeoForge 26.1.2, a propriedade de range seleciona o canvas durante a animação. Quadros pedidos durante a extração da GUI são enviados ao atlas em `RenderFrameEvent.Pre`, na thread de renderização e antes do desenho.
 - Um upgrade novo precisa só do sprite original 16×16 em `originals/`, com ícone sobre o fundo `#37AE6C`, e de uma entrada em `UPGRADES` no `upgrade_visuals.py`.
 
 A implementação em jogo está descrita em [ARCHITECTURE.md](../ARCHITECTURE.md).
+
+Correção da hotbar no NeoForge 26.1.2 (P07/P12): atualizar o atlas de texturas não invalida a imagem pronta mantida por GuiItemAtlas. LinkedUpgradeGuiAnimationMixin marca ItemStackRenderState como animado somente durante a transição e somente para LinkedModelProperty. Isso faz o cache da GUI redesenhar o canvas a cada frame; ao terminar, o ícone estático volta a ser reutilizado. A correção anterior de upload, isoladamente, não resolveu a hotbar, conforme reprodução do usuário. Validação visual desta correção permanece pendente.

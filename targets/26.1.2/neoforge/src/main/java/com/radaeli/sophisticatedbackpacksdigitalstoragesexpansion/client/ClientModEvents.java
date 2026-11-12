@@ -35,6 +35,7 @@ public final class ClientModEvents {
                     ModItems.REMOTE_ALCHEMY_UPGRADE, ModItems.REMOTE_PUMP_UPGRADE, ModItems.REMOTE_CRAFTING_UPGRADE)
                     .forEach(item -> LinkedUpgradeAppearance.register(item.get(), item.getId().getPath()));
             NeoForge.EVENT_BUS.addListener(RemoteRefillUpgradeTab::appendTargetSlotTooltip);
+            NeoForge.EVENT_BUS.addListener(LinkedUpgradeAppearance::uploadPendingFrames);
             UpgradeGuiManager.registerTab(RemoteDepositUpgradeRegistration.CONTAINER_TYPE, RemoteDepositUpgradeTab::new);
             UpgradeGuiManager.registerTab(RemoteRestockUpgradeRegistration.CONTAINER_TYPE, RemoteRestockUpgradeTab::new);
             UpgradeGuiManager.registerTab(RemoteUpgradeRegistrations.PICKUP, RemotePickupUpgradeTab::new);
