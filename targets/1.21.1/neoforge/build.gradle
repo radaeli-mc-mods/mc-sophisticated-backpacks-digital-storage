@@ -2,6 +2,10 @@ plugins {
     id 'net.neoforged.moddev'
 }
 
+repositories {
+    maven { url = 'https://maven.blamejared.com' }
+}
+
 group = mod_group_id
 version = "${mod_version}+${minecraft_version}-neoforge"
 
@@ -49,6 +53,8 @@ configurations {
 }
 
 dependencies {
+    compileOnly 'mezz.jei:jei-1.21.1-neoforge-api:19.64.0.455'
+    localRuntime 'mezz.jei:jei-1.21.1-neoforge:19.64.0.455'
     compileOnly files('../../../libs/scc-1.5.3.jar')
     testCompileOnly files('../../../libs/scc-1.5.3.jar')
     if (providers.gradleProperty('sccTests').isPresent()) testRuntimeOnly files('../../../libs/scc-1.5.3.jar')
