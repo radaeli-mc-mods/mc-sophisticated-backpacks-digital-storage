@@ -14,6 +14,7 @@ import net.minecraft.client.Minecraft;
 
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.data.AtlasIds;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.item.Item;
@@ -116,7 +117,9 @@ public final class LinkedUpgradeAppearance {
             Optional<NativeImage> image = strip(strip);
             if (image.isEmpty()) return false;
 
-            TextureAtlas atlas = Minecraft.getInstance().getAtlasManager().getAtlasOrThrow(TextureAtlas.LOCATION_ITEMS);
+            // AtlasManager is keyed by atlas definition IDs (minecraft:items), not texture paths
+            // (minecraft:textures/atlas/items.png).
+            TextureAtlas atlas = Minecraft.getInstance().getAtlasManager().getAtlasOrThrow(AtlasIds.ITEMS);
             TextureAtlasSprite current = atlas.getSprite(spriteId);
             if (current != sprite) {
                 // Resource reload: new atlas layout and possibly new strips.
@@ -129,8 +132,13 @@ public final class LinkedUpgradeAppearance {
             }
             String key = strip + "#" + frame;
             if (!key.equals(uploaded)) {
-                RenderSystem.getDevice().createCommandEncoder().writeToTexture(atlas.getTexture(),
-                        image.get(), 0, 0, sprite.getX(), sprite.getY(), 16, 16, 0, frame * 16);
+                var atlasTexture = atlas.getTexture();
+                // getX/getY point to the packed slot, which includes a one-pixel gutter. UV origin
+                // points to the first visible texel; writing at the slot origin clips and shifts it.
+                int textureX = Math.round(sprite.getU0() * atlasTexture.getWidth(0));
+                int textureY = Math.round(sprite.getV0() * atlasTexture.getHeight(0));
+                RenderSystem.getDevice().createCommandEncoder().writeToTexture(atlasTexture,
+                        image.get(), 0, 0, textureX, textureY, sprite.contents().width(), sprite.contents().height(), 0, frame * 16);
                 uploaded = key;
             }
             return true;
