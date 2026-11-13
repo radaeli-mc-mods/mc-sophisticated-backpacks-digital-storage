@@ -11,7 +11,9 @@
     "AlchemyDefinitionsAccessor"
   ],
   "client": [
-    "LinkedUpgradeGuiAnimationMixin"
+    "LinkedUpgradeGuiAnimationMixin",
+    "client.BackpackItemModelMixin",
+    "client.BackpackBlockStateModelMixin"
   ],
   "injectors": {
     "defaultRequire": 1

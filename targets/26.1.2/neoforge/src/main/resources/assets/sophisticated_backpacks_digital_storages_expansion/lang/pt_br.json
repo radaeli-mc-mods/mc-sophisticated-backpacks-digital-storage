@@ -82,6 +82,8 @@
   "message.sophisticated_backpacks_digital_storages_expansion.crafting_conflict": "Só é possível instalar um upgrade de crafting.",
   "gui.sophisticated_backpacks_digital_storages_expansion.crafting.choose": "Escolher receita",
   "gui.sophisticated_backpacks_digital_storages_expansion.crafting.fetch": "Buscar ingredientes",
+  "gui.sophisticated_backpacks_digital_storages_expansion.crafting.show_manual_controls": "Mostrar controles manuais",
+  "gui.sophisticated_backpacks_digital_storages_expansion.crafting.hide_manual_controls": "Ocultar controles manuais",
   "gui.sophisticated_backpacks_digital_storages_expansion.crafting.search": "Buscar por nome do resultado ou ID da receita",
   "gui.sophisticated_backpacks_digital_storages_expansion.crafting.empty": "Nenhuma receita encontrada",
   "message.sophisticated_backpacks_digital_storages_expansion.crafting.unavailable": "Essa receita está indisponível.",

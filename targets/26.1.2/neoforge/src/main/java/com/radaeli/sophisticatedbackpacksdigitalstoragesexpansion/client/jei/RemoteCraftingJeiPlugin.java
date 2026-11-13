@@ -9,8 +9,9 @@ import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
 import mezz.jei.api.helpers.IStackHelper;
 import mezz.jei.api.recipe.transfer.IRecipeTransferError;
 import mezz.jei.api.recipe.transfer.IRecipeTransferHandlerHelper;
-import mezz.jei.api.registration.IRecipeTransferRegistration;
 import mezz.jei.api.recipe.types.IRecipeType;
+import mezz.jei.api.registration.IRecipeTransferRegistration;
+import mezz.jei.api.runtime.IJeiRuntime;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.crafting.CraftingRecipe;
@@ -18,12 +19,39 @@ import net.minecraft.world.item.crafting.RecipeHolder;
 import net.p3pp3rf1y.sophisticatedbackpacks.common.gui.BackpackContainer;
 import net.p3pp3rf1y.sophisticatedcore.compat.recipeviewers.jei.JeiCraftingContainerRecipeTransferHandlerBase;
 
+import com.radaeli.sophisticatedbackpacksdigitalstoragesexpansion.crafting.RecipeTransferRequest;
+import com.radaeli.sophisticatedbackpacksdigitalstoragesexpansion.crafting.RecipeViewerAdapter;
+import com.radaeli.sophisticatedbackpacksdigitalstoragesexpansion.crafting.RecipeViewerIntegrationRegistry;
 import com.radaeli.sophisticatedbackpacksdigitalstoragesexpansion.upgrade.RemoteCraftingUpgradeContainer;
 
 @JeiPlugin
 public final class RemoteCraftingJeiPlugin implements IModPlugin {
+    private static final String ADAPTER_ID = "jei";
     private static final Identifier UID = Identifier.fromNamespaceAndPath(
             "sophisticated_backpacks_digital_storages_expansion", "remote_crafting_jei");
+
+    private volatile IJeiRuntime runtime;
+    private RemoteCraftingRecipeTransferHandler transferHandler;
+
+    private final RecipeViewerAdapter adapter = new RecipeViewerAdapter() {
+        @Override
+        public String id() {
+            return ADAPTER_ID;
+        }
+
+        @Override
+        public boolean isReadyFor(Object menu) {
+            IJeiRuntime activeRuntime = runtime;
+            RemoteCraftingRecipeTransferHandler activeHandler = transferHandler;
+            if (activeRuntime == null || activeHandler == null || !(menu instanceof BackpackContainer backpack)) {
+                return false;
+            }
+            var category = activeRuntime.getRecipeManager().getRecipeCategory(RecipeTypes.CRAFTING);
+            return category != null && activeRuntime.getRecipeTransferManager()
+                    .getRecipeTransferHandler(backpack, category)
+                    .filter(selected -> selected == activeHandler).isPresent();
+        }
+    };
 
     @Override
     public Identifier getPluginUid() {
@@ -34,8 +62,19 @@ public final class RemoteCraftingJeiPlugin implements IModPlugin {
     public void registerRecipeTransferHandlers(IRecipeTransferRegistration registration) {
         IRecipeTransferHandlerHelper transferHelper = registration.getTransferHelper();
         IStackHelper stackHelper = registration.getJeiHelpers().getStackHelper();
-        registration.addRecipeTransferHandler(
-                new RemoteCraftingRecipeTransferHandler(transferHelper, stackHelper), RecipeTypes.CRAFTING);
+        transferHandler = new RemoteCraftingRecipeTransferHandler(transferHelper, stackHelper);
+        registration.addRecipeTransferHandler(transferHandler, RecipeTypes.CRAFTING);
+        RecipeViewerIntegrationRegistry.register(adapter);
+    }
+
+    @Override
+    public void onRuntimeAvailable(IJeiRuntime runtime) {
+        this.runtime = runtime;
+    }
+
+    @Override
+    public void onRuntimeUnavailable() {
+        runtime = null;
     }
 
     private static final class RemoteCraftingRecipeTransferHandler extends
@@ -72,7 +111,8 @@ public final class RemoteCraftingJeiPlugin implements IModPlugin {
                     return validation;
                 }
                 if (doTransfer) {
-                    remote.get().requestJeiIngredients(recipe.id().identifier(), true);
+                    remote.get().requestRecipeTransfer(new RecipeTransferRequest(recipe.id().identifier().toString(),
+                            RecipeTransferRequest.Mode.MAX));
                 }
                 return null;
             }
@@ -83,7 +123,8 @@ public final class RemoteCraftingJeiPlugin implements IModPlugin {
                 return nativeError;
             }
             if (doTransfer) {
-                remote.get().requestJeiIngredients(recipe.id().identifier(), false);
+                remote.get().requestRecipeTransfer(new RecipeTransferRequest(recipe.id().identifier().toString(),
+                        RecipeTransferRequest.Mode.SINGLE));
             }
             return null;
         }
