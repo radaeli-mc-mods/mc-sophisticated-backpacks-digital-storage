@@ -22,6 +22,8 @@ public final class RemoteCraftingUpgradeContainer extends CraftingUpgradeContain
     private static final String RECIPE = "remoteCraftingRecipe";
     private static final String MENU = "remoteCraftingMenu";
     private static final String PRIORITY = "remoteCraftingPriority";
+    private static final String JEI_REQUEST = "remoteCraftingJeiRequest";
+    private static final String JEI_MAX_TRANSFER = "remoteCraftingJeiMaxTransfer";
     private static final String MESSAGE = "message.sophisticated_backpacks_digital_storages_expansion.crafting.";
 
     private Identifier selectedRecipe;
@@ -108,6 +110,15 @@ public final class RemoteCraftingUpgradeContainer extends CraftingUpgradeContain
         }
     }
 
+    public void requestJeiIngredients(Identifier recipeId, boolean maxTransfer) {
+        selectedRecipe = recipeId;
+        CompoundTag data = request();
+        data.putString(RECIPE, recipeId.toString());
+        data.putBoolean(JEI_REQUEST, true);
+        data.putBoolean(JEI_MAX_TRANSFER, maxTransfer);
+        sendDataToServer(() -> data);
+    }
+
     private CompoundTag request() {
         CompoundTag data = new CompoundTag();
         data.putInt(MENU, player.containerMenu.containerId);
@@ -135,12 +146,19 @@ public final class RemoteCraftingUpgradeContainer extends CraftingUpgradeContain
                         ? SourcePriority.BACKPACK_FIRST : SourcePriority.NETWORK_FIRST);
             } else if (com.radaeli.sophisticatedbackpacksdigitalstoragesexpansion.storage.NbtChecks.has(data, RECIPE, net.minecraft.nbt.Tag.TAG_STRING)
                     && remoteWrapper().beginFill(serverPlayer.level().getGameTime())) {
-                fill(context, data.getStringOr(RECIPE, ""));
+                boolean fromJei = com.radaeli.sophisticatedbackpacksdigitalstoragesexpansion.storage.NbtChecks.has(data, JEI_REQUEST, net.minecraft.nbt.Tag.TAG_BYTE)
+                        && data.getBooleanOr(JEI_REQUEST, false);
+                boolean maxTransfer = fromJei
+                        && com.radaeli.sophisticatedbackpacksdigitalstoragesexpansion.storage.NbtChecks.has(data, JEI_MAX_TRANSFER, net.minecraft.nbt.Tag.TAG_BYTE)
+                        && data.getBooleanOr(JEI_MAX_TRANSFER, false);
+                if (!fromJei || remoteWrapper().getEndpoint().isPresent()) {
+                    fill(context, data.getStringOr(RECIPE, ""), fromJei, maxTransfer);
+                }
             }
         });
     }
 
-    private void fill(UpgradeOperationContext context, String recipeId) {
+    private void fill(UpgradeOperationContext context, String recipeId, boolean fromJei, boolean maxTransfer) {
         Identifier id = recipeId.length() <= 512 ? Identifier.tryParse(recipeId) : null;
         ServerPlayer serverPlayer = context.player();
         if (id == null) {
@@ -162,7 +180,7 @@ public final class RemoteCraftingUpgradeContainer extends CraftingUpgradeContain
             feedback(serverPlayer, "unavailable");
             return;
         }
-        int missing = RemoteCraftingFill.fill(context, remoteWrapper(), getCraftMatrix(), recipe);
+        int missing = RemoteCraftingFill.fill(context, remoteWrapper(), getCraftMatrix(), recipe, fromJei, maxTransfer);
         if (missing < 0) {
             feedback(serverPlayer, "incompatible");
         } else if (missing == 0) {

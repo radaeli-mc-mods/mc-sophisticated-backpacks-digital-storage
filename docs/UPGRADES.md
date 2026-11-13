@@ -35,7 +35,9 @@ As âncoras explícitas `P01` a `P12` são referências estáveis. Os planos ind
 
 O target adicional Minecraft 26.1.2 usa NeoForge 26.1.2.124 e Java 25, em build independente. JARs, estrutura e gates estão no [porte 26.1.2](PORT_26_1_2.md); as dependências abaixo continuam sendo a baseline 1.21.1.
 
-NeoForge: Minecraft 1.21.1, NeoForge 21.1.236 e Java 21. Forge: Minecraft 1.20.1, Forge 47.4.10 e Java 17. O pacote base é `com.radaeli.sophisticatedbackpacksdigitalstoragesexpansion`. Sophisticated Core e Backpacks são obrigatórios; os backends são opcionais e suas classes permanecem isoladas nos adaptadores. O ID do mod é `sophisticated_backpacks_digital_storages_expansion`; os IDs persistidos de itens e receitas mantêm o namespace anterior para compatibilidade dentro de cada versão de Minecraft. As implementações e os gates de runtime por plataforma estão em [MULTILOADER.md](MULTILOADER.md); build aprovado não declara os cenários de jogo concluídos.
+NeoForge: Minecraft 1.21.1, NeoForge 21.1.238 e Java 21. Forge: Minecraft 1.20.1, Forge 47.4.10 e Java 17. O pacote base é `com.radaeli.sophisticatedbackpacksdigitalstoragesexpansion`. Sophisticated Core e Backpacks são obrigatórios; os backends são opcionais e suas classes permanecem isoladas nos adaptadores. O ID do mod é `sophisticated_backpacks_digital_storages_expansion`; os IDs persistidos de itens e receitas mantêm o namespace anterior para compatibilidade dentro de cada versão de Minecraft. As implementações e os gates de runtime por plataforma estão em [MULTILOADER.md](MULTILOADER.md); build aprovado não declara os cenários de jogo concluídos.
+
+JEI é opcional no cliente e integra a grade Remote Crafting nos três targets: Forge 1.20.1 usa JEI `15.56.0.205`, NeoForge 1.21.1 usa `19.64.0.455` e NeoForge 26.1.2 usa `29.47.0.110`. A API é usada só na compilação; JEI não é empacotado no JAR do addon.
 
 JARs auditados no workspace: Core `1.5.1.2341`, Backpacks `3.26.3.2158`, AE2 `19.2.18`, RS `2.0.9`, Tom’s `2.4.2`. Mudanças de versão exigem nova conferência das assinaturas e dos pontos de Mixin.
 
