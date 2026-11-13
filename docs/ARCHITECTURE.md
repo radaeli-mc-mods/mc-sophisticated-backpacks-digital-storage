@@ -106,9 +106,11 @@ Os controles de prioridade Rede primeiro / Mochila primeiro usam o mesmo botão 
 
 O seletor consulta as receitas sincronizadas de formato fixo e sem formato. O servidor recebe o ID da receita e a identidade do menu pelo canal nativo, valida a sessão e resolve a receita no gerenciador atual. A origem vem de `UpgradeOperationContext`, incluindo a posição da mochila colocada. A prioridade usa o mesmo valor persistido dos demais upgrades.
 
-`IngredientAssignment` considera as quantidades estimadas por identidade, preserva as unidades já na grade e maximiza os slots preenchidos. Entre planos igualmente completos, favorece a fonte prioritária. `RemoteCraftingFill` retira uma unidade por vez, recalcula a atribuição a partir do resultado da tentativa e atualiza a grade nativa. `UpgradeItemSources` protege a própria mochila durante consulta e extração e resolve autorização de inserção separadamente para devolver itens recusados. Uma grade completa seleciona o resultado pelo container nativo. Grades parciais mantêm qualquer resultado nativo já disponível.
+`CraftingFillEngine` em `common` concentra geometria shaped/shapeless, espelhamento e offsets, atribuição capacitada de ingredientes, prioridade, cálculo de déficits, preenchimento simples/lote, extração, replanejamento e recuperação. Não depende de Minecraft nem de APIs de loader, Sophisticated ou JEI. Cada target adapta suas receitas, stacks, matriz e fontes via `UpgradeItemSources`; o servidor continua validando o menu e o contexto nativo. `IngredientAssignment` permanece compartilhado e determinístico. Uma grade completa seleciona o resultado pelo container nativo; grades parciais mantêm resultados nativos concorrentes.
 
-Nos três targets, o plugin cliente `RemoteCraftingJeiPlugin` registra, somente quando JEI está carregado, um handler para `BackpackContainer` e receitas de crafting. O Forge 1.20.1 usa JEI 15.56.0.205, o NeoForge 1.21.1 usa 19.64.0.455 e o NeoForge 26.1.2 usa 29.47.0.110. Sem Shift, chama o handler nativo do Sophisticated e só envia a receita ao container remoto quando ele retorna erro apresentado ao jogador e há endpoint salvo. Com Shift e endpoint, executa o handler nativo em modo de validação sem mutar a grade, então envia a receita e o indicador `maxTransfer` ao container remoto. O servidor valida a sessão, o endpoint e o acesso da rede. O pedido JEI acrescenta o inventário do jogador às fontes de `RemoteCraftingFill`, além da mochila e rede, para preservar receitas que misturam origens. Shift+“+” calcula a quantidade máxima de execuções suportada pelo estoque e limites dos slots e transfere por identidade de ingrediente; sem estoque para uma execução completa, o preenchimento parcial anterior continua disponível. Sem endpoint, JEI continua usando o fluxo nativo. A API correspondente é somente de compilação; JEI não é empacotado no JAR do addon.
+O contrato interno `RecipeTransferRequest` contém ID de receita e modo `SINGLE`/`MAX`; `RecipeViewerAdapter` e `RecipeViewerIntegrationRegistry` não importam JEI. Nos três targets, `RemoteCraftingJeiPlugin` registra um handler para `BackpackContainer` e crafting usando JEI 15.56.0.205, 19.64.0.455 e 29.47.0.110. Sem Shift, chama o handler nativo do Sophisticated e delega ao servidor apenas quando ele retorna erro apresentado ao jogador e existe endpoint salvo. Com Shift e endpoint, valida sem mutar a grade e solicita o lote. Só esse pedido inclui o inventário do jogador como fonte. A prontidão exige runtime ativo e o handler do addon selecionado para o menu e categoria atuais; o callback de encerramento limpa o runtime. Sem endpoint, o fluxo nativo continua; JEI é opcional e não é empacotado.
+
+A configuração client-side `[crafting] manualControls` usa `AUTO`, `SHOW` e `HIDE` nos três targets. `AUTO` oculta seletor e Buscar ingredientes somente quando o handler JEI está pronto para o menu atual. O botão da aba persiste `SHOW` ou `HIDE`; a seleção, a grade e a prioridade não são alteradas pela visibilidade. A aba ajusta sua altura e reavalia o runtime enquanto está aberta. O callback nativo de reabastecimento continua tentando mochila/inventário antes da rede, sem depender da prioridade de busca.
 
 Nos três targets, o wrapper da bancada remota estende o callback nativo de `Refill crafting grid`: tenta primeiro as fontes locais do Sophisticated, incluindo armazenamento da mochila e inventário do jogador. Se faltar a unidade exata, resolve o contexto da aba aberta e extrai uma unidade compatível da rede vinculada. Nesse callback as fontes locais sempre têm prioridade, independentemente da prioridade configurada para buscar uma receita. A extração usa `UpgradeItemSources` e os guards/autorização dos adaptadores existentes; esse caminho só é executado no servidor com a bancada remota aberta e instalada no menu atual.
 
@@ -218,15 +220,53 @@ Estas alterações ainda precisam de validação visual e operacional em jogo; n
 
 Verificação desta consolidação: `compileJava processResources` concluídos com Java 21, sem executar testes. Permanecem dois avisos de depreciação preexistentes em `ClientModEvents`. GUI, receita, conflitos nas duas ordens e regressão nas três redes aguardam validação em jogo.
 
-## Variantes de cor de mochila por rede (NeoForge 1.21.1)
+## Variantes de cor de mochila por rede (NeoForge 1.21.1, 26.1.2 e Forge 1.20.1)
 
 `BackpackVariantRecipe` (`recipe/`, serializer `backpack_variant` em `ModRecipes`) recolore uma mochila Sophisticated ao combiná-la com um item marcador, em qualquer posição da grade 2×2/3×3. Aceita exatamente uma `BackpackItem` e um marcador; qualquer outro item, duas mochilas ou dois marcadores não produzem resultado.
 
 O fluxo é o mesmo da `BackpackDyeRecipe` original: o resultado é `copyWithCount(1)` da mochila de entrada e somente os componentes de cor são regravados por `BackpackItem.setColors` (opacidade tratada pelo próprio Sophisticated). UUID de conteúdo, upgrades, nome e demais componentes, inclusive de outros addons, permanecem intactos; nenhum dado de armazenamento é lido ou movido. O ingrediente consumido é a própria mochila, como nas receitas de dye e de tier do Sophisticated.
 
-Cada variante é uma receita JSON (`recipe/backpack_variant_<rede>.json`) com `ingredient`, `main_color` e `accent_color` (`#RRGGBB`) e `neoforge:conditions` `mod_loaded`, para não exigir a rede ausente. Estado atual: somente AE2 (`ae2:fluix_crystal`, principal `#6B46A8`, detalhe `#2B1F45`, cores provisórias a validar em jogo). RS (`raw_advanced_processor`), Tom's (`inventory_connector`) e SCC (`storage_connector`) aguardam a validação da AE2. Não há textura, modelo ou item novos (P07); a variante é apenas cor.
+Cada variante é um valor do enum `BackpackVariant` (`variant/`), que guarda o par de cores reservado, e uma receita JSON (`recipe/backpack_variant_<rede>.json`) com `ingredient`, `variant` e `neoforge:conditions` `mod_loaded`, para não exigir a rede ausente. Variantes atuais, cada uma só ativa quando seu mod está carregado (o `modId` do enum alimenta a condição da receita, que é validada por teste, e a troca de textura no cliente via `BackpackVariant.isAvailable()`):
 
-Verificação: `BackpackVariantRecipeTest` cobre preservação de todos os componentes exceto as cores, casamento da grade, round-trip do codec e o JSON empacotado; `build` completo com testes passou. Receita em jogo (carregamento do datapack condicional, resultado no crafting, sincronização cliente/servidor e visual das cores) e exibição em visualizadores de receita (JEI não lista receitas customizadas) estão pendentes. 1.20.1 e 26.1.2 não foram alteradas.
+| Variante | Mod | Marcador | Principal | Detalhe |
+| --- | --- | --- | --- | --- |
+| `ae2` | `ae2` | `ae2:fluix_crystal` | `#6B46A8` | `#2B1F45` |
+| `rs` | `refinedstorage` | `refinedstorage:raw_advanced_processor` | `#3D7FC4` | `#16304F` |
+| `toms` | `toms_storage` | `toms_storage:inventory_connector` | `#A6763F` | `#3B2813` |
+| `scc` | `scc` | `scc:storage_connector` | `#E0A71E` | `#5A3A06` |
+
+As cores são reservadas por variante e só servem de identidade e de aparência de contingência. Sem o mod, a mochila mantém o conteúdo e volta ao visual tingido padrão.
+
+### Aparência (cliente)
+
+A identidade da variante é o par exato de cores: nenhum componente novo é gravado. Tingir de novo a mochila muda as cores e a aparência volta ao padrão do Sophisticated.
+
+A geometria e os UVs são os do modelo do Sophisticated; o Blockbench (`design/backpack-promo/`) só troca as texturas `cloth`, `border` e `clips`, que ficam em `textures/block/backpack_variant/<variante>_<camada>.png` (128×128, atlas de blocos). O Sophisticated só permite trocar `clips` por JSON e aplica tint nas demais camadas, então dois Mixins client (`mixin/client/`) pós-processam o `BackpackBakedModel` sem substituí-lo nem embrulhá-lo (o Sophisticated usa `instanceof` nele para forma e item de exibição): `BackpackVariantQuads` troca o sprite dos quads de cloth, border e clips, remapeia os UVs proporcionalmente e zera o `tintIndex`; os demais quads (tanques, bateria, módulos) não mudam. O resultado é cacheado por quad.
+
+Item (inventário, mão, chão, vestida) lê a variante do `ItemStack` em `BackpackItemOverrideList.resolve`, que precede todo desenho; o bloco colocado recebe a variante no `ModelData` (`BackpackBakedModel.getModelData`, cores do `BackpackBlockEntity`).
+
+### Porte para Forge 1.20.1
+
+O Forge 1.20.1 reaproveita as texturas e a lógica de identidade, com estas diferenças:
+
+- **Variantes:** só AE2, RS e Tom's. O SCC não tem versão Forge 1.20.1, então sua variante e receita não existem nesse target (o `prepareSharedForgeResources` a exclui e o `verifyForgeResources` falha se ela for empacotada).
+- **Receita:** `BackpackVariantRecipe` usa a API 1.20.1 (`CustomRecipe(id, categoria)`, `CraftingContainer`, serializer com `fromJson`/`fromNetwork`/`toNetwork`) e grava as cores por `BackpackItem.setColors`, o mesmo método que o `setColors` do wrapper do Sophisticated chama. Nesta versão as cores ficam como RGB sem alpha em `clothColor`/`borderColor` na tag do item.
+- **Recursos:** as receitas vêm do diretório do 1.21.1 e são convertidas no build. Além de `recipe` → `recipes` e `result.id` → `result.item`, a chave `neoforge:conditions` vira `conditions` (a chave de condição do Forge 1.20.1; `forge:conditions` é ignorada e faz a receita tentar carregar sem o mod), e o ingrediente do Tom's passa a `toms_storage:ts.inventory_connector`, o ID dessa versão.
+- **Renderização:** os mesmos dois mixins client, porque o Sophisticated 1.20.1 usa o mesmo `BackpackDynamicModel` do 1.21.1. O método `resolve` do `ItemOverrides` aparece como `m_173464_` no JAR do Sophisticated em produção; o mixin aceita os dois nomes (`require = 1`).
+- **Verificação:** três GameTests novos (`BackpackVariantGameTests`: preservação de tags, casamento da grade e receitas só com seus mods) passaram no perfil mínimo, com os 16 GameTests do target. O `verifyForgeResources` passou e o cliente de desenvolvimento com AE2, RS e Tom's carregou o mundo sem erro no log. O `buildAll`/`check` completo, o `verify-forge-production-jar` e o visual em jogo seguem pendentes.
+
+### Porte para 26.1.2
+
+O 26.1.2 compartilha o enum, as texturas e a regra de identidade, mas a renderização do Sophisticated mudou (item model com tints no JSON, `BlockStateModel` dinâmico, quads imutáveis), então os ganchos são outros, ainda sem substituir o modelo:
+
+- **Item e vestida:** `BackpackItemModelMixin` envolve a chamada `BlockStateModel.getQuads(ItemDisplayContext)` em `BackpackItemModel.update` e aplica a variante lida do `ItemStack`. A mochila vestida também passa por `ItemModelResolver.updateForTopItem`, portanto usa o mesmo caminho.
+- **Bloco colocado:** `BackpackBlockStateModelMixin` envolve `collectParts`, lê as cores do `BackpackBlockEntity` e embrulha só as partes adicionadas por esse modelo.
+- **Quads:** `BackpackVariantQuads` recria o `BakedQuad` (record) com o sprite do atlas de blocos, UVs remapeados proporcionalmente por `UVPair` e `tintIndex = -1`, com cache por quad.
+- **Receita:** `BackpackVariantRecipe` usa a API 26.1.2 (`CustomRecipe` sem categoria, `assemble(CraftingInput)`, `RecipeSerializer` por registro, ingrediente como string no JSON). O `setColors` do Sophisticated 26.1.2 não força alpha, então a receita grava as cores como ARGB opaco, igual aos padrões e ao resultado de dye do Sophisticated.
+
+Verificação 26.1.2: `BackpackVariantRecipeTest` (6 testes, perfil `none`) passou, e o cliente de desenvolvimento com `-PbackendProfile=all` carregou o mundo com 2807 recipes, sem erros no log e com os dois mixins aplicados (`defaultRequire = 1`). O visual (item, vestida, bloco, com tanque/bateria) e o crafting em jogo seguem pendentes, assim como a execução completa de `check`/`buildAll` e do CI desta matriz.
+
+Verificação: `BackpackVariantRecipeTest` cobre preservação de todos os componentes exceto as cores, casamento da grade, round-trip do codec, e, para cada variante, cores únicas, texturas presentes e receita condicional ao seu `modId`; `build` completo com testes passou. O cliente de desenvolvimento com os quatro mods carregou 2555 recipes (2552 + 3 novas) sem nenhum erro no log, o que confirma que os quatro itens marcadores resolvem. Receita em jogo (carregamento do datapack condicional, resultado no crafting e sincronização cliente/servidor), o visual das texturas (item, chão, vestida e bloco colocado, com e sem tanque/bateria) e a exibição em visualizadores de receita (JEI não lista receitas customizadas) estão pendentes. A conferência visual e o crafting em jogo valem para os três targets.
 
 ## SCC backend (NeoForge only)
 

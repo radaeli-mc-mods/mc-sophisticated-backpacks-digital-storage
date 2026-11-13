@@ -140,6 +140,8 @@ def sharedResources = tasks.register('prepareSharedForgeResources', Sync) {
     from('../../../shared/src/main/resources')
     from('../../1.21.1/neoforge/src/main/resources') {
         exclude('META-INF/neoforge.mods.toml', 'META-INF/accesstransformer.cfg', 'pack.mcmeta', "${mod_id}.mixins.json")
+        // SCC has no Forge 1.20.1 release, so its backpack variant does not exist on this target.
+        exclude('data/*/recipe/backpack_variant_scc.json')
         eachFile { details ->
             if (details.path.contains('/tags/item/')) {
                 details.path = details.path.replace('/tags/item/', '/tags/items/')
@@ -152,8 +154,28 @@ def sharedResources = tasks.register('prepareSharedForgeResources', Sync) {
         def recipes = fileTree(destinationDir).matching { include('data/**/recipes/*.json') }
         recipes.each { recipeFile ->
             def recipe = new groovy.json.JsonSlurper().parse(recipeFile)
+            def changed = false
             if (recipe.result instanceof Map && recipe.result.containsKey('id')) {
                 recipe.result.item = recipe.result.remove('id')
+                changed = true
+            }
+            // Data conditions differ per loader: NeoForge's `neoforge:conditions` is Forge 1.20.1's `conditions`.
+            if (recipe.containsKey('neoforge:conditions')) {
+                recipe['conditions'] = recipe.remove('neoforge:conditions').collect { condition ->
+                    condition.type = condition.type.replace('neoforge:', 'forge:')
+                    condition
+                }
+                changed = true
+            }
+            // Tom's Simple Storage 1.20 prefixes its item IDs with `ts.`.
+            if (recipe.ingredient instanceof String && recipe.ingredient == 'toms_storage:inventory_connector') {
+                recipe.ingredient = 'toms_storage:ts.inventory_connector'
+                changed = true
+            } else if (recipe.ingredient instanceof Map && recipe.ingredient.item == 'toms_storage:inventory_connector') {
+                recipe.ingredient.item = 'toms_storage:ts.inventory_connector'
+                changed = true
+            }
+            if (changed) {
                 recipeFile.text = groovy.json.JsonOutput.prettyPrint(groovy.json.JsonOutput.toJson(recipe)) + '\n'
             }
         }
@@ -247,8 +269,25 @@ tasks.register('verifyForgeResources') {
                 throw new GradleException("Recipe ${recipeName} does not use the Forge 1.20 result format")
             }
         }
+        if (new File(recipeDir, 'backpack_variant_scc.json').exists()) {
+            throw new GradleException('SCC has no Forge 1.20.1 release: its backpack variant must not be packaged')
+        }
         if (!new File(recipeDir, 'unlink_upgrade.json').isFile()) {
             throw new GradleException('Missing Forge unlink recipe')
+        }
+        ['ae2': 'ae2', 'rs': 'refinedstorage', 'toms': 'toms_storage'].each { variant, modId ->
+            def variantFile = new File(recipeDir, "backpack_variant_${variant}.json")
+            if (!variantFile.isFile()) {
+                throw new GradleException("Missing Forge backpack variant recipe: ${variantFile}")
+            }
+            def recipe = new groovy.json.JsonSlurper().parse(variantFile)
+            def condition = recipe['conditions']?.getAt(0)
+            if (variant == 'toms' && recipe.ingredient?.item != 'toms_storage:ts.inventory_connector') {
+                throw new GradleException("Tom's variant must use the 1.20 item ID ts.inventory_connector")
+            }
+            if (recipe.containsKey('neoforge:conditions') || condition?.type != 'forge:mod_loaded' || condition?.modid != modId) {
+                throw new GradleException("Backpack variant ${variant} must be conditional on ${modId} with Forge `conditions`")
+            }
         }
         if (!fileTree(new File(resources, "data/${mod_id}/recipe")).matching { include '**/*.json' }.isEmpty()) {
             throw new GradleException('Forge 1.20.1 recipes must use recipes/')
@@ -267,8 +306,9 @@ tasks.register('verifyForgeResources') {
         def mixins = new groovy.json.JsonSlurper().parse(new File(resources, "${mod_id}.mixins.json"))
         ['PickupContextMixin', 'MagnetUpgradeWrapperAccessor', 'ItemEntityPickupDelayAccessor',
          'BackpackFluidCapabilityMixin',
-         'AlchemyDefinitionsAccessor'].each { mixin ->
-            if (!mixins.mixins.contains(mixin)) throw new GradleException("Required Forge Mixin is missing: ${mixin}")
+         'AlchemyDefinitionsAccessor',
+         'client.BackpackBakedModelMixin', 'client.BackpackItemOverrideListMixin'].each { mixin ->
+            if (!(mixins.mixins + (mixins.client ?: [])).contains(mixin)) throw new GradleException("Required Forge Mixin is missing: ${mixin}")
         }
     }
 }

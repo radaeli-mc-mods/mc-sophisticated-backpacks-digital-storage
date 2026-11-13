@@ -1,0 +1,8 @@
+{
+  "type": "sophisticated_backpacks_digital_storages_expansion:backpack_variant",
+  "neoforge:conditions": [
+    { "type": "neoforge:mod_loaded", "modid": "scc" }
+  ],
+  "ingredient": "scc:storage_connector",
+  "variant": "scc"
+}

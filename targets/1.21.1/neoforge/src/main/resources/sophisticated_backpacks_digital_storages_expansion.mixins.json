@@ -10,6 +10,10 @@
     "BackpackFluidCapabilityMixin",
     "AlchemyDefinitionsAccessor"
   ],
+  "client": [
+    "client.BackpackBakedModelMixin",
+    "client.BackpackItemOverrideListMixin"
+  ],
   "injectors": {
     "defaultRequire": 1
   }

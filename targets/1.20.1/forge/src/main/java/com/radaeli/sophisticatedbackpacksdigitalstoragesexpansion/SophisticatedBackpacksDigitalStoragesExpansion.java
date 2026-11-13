@@ -3,7 +3,10 @@ package com.radaeli.sophisticatedbackpacksdigitalstoragesexpansion;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.fml.ModLoadingContext;
+import net.minecraftforge.fml.config.ModConfig;
 
+import com.radaeli.sophisticatedbackpacksdigitalstoragesexpansion.config.CraftingClientConfig;
 import com.radaeli.sophisticatedbackpacksdigitalstoragesexpansion.upgrade.EndpointLinkHandler;
 import com.radaeli.sophisticatedbackpacksdigitalstoragesexpansion.recipe.ModRecipes;
 import com.radaeli.sophisticatedbackpacksdigitalstoragesexpansion.registry.ModCreativeTabs;
@@ -17,6 +20,7 @@ public final class SophisticatedBackpacksDigitalStoragesExpansion {
     public static final String MOD_ID = "sophisticated_backpacks_digital_storages_expansion";
 
     public SophisticatedBackpacksDigitalStoragesExpansion() {
+        ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, CraftingClientConfig.SPEC);
         var modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
         ModItems.ITEMS.register(modEventBus);
         ModCreativeTabs.TABS.register(modEventBus);

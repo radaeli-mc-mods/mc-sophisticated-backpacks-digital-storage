@@ -17,6 +17,9 @@ public final class ModRecipes {
                     com.mojang.serialization.MapCodec.unit(UnlinkUpgradeRecipe::new),
                     net.minecraft.network.codec.StreamCodec.of((buffer, recipe) -> {}, buffer -> new UnlinkUpgradeRecipe())));
 
+    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<BackpackVariantRecipe>> BACKPACK_VARIANT =
+            SERIALIZERS.register("backpack_variant", BackpackVariantRecipe::serializer);
+
     private ModRecipes() {
     }
 }

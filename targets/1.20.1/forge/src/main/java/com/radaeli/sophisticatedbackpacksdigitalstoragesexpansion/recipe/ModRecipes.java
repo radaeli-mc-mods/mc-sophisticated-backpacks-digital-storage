@@ -15,6 +15,9 @@ public final class ModRecipes {
     public static final RegistryObject<RecipeSerializer<?>> UNLINK_UPGRADE =
             SERIALIZERS.register("unlink_upgrade", () -> new SimpleCraftingRecipeSerializer<>(UnlinkUpgradeRecipe::new));
 
+    public static final RegistryObject<RecipeSerializer<?>> BACKPACK_VARIANT =
+            SERIALIZERS.register("backpack_variant", BackpackVariantRecipe.Serializer::new);
+
     private ModRecipes() {
     }
 }

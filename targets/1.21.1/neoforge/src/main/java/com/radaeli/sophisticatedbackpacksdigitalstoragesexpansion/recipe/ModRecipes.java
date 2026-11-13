@@ -15,6 +15,9 @@ public final class ModRecipes {
     public static final DeferredHolder<RecipeSerializer<?>, SimpleCraftingRecipeSerializer<UnlinkUpgradeRecipe>> UNLINK_UPGRADE =
             SERIALIZERS.register("unlink_upgrade", () -> new SimpleCraftingRecipeSerializer<>(UnlinkUpgradeRecipe::new));
 
+    public static final DeferredHolder<RecipeSerializer<?>, BackpackVariantRecipe.Serializer> BACKPACK_VARIANT =
+            SERIALIZERS.register("backpack_variant", BackpackVariantRecipe.Serializer::new);
+
     private ModRecipes() {
     }
 }

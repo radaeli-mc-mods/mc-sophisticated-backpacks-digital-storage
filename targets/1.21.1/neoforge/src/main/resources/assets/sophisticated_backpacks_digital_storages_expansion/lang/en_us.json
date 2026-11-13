@@ -82,6 +82,8 @@
   "message.sophisticated_backpacks_digital_storages_expansion.crafting_conflict": "Only one crafting upgrade can be installed.",
   "gui.sophisticated_backpacks_digital_storages_expansion.crafting.choose": "Choose recipe",
   "gui.sophisticated_backpacks_digital_storages_expansion.crafting.fetch": "Fetch ingredients",
+  "gui.sophisticated_backpacks_digital_storages_expansion.crafting.show_manual_controls": "Show manual controls",
+  "gui.sophisticated_backpacks_digital_storages_expansion.crafting.hide_manual_controls": "Hide manual controls",
   "gui.sophisticated_backpacks_digital_storages_expansion.crafting.search": "Search by result name or recipe ID",
   "gui.sophisticated_backpacks_digital_storages_expansion.crafting.empty": "No matching recipes",
   "message.sophisticated_backpacks_digital_storages_expansion.crafting.unavailable": "This recipe is unavailable.",
