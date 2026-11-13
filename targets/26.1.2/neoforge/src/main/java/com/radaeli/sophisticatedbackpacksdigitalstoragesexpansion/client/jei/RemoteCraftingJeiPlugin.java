@@ -1,6 +1,18 @@
 package com.radaeli.sophisticatedbackpacksdigitalstoragesexpansion.client.jei;
 
 import java.util.Optional;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.item.crafting.CraftingBookCategory;
+import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.ShapelessRecipe;
+import net.minecraft.world.item.ItemStack;
+import java.util.ArrayList;
+import java.util.List;
+import mezz.jei.api.registration.IRecipeRegistration;
+
 
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
@@ -56,6 +68,26 @@ public final class RemoteCraftingJeiPlugin implements IModPlugin {
     @Override
     public Identifier getPluginUid() {
         return UID;
+    }
+
+    @Override
+    public void registerRecipes(IRecipeRegistration registration) {
+        // Sophisticated's own dye recipes are shown by its plugin; ours are custom recipes JEI cannot discover.
+        List<RecipeHolder<CraftingRecipe>> recipes = new ArrayList<>();
+        for (var variant : com.radaeli.sophisticatedbackpacksdigitalstoragesexpansion.variant.BackpackVariant.values()) {
+            if (!variant.isAvailable()) continue;
+            var markerId = Identifier.parse(variant.markerItemId());
+            var markerItem = BuiltInRegistries.ITEM.getOptional(markerId);
+            if (markerItem.isEmpty()) continue;
+            var base = net.p3pp3rf1y.sophisticatedbackpacks.init.ModItems.BACKPACK.get();
+            ItemStack result = variant.stack(base);
+            var backpack = Ingredient.of(base);
+            var marker = Ingredient.of(markerItem.get());
+            var ingredients = List.of(backpack, marker);
+            var id = Identifier.fromNamespaceAndPath(com.radaeli.sophisticatedbackpacksdigitalstoragesexpansion.SophisticatedBackpacksDigitalStoragesExpansion.MOD_ID, "jei/backpack_variant_" + variant.getSerializedName());
+            recipes.add(new RecipeHolder<>(ResourceKey.create(Registries.RECIPE, id), new ShapelessRecipe(new Recipe.CommonInfo(true), new CraftingRecipe.CraftingBookInfo(CraftingBookCategory.MISC, ""), net.minecraft.world.item.ItemStackTemplate.fromNonEmptyStack(result), ingredients)));
+        }
+        if (!recipes.isEmpty()) registration.addRecipes(RecipeTypes.CRAFTING, recipes);
     }
 
     @Override
