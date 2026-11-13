@@ -7,6 +7,9 @@ import java.util.Optional;
 import appeng.api.config.Actionable;
 import appeng.api.implementations.blockentities.IWirelessAccessPoint;
 import appeng.api.networking.IGrid;
+import appeng.api.networking.IGridNode;
+import appeng.api.networking.IInWorldGridNodeHost;
+import appeng.api.parts.IPartHost;
 import appeng.api.networking.security.IActionHost;
 import appeng.api.networking.security.IActionSource;
 import appeng.api.stacks.AEItemKey;
@@ -32,10 +35,55 @@ public final class Ae2StorageAdapter implements StorageAdapter {
 
     @Override
     public Optional<StorageEndpoint> identify(net.minecraft.world.level.Level level, BlockPos pos) {
-        if (level.getBlockEntity(pos) instanceof IWirelessAccessPoint) {
+        return identify(level, pos, null, null);
+    }
+
+    @Override
+    public Optional<StorageEndpoint> identify(net.minecraft.world.level.Level level, BlockPos pos,
+            net.minecraft.world.phys.BlockHitResult hit, SourceLocation source) {
+        var blockEntity = level.getBlockEntity(pos);
+        // Preserve direct access-point linking and all existing persisted endpoints.
+        if (blockEntity instanceof IWirelessAccessPoint) {
             return Optional.of(new StorageEndpoint(BACKEND_ID, level.dimension(), pos.immutable()));
         }
-        return Optional.empty();
+        IGridNode node;
+        if (blockEntity instanceof IPartHost host) {
+            if (hit == null) return Optional.empty();
+            var selected = host.selectPartWorld(hit.getLocation());
+            // The center part is the cable. Facades and empty hits are not network devices.
+            if (selected.part == null || selected.side == null) return Optional.empty();
+            node = selected.part.getGridNode();
+        } else if (blockEntity instanceof IActionHost host) {
+            node = host.getActionableNode();
+        } else if (blockEntity instanceof IInWorldGridNodeHost host) {
+            node = host.getGridNode(hit == null ? null : hit.getDirection());
+        } else {
+            return Optional.empty();
+        }
+        if (node == null || !node.isActive()) return Optional.empty();
+        IGrid grid = node.getGrid();
+        if (!grid.getEnergyService().isNetworkPowered()) return Optional.empty();
+
+        // Only discovery changes (P02/P03/P11): save one existing access point, never
+        // the clicked device, and leave operation-time range/access and no-failover intact.
+        StorageEndpoint nearest = null;
+        double nearestDistance = Double.POSITIVE_INFINITY;
+        for (IGridNode candidate : grid.getNodes()) {
+            if (!(candidate.getOwner() instanceof IWirelessAccessPoint accessPoint)
+                    || !candidate.isActive() || !accessPoint.isActive() || accessPoint.getGrid() != grid) continue;
+            var location = accessPoint.getLocation();
+            if (location.getLevel() != level || !level.isLoaded(location.getPos())) continue;
+            var center = net.minecraft.world.phys.Vec3.atCenterOf(location.getPos());
+            double distance = source == null ? pos.distSqr(location.getPos()) : source.position().distanceToSqr(center);
+            double range = accessPoint.getRange();
+            if (source != null && (!source.dimension().equals(level.dimension()) || distance > range * range)) continue;
+            if (distance < nearestDistance || (distance == nearestDistance && nearest != null
+                    && location.getPos().compareTo(nearest.pos()) < 0)) {
+                nearest = new StorageEndpoint(BACKEND_ID, level.dimension(), location.getPos().immutable());
+                nearestDistance = distance;
+            }
+        }
+        return Optional.ofNullable(nearest);
     }
 
     @Override

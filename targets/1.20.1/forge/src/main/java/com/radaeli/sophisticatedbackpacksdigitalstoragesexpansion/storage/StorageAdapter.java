@@ -12,5 +12,11 @@ public interface StorageAdapter {
 
     Optional<StorageEndpoint> identify(Level level, BlockPos pos);
 
+    /** Binding interaction, including the exact multipart hit and the player's origin. */
+    default Optional<StorageEndpoint> identify(Level level, BlockPos pos,
+            net.minecraft.world.phys.BlockHitResult hit, SourceLocation source) {
+        return identify(level, pos);
+    }
+
     Optional<StorageTarget> resolve(ServerLevel level, StorageEndpoint endpoint);
 }

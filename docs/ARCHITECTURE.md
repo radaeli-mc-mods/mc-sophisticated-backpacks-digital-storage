@@ -66,6 +66,14 @@ O cliente envia somente o nome da ação pelo protocolo do Sophisticated. Origem
 
 `StorageTarget` é transitório. Não armazená-lo em campos de wrappers ou containers: uma rede pode perder energia, mudar de topologia ou desaparecer. Cada operação passa novamente por `StorageAdapterRegistry.connect`. As verificações comuns consultam o mundo do endpoint e não carregam chunks.
 
+### Descoberta de vínculo AE2
+
+P02/P03/P04/P11: nos três targets, o evento de vínculo fornece o hit exato e a origem do jogador a StorageAdapterRegistry. Os demais backends conservam a identificação anterior pelo método padrão de StorageAdapter. Ae2StorageAdapter resolve o nó de controllers e outros blocos por IActionHost/IInWorldGridNodeHost e seleciona a peça de terminais por IPartHost.selectPartWorld. A peça central (cabo), fachadas, hits vazios e nós inativos são recusados.
+
+Para novos pontos de clique, a rede deve estar energizada. Percorrer seus nós somente nessa interação e escolher um Wireless Access Point ativo, carregado, na mesma dimensão e com cobertura do jogador; preferir o mais próximo e desempatar pela posição. O vínculo salvo continua apontando para esse access point. Resolve, alcance, fonte de ação, acesso a itens/fluidos, reservas e persistência não mudam; vínculos antigos continuam válidos e não há redescoberta automática. A proteção do bloco clicado e do endpoint salvo permanece server-side.
+
+Aceitação P12: conferir em jogo controllers, terminais multipart, outros dispositivos, cabo ao lado do terminal, dispositivo offline, rede sem access point, múltiplos access points, troca/remoção e perda de cobertura nos três targets. Verificação em 2026-11-13: os três builds e verificadores dos JARs de produção passaram. Forge executou 1 teste JUnit, 16 GameTests e os gates de empacotamento; NeoForge 1.21.1 executou 72 testes principais e 5 do perfil SCC; 26.1.2 executou 84 testes JUnit no perfil none e seus GameTests mínimos. O perfil AE2 de 26.1.2 passou os 21 cenários do addon, incluindo a regressão nativa de descoberta e o evento dos nove itens. A lógica do adaptador AE2 é idêntica nos três targets, exceto pelo import de IItemHandler do loader. Esses resultados não substituem a aceitação manual nos três targets. O portal passou em check/build.
+
 ## Transferência e proteção da origem
 
 O motor captura os itens e quantidades presentes no começo da operação. Em cada slot, trabalha com cópias e limita a oferta à quantidade inicial ainda disponível. Itens repostos ou devolvidos a slots que estavam vazios não entram em uma segunda transferência no mesmo pedido.

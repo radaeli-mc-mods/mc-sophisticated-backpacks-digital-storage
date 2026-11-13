@@ -79,3 +79,7 @@ O porte desta função preserva seu comportamento e as premissas P01–P12 aplic
 O target usa inventário Sophisticated transacional, snapshot de identidades e extração real, preservando a recuperação e os filtros (P03/P05/P08/P10). O GameTest aciona o container nativo e verifica a conservação após extração da rede. A evidência automatizada não encerra a aceitação manual P12.
 
 Correção da hotbar no NeoForge 26.1.2 (P07/P12): atualizar o atlas de texturas não invalida a imagem pronta mantida por GuiItemAtlas. LinkedUpgradeGuiAnimationMixin marca ItemStackRenderState como animado somente durante a transição e somente para LinkedModelProperty. Isso faz o cache da GUI redesenhar o canvas a cada frame; ao terminar, o ícone estático volta a ser reutilizado. A correção anterior de upload, isoladamente, não resolveu a hotbar, conforme reprodução do usuário. Validação visual desta correção permanece pendente.
+
+## Vínculo AE2 por dispositivos da rede
+
+Esta função usa a descoberta compartilhada de [P02](../UPGRADES.md#P02) nos três targets: controllers, terminais e outros dispositivos online da rede energizada, exceto cabos. Em terminais multipart, o clique deve atingir a peça do terminal. O endpoint salvo continua sendo um Wireless Access Point elegível da mesma rede; alcance, transferências, configurações e reservas permanecem conforme P03/P08/P09/P11 aplicáveis. A aceitação manual dessa interação segue P12.

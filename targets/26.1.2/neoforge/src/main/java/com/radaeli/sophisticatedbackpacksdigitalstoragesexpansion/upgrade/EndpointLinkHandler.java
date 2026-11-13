@@ -25,7 +25,8 @@ public final class EndpointLinkHandler {
         if (!(held.getItem() instanceof ManuallyLinkedUpgrade item) || !event.getLevel().mayInteract(player, event.getPos())) {
             return;
         }
-        var identified = StorageAdapterRegistry.identify(event.getLevel(), event.getPos());
+        var identified = StorageAdapterRegistry.identify(event.getLevel(), event.getPos(),
+                event.getHitVec(), SourceLocation.carriedBy(player));
         if (identified.isEmpty()) {
             return;
         }

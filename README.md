@@ -1,4 +1,4 @@
-<p align="center" style="text-align: center;"><img src="https://raw.githubusercontent.com/radaelilucca/mc-sophisticated-backpacks-digital-storage/main/docs/gallery/logo-scc.png" alt="Sophisticated Backpacks - Digital Storages Expansion" width="200"></p>
+<p align="center" style="text-align: center;"><img src="https://media.forgecdn.net/attachments/2199/904/variants-png.png" alt="Sophisticated Backpacks - Digital Storages Expansion"></p>
 
 <p align="center" style="text-align: center;">Connect your Sophisticated Backpack to <b>Applied Energistics 2, Refined Storage, Tom's Simple Storage, and Super Cool Calculator</b></p>
 
@@ -28,7 +28,7 @@ Each upgrade links to one network endpoint and follows that network's access and
 
 <p align="center" style="background-color: #F4ECD0; text-align: center;"><img src="https://raw.githubusercontent.com/radaelilucca/mc-sophisticated-backpacks-digital-storage/main/docs/gallery/section-titles/how-do-i-use-it.png" alt="HOW DO I USE IT?" width="371"></p>
 
-1. Hold a Remote Upgrade and **Shift-right-click a compatible network block** to link it. Use an **ME Wireless Access Point** for Applied Energistics 2, a **Controller** for Refined Storage, a **Storage Terminal** for Tom's Simple Storage, or a **Network Antenna** for Super Cool Calculator.
+1. Hold a Remote Upgrade and **Shift-right-click a compatible network block** to link it. For Applied Energistics 2, use a **Controller**, **Terminal**, or another online network device; cables are excluded, and an **ME Wireless Access Point** on that network must cover you. Use a **Controller** for Refined Storage, a **Storage Terminal** for Tom's Simple Storage, or a **Network Antenna** for Super Cool Calculator.
 2. Watch the upgrade change: its screen turns dark and its icon takes the color of the network (purple for AE2, blue for Refined Storage, oak brown for Tom's Simple Storage, gold for SCC), and a short animation plays when you link or switch networks. The four corners always show which networks are supported.
 3. Place the linked upgrade in a backpack upgrade slot and open its tab to configure filters, priorities, or transfer settings.
 4. Craft Remote Upgrades with **3 diamonds**, **2 Ender Pearls**, **2 redstone dust**, and the matching advanced Sophisticated Backpacks upgrade. For **Remote Crafting**, use the regular **Crafting Upgrade**.

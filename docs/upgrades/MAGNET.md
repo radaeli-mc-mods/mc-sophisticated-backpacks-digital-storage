@@ -80,3 +80,7 @@ A ausência de transferência manual relatada em Tom’s/SCC ainda exige reprodu
 O porte desta função preserva seu comportamento e as premissas P01–P12 aplicáveis. A implementação específica e os testes ficam no target 26.1.2; versões antigas conservam suas próprias fontes. APIs fixadas, transferência transacional, matriz por backend e evidências são registradas no [plano de porte](../PORT_26_1_2.md). Implementação, testes automatizados e aceitação manual são estados distintos.
 
 O target mantém tick, elegibilidade e coleta nativos, adapta filtros e destinos ao inventário transacional e preserva as duas prioridades (P04/P05/P08/P10). Os GameTests acionam o wrapper instalado e verificam drop, mochila e rede reais. A evidência automatizada não encerra a aceitação manual P12.
+
+## Vínculo AE2 por dispositivos da rede
+
+Esta função usa a descoberta compartilhada de [P02](../UPGRADES.md#P02) nos três targets: controllers, terminais e outros dispositivos online da rede energizada, exceto cabos. Em terminais multipart, o clique deve atingir a peça do terminal. O endpoint salvo continua sendo um Wireless Access Point elegível da mesma rede; alcance, transferências, configurações e reservas permanecem conforme P03/P08/P09/P11 aplicáveis. A aceitação manual dessa interação segue P12.

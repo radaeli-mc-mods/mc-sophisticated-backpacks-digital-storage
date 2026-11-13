@@ -91,3 +91,7 @@ The NeoForge path includes SCC 1.5.3 through the shared adapters. Follow the fun
 O porte desta função preserva seu comportamento e as premissas P01–P12 aplicáveis. A implementação específica e os testes ficam no target 26.1.2; versões antigas conservam suas próprias fontes. APIs fixadas, transferência transacional, matriz por backend e evidências são registradas no [plano de porte](../PORT_26_1_2.md). Implementação, testes automatizados e aceitação manual são estados distintos.
 
 O target usa `ResourceHandler<FluidResource>` na capability externa e uma fachada local transacional. O guard consulta o UUID em cada acesso e protege referências em cache. GameTests verificam um balde nos dois sentidos com as duas prioridades, recusa Tom’s e identidades com componentes em AE2/RS; SCC mantém a recusa de componentes adicionais (P03/P08/P09/P10). A evidência automatizada não encerra a aceitação manual P12.
+
+## Vínculo AE2 por dispositivos da rede
+
+Esta função usa a descoberta compartilhada de [P02](../UPGRADES.md#P02) nos três targets: controllers, terminais e outros dispositivos online da rede energizada, exceto cabos. Em terminais multipart, o clique deve atingir a peça do terminal. O endpoint salvo continua sendo um Wireless Access Point elegível da mesma rede; alcance, transferências, configurações e reservas permanecem conforme P03/P08/P09/P11 aplicáveis. A aceitação manual dessa interação segue P12.

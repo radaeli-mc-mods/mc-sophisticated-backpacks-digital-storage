@@ -53,11 +53,16 @@ public final class StorageAdapterRegistry {
     }
 
     public static Optional<StorageEndpoint> identify(Level level, BlockPos pos) {
+        return identify(level, pos, null, null);
+    }
+
+    public static Optional<StorageEndpoint> identify(Level level, BlockPos pos,
+            net.minecraft.world.phys.BlockHitResult hit, SourceLocation source) {
         if (level.isClientSide() || !level.isLoaded(pos)) {
             return Optional.empty();
         }
         for (StorageAdapter adapter : InstalledAdapters.ALL.values()) {
-            Optional<StorageEndpoint> endpoint = adapter.identify(level, pos);
+            Optional<StorageEndpoint> endpoint = adapter.identify(level, pos, hit, source);
             if (endpoint.isPresent()) {
                 return endpoint;
             }
