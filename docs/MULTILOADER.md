@@ -39,7 +39,7 @@ Artefatos: `targets/<minecraft>/<loader>/build/libs/<mod_id>-<mod_version>+<mine
 
 Os gates Forge continuam em `:forge:check`: JAR reobfuscado, refmap de `pickupDelay`, configuração Mixin, MixinExtras Jar-in-Jar e sete fixtures negativas. O JAR em `build/devlibs` não é a distribuição. A suíte 1.21.1 e seu perfil SCC foram preservados. `check-neoforge-1.21.1-scc` executa os cinco testes legados desse perfil e pertence aos gates de check/build 1.21.1, com relatórios separados.
 
-Para 26.1.2, cada perfil executa JUnit com o servidor efêmero oficial e GameTests com redes nativas. Use `-PbackendProfile=none|ae2|rs|toms|scc|all` a partir do target. O CI executa os seis perfis em jobs independentes e publica relatórios/logs mesmo em falha. A raiz oferece `check-neoforge-26.1.2` para a matriz completa, em sequência para não compartilhar outputs entre processos simultâneos.
+Para 26.1.2, cada perfil executa JUnit com o servidor efêmero oficial e GameTests com redes nativas. Use `-PbackendProfile=none|ae2|rs|toms|scc|all` a partir do target. O CI executa somente o perfil `all` (como nos demais loaders e versões) e publica relatórios/logs mesmo em falha. Os perfis isolados continuam disponíveis localmente, e a raiz oferece `check-neoforge-26.1.2` para a matriz completa, em sequência para não compartilhar outputs entre processos simultâneos.
 
 A reorganização passou nas suítes Forge 1.20.1 e NeoForge 1.21.1. Registros finais e limites: [26.1.2](PORT_26_1_2.md#evidências-e-aceitação). GUI, sprites/animações, single player e multiplayer exigem validação adicional P12. Migração de mundos entre versões não integra esses testes.
 
