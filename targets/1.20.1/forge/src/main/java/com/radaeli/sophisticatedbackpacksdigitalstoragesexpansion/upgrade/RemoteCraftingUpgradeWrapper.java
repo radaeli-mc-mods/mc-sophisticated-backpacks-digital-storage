@@ -2,10 +2,14 @@ package com.radaeli.sophisticatedbackpacksdigitalstoragesexpansion.upgrade;
 
 import java.util.Optional;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.p3pp3rf1y.sophisticatedcore.api.IIOFilterUpgrade;
 import net.p3pp3rf1y.sophisticatedcore.api.IStorageWrapper;
+import net.p3pp3rf1y.sophisticatedcore.common.gui.StorageContainerMenuBase;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.FilterLogic;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.crafting.CraftingUpgradeWrapper;
 
@@ -41,6 +45,48 @@ final class RemoteCraftingUpgradeWrapper extends CraftingUpgradeWrapper implemen
     @Override
     public Optional<FilterLogic> getOutputFilter() {
         return Optional.of(externalOutputFilter);
+    }
+
+    @Override
+    public boolean extractFromStorageOrPlayer(Player player, ItemStack stack) {
+        if (super.extractFromStorageOrPlayer(player, stack)) {
+            return true;
+        }
+        if (!(player instanceof ServerPlayer serverPlayer) || stack.isEmpty()
+                || !(serverPlayer.containerMenu instanceof StorageContainerMenuBase<?> menu)) {
+            return false;
+        }
+
+        Optional<RemoteCraftingUpgradeContainer> container = menu.getOpenContainer()
+                .filter(RemoteCraftingUpgradeContainer.class::isInstance)
+                .map(RemoteCraftingUpgradeContainer.class::cast)
+                .filter(openContainer -> openContainer.getUpgradeWrapper() == this);
+        if (container.isEmpty()) {
+            return false;
+        }
+
+        return UpgradeOperationContext.fromCurrentMenu(serverPlayer, container.get()).map(context -> {
+            Predicate<ItemStack> exactStack = candidate -> ItemStack.isSameItemSameTags(stack, candidate);
+            return UpgradeItemSources.find(this, serverPlayer, context.source(), getSourcePriority(), exactStack)
+                    .stream()
+                    .filter(UpgradeItemSources.SourceItem::remote)
+                    .findFirst()
+                    .map(source -> {
+                        ItemStack extracted = UpgradeItemSources.extract(this, serverPlayer, context.source(), source, 1);
+                        if (extracted.isEmpty() || !ItemStack.isSameItemSameTags(stack, extracted)) {
+                            if (!extracted.isEmpty()) {
+                                ItemStack remainder = UpgradeItemSources.returnToSource(this, serverPlayer,
+                                        context.source(), source, extracted);
+                                if (!remainder.isEmpty()) {
+                                    UpgradeItemSources.recover(this, serverPlayer, remainder);
+                                }
+                            }
+                            return false;
+                        }
+                        return true;
+                    })
+                    .orElse(false);
+        }).orElse(false);
     }
 
     SourcePriority getSourcePriority() {

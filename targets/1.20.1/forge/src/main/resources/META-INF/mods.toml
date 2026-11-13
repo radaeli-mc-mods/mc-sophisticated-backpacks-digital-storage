@@ -37,3 +37,10 @@ mandatory=true
 versionRange="[3.26.12,)"
 ordering="AFTER"
 side="BOTH"
+
+[[dependencies.${mod_id}]]
+modId="jei"
+mandatory=false
+versionRange="[${jei_version},)"
+ordering="AFTER"
+side="CLIENT"
