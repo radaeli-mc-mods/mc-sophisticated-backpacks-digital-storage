@@ -17,14 +17,62 @@ import net.neoforged.neoforge.items.IItemHandler;
 public final class SccStorageAdapter implements StorageAdapter {
     public String backendId() { return "scc"; }
     public Optional<StorageEndpoint> identify(Level level, BlockPos pos) {
-        return level.isLoaded(pos) && level.getBlockEntity(pos) instanceof NetworkAntennaBlockEntity
-                ? Optional.of(new StorageEndpoint("scc", level.dimension(), pos.immutable())) : Optional.empty();
+        return identify(level, pos, null, null);
+    }
+    public Optional<StorageEndpoint> identify(Level level, BlockPos pos,
+            net.minecraft.world.phys.BlockHitResult hit, SourceLocation source) {
+        if (!level.isLoaded(pos)) return Optional.empty();
+        var blockEntity = level.getBlockEntity(pos);
+        if (blockEntity instanceof NetworkAntennaBlockEntity) {
+            return Optional.of(new StorageEndpoint("scc", level.dimension(), pos.immutable()));
+        }
+        if (blockEntity instanceof CableBusBlockEntity bus) {
+            if (hit == null) return Optional.empty();
+            // SccParts.sideAt has a face fallback which also selects parts when hitting
+            // the cable. Check native part boxes against the actual hit instead.
+            var localHit = hit.getLocation().subtract(pos.getX(), pos.getY(), pos.getZ());
+            blockEntity = null;
+            for (var side : net.minecraft.core.Direction.values()) {
+                var part = bus.part(side);
+                if (part != null && SccParts.partBoxes(part, side).stream().anyMatch(box -> box.inflate(0.001).contains(localHit))) {
+                    blockEntity = part;
+                    break;
+                }
+            }
+        }
+        if (!(blockEntity instanceof NetworkBlockEntity device) || device instanceof CableBlockEntity
+                || device instanceof CableBusBlockEntity || device.isRemoved() || !device.conducts()) return Optional.empty();
+        NetworkView view = SccNetwork.at(level, pos);
+        if (!view.online() || !SccNetwork.connected(view)
+                || view.sites().stream().noneMatch(site -> site.level() == level && site.pos().equals(pos))) return Optional.empty();
+        StorageEndpoint nearest = null;
+        double nearestDistance = Double.POSITIVE_INFINITY;
+        for (var site : view.sites()) {
+            var antennaLevel = site.level();
+            if (!antennaLevel.isLoaded(site.pos())
+                    || !(antennaLevel.getBlockEntity(site.pos()) instanceof NetworkAntennaBlockEntity antenna)
+                    || antenna.isRemoved()) continue;
+            double distance = source == null ? pos.distSqr(site.pos())
+                    : source.position().distanceToSqr(net.minecraft.world.phys.Vec3.atCenterOf(site.pos()));
+            if (source != null && !SccCoverage.inRange(antenna.dimensional(), source.dimension().equals(antennaLevel.dimension()),
+                    antenna.infinite(), distance, antenna.range())) continue;
+            // Prefer a same-dimension antenna, then nearest, with a stable position tie-break.
+            double score = antennaLevel == level ? distance : Double.MAX_VALUE / 2;
+            var candidate = new StorageEndpoint("scc", antennaLevel.dimension(), site.pos().immutable());
+            if (nearest == null || score < nearestDistance || (score == nearestDistance
+                    && (candidate.dimension().location().toString() + candidate.pos()).compareTo(nearest.dimension().location().toString() + nearest.pos()) < 0)) {
+                nearest = candidate;
+                nearestDistance = score;
+            }
+        }
+        return Optional.ofNullable(nearest);
     }
     public Optional<StorageTarget> resolve(ServerLevel level, StorageEndpoint endpoint) {
         return resolve(level, endpoint, null);
     }
     public Optional<StorageTarget> resolve(ServerLevel level, StorageEndpoint endpoint, SourceLocation source) {
-        return identify(level, endpoint.pos()).map(ignored -> new Target(endpoint, source));
+        return level.isLoaded(endpoint.pos()) && level.getBlockEntity(endpoint.pos()) instanceof NetworkAntennaBlockEntity
+                ? Optional.of(new Target(endpoint, source)) : Optional.empty();
     }
     private record Target(StorageEndpoint endpoint, SourceLocation source) implements StorageTarget {
         private Optional<NetworkView> view(ServerPlayer player, SccSecurity.Right right) {

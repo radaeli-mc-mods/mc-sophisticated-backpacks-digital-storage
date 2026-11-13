@@ -34,10 +34,30 @@ public final class RefinedStorageAdapter implements StorageAdapter {
 
     @Override
     public Optional<StorageEndpoint> identify(net.minecraft.world.level.Level level, BlockPos pos) {
-        if (level.getBlockEntity(pos) instanceof ControllerBlockEntity) {
+        var blockEntity = level.getBlockEntity(pos);
+        if (blockEntity instanceof ControllerBlockEntity) {
             return Optional.of(new StorageEndpoint(BACKEND_ID, level.dimension(), pos.immutable()));
         }
-        return Optional.empty();
+        if (!(blockEntity instanceof com.refinedmods.refinedstorage.common.api.support.network.AbstractNetworkNodeContainerBlockEntity<?> device)
+                || blockEntity instanceof com.refinedmods.refinedstorage.common.networking.AbstractCableBlockEntity) return Optional.empty();
+        // Discovery only (P02/P03/P11). Keep the controller endpoint and native access validators.
+        java.util.Set<BlockPos> controllers = new java.util.HashSet<>();
+        for (var container : device.getContainerProvider().getContainers()) {
+            if (container.isRemoved() || !(container.getNode() instanceof com.refinedmods.refinedstorage.api.network.impl.node.AbstractNetworkNode node)
+                    || !node.isActive() || node.getNetwork() == null) continue;
+            Network network = node.getNetwork();
+            GraphNetworkComponent graph = network.getComponent(GraphNetworkComponent.class);
+            if (graph == null) continue;
+            for (var member : graph.getContainers()) {
+                if (!(member instanceof com.refinedmods.refinedstorage.common.api.support.network.InWorldNetworkNodeContainer inWorld)
+                        || inWorld.isRemoved() || !inWorld.getPosition().dimension().equals(level.dimension())) continue;
+                BlockPos controllerPos = inWorld.getLocalPosition();
+                if (level.isLoaded(controllerPos) && level.getBlockEntity(controllerPos) instanceof ControllerBlockEntity controller
+                        && controller.getNetworkForItem() == network) controllers.add(controllerPos.immutable());
+            }
+        }
+        return controllers.stream().min(java.util.Comparator.<BlockPos>comparingDouble(pos::distSqr).thenComparing(java.util.Comparator.naturalOrder()))
+                .map(controllerPos -> new StorageEndpoint(BACKEND_ID, level.dimension(), controllerPos));
     }
 
     @Override

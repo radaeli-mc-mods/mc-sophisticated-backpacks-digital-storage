@@ -24,8 +24,19 @@ public final class RefinedStorageAdapter implements StorageAdapter {
 
     @Override
     public Optional<StorageEndpoint> identify(net.minecraft.world.level.Level level, BlockPos pos) {
-        return level.getBlockEntity(pos) instanceof ControllerBlockEntity
-                ? Optional.of(new StorageEndpoint(BACKEND_ID, level.dimension(), pos.immutable())) : Optional.empty();
+        var blockEntity = level.getBlockEntity(pos);
+        if (blockEntity instanceof ControllerBlockEntity) {
+            return Optional.of(new StorageEndpoint(BACKEND_ID, level.dimension(), pos.immutable()));
+        }
+        if (!(blockEntity instanceof com.refinedmods.refinedstorage.api.network.node.INetworkNodeProxy<?> device)
+                || blockEntity instanceof com.refinedmods.refinedstorage.blockentity.CableBlockEntity) return Optional.empty();
+        INetworkNode node = device.getNode();
+        INetwork network = node == null ? null : node.getNetwork();
+        if (node == null || !node.isActive() || network == null || !network.canRun()
+                || network.getLevel() != level || !level.isLoaded(network.getPosition())) return Optional.empty();
+        BlockPos controllerPos = network.getPosition();
+        return level.getBlockEntity(controllerPos) instanceof ControllerBlockEntity controller && controller.getNetwork() == network
+                ? Optional.of(new StorageEndpoint(BACKEND_ID, level.dimension(), controllerPos.immutable())) : Optional.empty();
     }
 
     @Override

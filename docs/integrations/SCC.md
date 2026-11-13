@@ -90,3 +90,7 @@ this discovery/implementation plan must not be published in the portal.
 O adaptador específico de 26.1.2 usa o JAR 1.6.5 fornecido, SHA-256 `6fb0be9547c9aa8ea01adaa91fa846a43ca14256a8a5716bec87cbc3a6b65eb0`. A licença acompanha o artefato em `libs/26.1.2`. Os nove upgrades entram na matriz SCC do [porte](../PORT_26_1_2.md), incluindo Crafting. Permanecem os contratos de segurança, alcance na origem, reservas/descompressão nativas e rejeição de fluidos com componentes adicionais. Os registros anteriores desta página descrevem especificamente a baseline 1.21.1/SCC 1.5.3.
 
 In 26.1.2, native security is tested both with its default disabled setting and enabled PUT-only/TAKE-only policies. Fluid QUERY follows TAKE; INSERT follows PUT. Native compression is configured before the network tick cache is initialized. Real fixtures verify nine-unit and four-unit decompression, including returned surplus and simulation without writes. Test-only recipes stay outside the distribution JAR.
+
+## Device-based linking
+
+P02/P03/P04/P09/P11: on both NeoForge targets, online network devices can discover an eligible Network Antenna belonging to the same native network. Cables are excluded; multipart hosts require an actual device hit. The saved endpoint remains the antenna. Existing coverage, native permissions, recovery reservations and operation-time resolution remain unchanged. Forge has no SCC target. See the shared linking contract in [P02](../UPGRADES.md#P02).
