@@ -21,8 +21,7 @@ public final class TomsStorageAdapter implements StorageAdapter {
 
     @Override
     public Optional<StorageEndpoint> identify(net.minecraft.world.level.Level level, BlockPos pos) {
-        return level.getBlockEntity(pos) instanceof StorageTerminalBlockEntity
-                ? Optional.of(new StorageEndpoint(BACKEND_ID, level.dimension(), pos.immutable())) : Optional.empty();
+        return TomsLinkDiscovery.identify(level, pos);
     }
 
     @Override

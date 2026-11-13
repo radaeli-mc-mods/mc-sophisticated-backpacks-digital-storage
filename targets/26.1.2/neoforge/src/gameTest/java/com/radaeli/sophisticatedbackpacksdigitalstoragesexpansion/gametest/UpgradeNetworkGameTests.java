@@ -103,6 +103,7 @@ public final class UpgradeNetworkGameTests {
         RealNetworks network = RealNetworks.create(helper, backend, upgrade.equals("access_contract"));
         if (backend.equals("ae2") && upgrade.equals("access_contract")) Ae2LinkingFixture.prepare(network, player);
         if (NetworkLinkingFixture.supports(backend) && upgrade.equals("access_contract")) NetworkLinkingFixture.prepare(network);
+        if (backend.equals("toms_storage") && upgrade.equals("access_contract")) TomsLinkingFixture.prepare(network);
         helper.startSequence().thenWaitUntil(() -> helper.assertTrue(network.ready(player), "Network not ready: " + backend + " / " + network.diagnostic(player)))
                 .thenIdle(20).thenExecute(() -> exercise(helper, player, network, upgrade, backpackFirst, placed));
     }
@@ -299,6 +300,7 @@ public final class UpgradeNetworkGameTests {
     private static void checkAccessContract(GameTestHelper helper, ServerPlayer player, RealNetworks network) {
         if (network.backend().equals("ae2")) Ae2LinkingFixture.check(network, player);
         if (NetworkLinkingFixture.supports(network.backend())) NetworkLinkingFixture.check(network, player);
+        if (network.backend().equals("toms_storage")) TomsLinkingFixture.check(network, player);
         var target = network.target(player);
         var unloadedPosition = new BlockPos(29_000_000, 64, 29_000_000);
         helper.assertTrue(!player.level().isLoaded(unloadedPosition), "Unloaded fixture position was already loaded");

@@ -99,3 +99,7 @@ Esta função usa a descoberta compartilhada de [P02](../UPGRADES.md#P02) nos tr
 ## Vínculo RS/SCC por dispositivos da rede
 
 A descoberta compartilhada de [P02](../UPGRADES.md#P02) também aceita dispositivos ativos do RS nos três targets e dispositivos da rede SCC online nos dois targets NeoForge. Cabos são recusados, inclusive o cabo central de hosts SCC multipart. O endpoint salvo continua sendo controller no RS ou antena elegível no SCC; esta função mantém suas regras operacionais, filtros e reservas. Aplicar P03/P04/P09/P11 e validar a interação em jogo conforme P12.
+
+## Vínculo Tom’s por dispositivos da rede
+
+Esta função usa a descoberta compartilhada de [P02](../UPGRADES.md#P02) nos três targets: dispositivos nativos conectados podem identificar um terminal disponível. Cabos normais e emoldurados são recusados; conectores funcionais permanecem elegíveis. O endpoint salvo e a validação nativa do terminal não mudam, assim como filtros, transferências e reservas. Aplicar P03/P04/P09/P11 e separar os testes automatizados do aceite manual P12. Pump continua sem suporte a fluidos no Tom’s.
