@@ -1,6 +1,16 @@
 package com.radaeli.sophisticatedbackpacksdigitalstoragesexpansion.client.jei;
 
 import java.util.Optional;
+import net.minecraft.core.NonNullList;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.world.item.crafting.CraftingBookCategory;
+import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.crafting.ShapelessRecipe;
+import net.minecraft.world.item.ItemStack;
+import java.util.ArrayList;
+import java.util.List;
+import mezz.jei.api.registration.IRecipeRegistration;
+
 
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
@@ -59,6 +69,26 @@ public final class RemoteCraftingJeiPlugin implements IModPlugin {
     @Override
     public ResourceLocation getPluginUid() {
         return UID;
+    }
+
+    @Override
+    public void registerRecipes(IRecipeRegistration registration) {
+        // Sophisticated's own dye recipes are shown by its plugin; ours are custom recipes JEI cannot discover.
+        List<RecipeHolder<CraftingRecipe>> recipes = new ArrayList<>();
+        for (var variant : com.radaeli.sophisticatedbackpacksdigitalstoragesexpansion.variant.BackpackVariant.values()) {
+            if (!variant.isAvailable()) continue;
+            var markerId = ResourceLocation.parse(variant.markerItemId());
+            var markerItem = BuiltInRegistries.ITEM.getOptional(markerId);
+            if (markerItem.isEmpty()) continue;
+            var base = net.p3pp3rf1y.sophisticatedbackpacks.init.ModItems.BACKPACK.get();
+            ItemStack result = variant.stack(base);
+            var backpack = Ingredient.of(base);
+            var marker = Ingredient.of(markerItem.get());
+            var ingredients = NonNullList.of(Ingredient.EMPTY, backpack, marker);
+            var id = ResourceLocation.fromNamespaceAndPath(com.radaeli.sophisticatedbackpacksdigitalstoragesexpansion.SophisticatedBackpacksDigitalStoragesExpansion.MOD_ID, "jei/backpack_variant_" + variant.getSerializedName());
+            recipes.add(new RecipeHolder<>(id, new ShapelessRecipe("", CraftingBookCategory.MISC, result, ingredients)));
+        }
+        if (!recipes.isEmpty()) registration.addRecipes(RecipeTypes.CRAFTING, recipes);
     }
 
     @Override

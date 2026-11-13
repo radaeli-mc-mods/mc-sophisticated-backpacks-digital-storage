@@ -29,6 +29,10 @@ public final class ModCreativeTabs {
                         output.accept(ModItems.REMOTE_ALCHEMY_UPGRADE.get());
                         output.accept(ModItems.REMOTE_PUMP_UPGRADE.get());
                         output.accept(ModItems.REMOTE_CRAFTING_UPGRADE.get());
+                        for (var variant : com.radaeli.sophisticatedbackpacksdigitalstoragesexpansion.variant.BackpackVariant.values()) {
+                            if (!variant.isAvailable()) continue;
+                            output.accept(variant.stack(net.p3pp3rf1y.sophisticatedbackpacks.init.ModItems.BACKPACK.get()));
+                        }
                     })
                     .build());
 
