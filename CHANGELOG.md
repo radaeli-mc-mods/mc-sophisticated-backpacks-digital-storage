@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.6.0] - 2026-11-13
+
+### Added
+
+- Added JEI integration for the Remote Crafting Upgrade. The `+` button in the upgrade tab now pulls items from the linked network when available.
+- Added backpack color variants, one for each supported network: AE2, Refined Storage, Tom's Simple Storage and SCC. Craft a backpack with the network's marker item to recolor it; the contents are kept.
+
+### Changed
+
+- Stabilized support for Minecraft 26.1.2.
+
+### Fixed
+
+- Fixed the linking animations on 26.1.2.
+
 ## [0.6.0-beta.1] - 2026-11-12
 
 ### Added
