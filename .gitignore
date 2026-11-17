@@ -14,6 +14,9 @@ design
 libs/26.1.2/*.jar
 !libs/26.1.2/scc-1.6.5.jar
 
+libs/1.21.1/integrated/*.jar
+libs/1.21.1/integrated/*.part
+
 /targets/*/*.log
 /baseline.log
 

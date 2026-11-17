@@ -2,13 +2,13 @@
 
 ## Escopo
 
-O projeto contém também o target Minecraft 26.1.2/NeoForge 26.1.2.124/Java 25, descrito no [porte](PORT_26_1_2.md). As evidências de teste e a aceitação manual são separadas (P12). As plataformas preservadas são Minecraft 1.21.1/NeoForge 21.1.236/Java 21 e Minecraft 1.20.1/Forge 47.4.10/Java 17. O mod se chama **Sophisticated Backpacks - Digital Storages Expansion**, com ID `sophisticated_backpacks_digital_storages_expansion` e pacote Java `com.radaeli.sophisticatedbackpacksdigitalstoragesexpansion`. Itens e receitas usam esse mesmo namespace. Os nove upgrades têm implementações específicas para os três targets. Forge compila e produz um JAR reobfuscado. A validação operacional em jogo é registrada por upgrade.
+O projeto contém também o target Minecraft 26.1.2/NeoForge 26.1.2.124/Java 25, descrito no [porte](PORT_26_1_2.md). As evidências de teste e a aceitação manual são separadas (P12). As plataformas preservadas são Minecraft 1.21.1/NeoForge 21.1.238/Java 21 e Minecraft 1.20.1/Forge 47.4.10/Java 17. O mod se chama **Sophisticated Backpacks - Digital Storages Expansion**, com ID `sophisticated_backpacks_digital_storages_expansion` e pacote Java `com.radaeli.sophisticatedbackpacksdigitalstoragesexpansion`. Itens e receitas usam esse mesmo namespace. Os nove upgrades têm implementações específicas para os três targets. Forge compila e produz um JAR reobfuscado. A validação operacional em jogo é registrada por upgrade.
 
 Os nove upgrades aparecem em uma aba criativa própria. A tooltip base do Sophisticated usa `item.<namespace>.<item>.tooltip`, com textos em inglês e português.
 
 A hierarquia compartilhada das tooltips segue [P02](UPGRADES.md#P02): nome nativo → descrição em `GRAY` → status em `DARK_GRAY`, destacando somente o backend vinculado em `GREEN` → instrução de desvínculo em `DARK_GRAY`, somente se houver vínculo. `LinkedStorageUpgradeItem` preserva as linhas traduzidas pelo Sophisticated e aplica essa apresentação aos oito itens em EN-US/PT-BR. `StorageText.tooltipSummary` estiliza o resumo do item; o resumo das abas permanece independente. Pump acrescenta seu aviso de fluido pendente ao status por `getLinkStatus`, antes da instrução. Endereço avançado usa `DARK_GRAY`; nenhuma rede é resolvida para montar a tooltip.
 
-Cada função tem seu próprio item universal, configurado manualmente para um endpoint de AE2, Refined Storage ou Tom’s. Os serviços cobrem inserção, extração, pickup, magnetismo, reposição, alimentação, alquimia e bombeamento de fluidos AE2/RS. Tom’s continua sem capacidade de fluidos.
+Cada função tem seu próprio item universal, configurado manualmente para um endpoint de AE2, Refined Storage ou Tom’s, e também SCC nos targets NeoForge. Os serviços cobrem inserção, extração, pickup, magnetismo, reposição, alimentação, alquimia, crafting e bombeamento de fluidos AE2/RS/SCC; SCC limita as identidades de fluidos conforme sua API. Tom’s continua sem capacidade de fluidos. Integrated Dynamics está na preparação de dependências descrita abaixo; ainda não existe adaptador implementado.
 
 ## Estrutura multiloader
 
@@ -23,13 +23,13 @@ A raiz coordena `common` e builds independentes em `targets/1.20.1/forge`, `targ
 | `LinkedStorageUpgradeItem` | Item Sophisticated, limite por storage, dica de vínculo e tooltip. |
 | `EndpointLinkHandler` | Interação de vínculo para itens que implementam `ManuallyLinkedUpgrade`. Mantém o vínculo anterior quando o novo destino falha. |
 | `LinkedStorageUpgradeWrapper` | Leitura, escrita, remoção e salvamento do vínculo pelo ciclo de vida nativo do Sophisticated. Expõe o filtro transitório de proteção de IO. |
-| `LinkedStorageUpgradeContainer` | Validação dos pedidos no servidor, desvínculo, verificação de habilitação e limite de uma operação por tick do container. |
+| `LinkedStorageUpgradeContainer` | Validação dos pedidos no servidor, verificação de habilitação e limite de uma operação por tick do container; o desvínculo usa receita compartilhada. |
 | `UpgradeOperationContext` | Origem e inventário obtidos do menu atual, após validar container, aba, validade do menu e wrapper instalado. |
 | `LinkedStorageUpgradeTab` | Controles de vínculo e descrição da rede, atualizada quando o wrapper sincroniza. |
 | `StorageAdapter` | Identificação e resolução de um backend opcional. |
 | `StorageAdapterRegistry` | Registro dos adaptadores instalados e checagens comuns de dimensão, chunk e proteção. |
 | `StorageConnection` | Resultado explícito da tentativa de acesso; diferencia vínculo ausente, mod ausente, dimensão indisponível, chunk descarregado, endpoint removido e acesso recusado. |
-| `StorageTarget` | Endpoint resolvido para uma operação, com conectividade nativa, consulta de itens e inserção. |
+| `StorageTarget` | Endpoint resolvido para uma operação, com conectividade nativa, consulta, presença, inserção e extração de itens. |
 | `StorageOperation` / `StoredItemAmount` | Autorização independente de inserção/extração e identidades com contagens `long`. |
 | `FluidStorageTarget` / adaptadores | Contrato opcional de fluidos, consulta/simulação/extração/inserção em mB para AE2 e RS. |
 | `ItemInsertion` | Destino de inserção associado ao jogador da operação, independente de menus e de classes dos backends. |
@@ -189,7 +189,7 @@ Código comum e cliente não devem importar classes do novo mod. Alcance, energi
 
 ## Verificação
 
-`gradlew.bat build` executa a suíte JUnit e gera os JARs. A configuração usa o [suporte oficial de testes do ModDevGradle](https://github.com/neoforged/ModDevGradle#unit-testing-with-junit), com Sophisticated Core e Backpacks no runtime de testes e sem os backends opcionais.
+Na raiz, `gradlew.bat build` coordena `buildAll` dos três targets; `checkAll` executa a base comum, as suítes preservadas e os seis perfis 26.1.2. Comandos locais e gates estão em [MULTILOADER.md](MULTILOADER.md). No 1.21.1, a suíte JUnit padrão usa o [suporte oficial de testes do ModDevGradle](https://github.com/neoforged/ModDevGradle#unit-testing-with-junit), com Sophisticated Core e Backpacks no runtime de testes e sem os backends opcionais; `-PsccTests` executa separadamente o contrato SCC. Redes reais via GameTests estão no target 26.1.2; o harness 1.21.1 de Integrated pertence à fase 1.
 
 As suítes cobrem vínculo legado, dados malformados e independentes de backend; filtros nativos de permissão, bloqueio, inventário e componentes; transferências parciais, rejeição, extração parcial, recuperação e contagens extremas; proteção de reinserção na origem e composição dos filtros de IO; e inicialização do registro sem os mods de storage.
 
@@ -271,6 +271,12 @@ Verificação: `BackpackVariantRecipeTest` cobre preservação de todos os compo
 ## SCC backend (NeoForge only)
 
 The eight universal upgrade paths now include the optional SCC 1.5.3 adapter. See [SCC integration](integrations/SCC.md) for exact coverage, native permissions, virtual decompression, component limits and outstanding runtime acceptance. This is implementation status, not gameplay validation.
+
+## Integrated Dynamics — preparação do piloto
+
+P01/P11/P12: a [fase 0](integrations/INTEGRATED_DYNAMICS_PHASE_0.md) do [plano aprovado](integrations/INTEGRATED_DYNAMICS.md) fixa a pilha 1.21.1 em `targets/1.21.1/integrated-dependencies.lock.json`. A tarefa explícita `:neoforge:verifyIntegratedDependencies`, definida em `gradle/verify-integrated-dependencies.gradle`, baixa somente arquivos ausentes e rejeita SHA-256 divergente. Não altera os classpaths ou registros de adaptadores. `common` continua Java 17 sem tipos Minecraft/Cyclops.
+
+Os registros atuais continuam construindo os adaptadores existentes em branches de mod carregado. `StorageAdapter.identify(Level, BlockPos)` não recebe uma face: a descoberta multipart futura deve tratar esse contrato conforme o plano. `StorageTarget.canBind` permite separar elegibilidade de vínculo de autorização para transferir, e `EndpointLinkHandler` só grava após `connectForBinding` retornar um target. Política de acesso, descoberta Omni, persistência do novo backend, perfis, operações, traduções e visual ainda pertencem às fases seguintes. A baseline aqui registrada não comprova carregamento ou gameplay da pilha Integrated.
 
 ## Stored content — correção de 2026-10-30
 

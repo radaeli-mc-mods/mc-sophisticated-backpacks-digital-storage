@@ -52,6 +52,8 @@ configurations {
     runtimeClasspath.extendsFrom localRuntime
 }
 
+apply from: rootProject.file('../../gradle/verify-integrated-dependencies.gradle')
+
 dependencies {
     compileOnly 'mezz.jei:jei-1.21.1-neoforge-api:19.64.0.455'
     localRuntime 'mezz.jei:jei-1.21.1-neoforge:19.64.0.455'
