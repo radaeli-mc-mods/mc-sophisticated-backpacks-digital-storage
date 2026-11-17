@@ -41,7 +41,7 @@ JEI é opcional no cliente e integra a grade Remote Crafting nos três targets: 
 
 JARs auditados no workspace: Core `1.5.1.2341`, Backpacks `3.26.3.2158`, AE2 `19.2.18`, RS `2.0.9`, Tom’s `2.4.2`. Mudanças de versão exigem nova conferência das assinaturas e dos pontos de Mixin.
 
-Integrated Dynamics segue seu [plano de integração](integrations/INTEGRATED_DYNAMICS.md), com piloto 1.21.1 e portes condicionados ao aceite. A [fase 0](integrations/INTEGRATED_DYNAMICS_PHASE_0.md) fixa Cyclops Core 1.30.0, Common Capabilities 2.11.6 e os quatro mods Integrated no manifesto próprio; essa preparação não registra o backend nem declara suporte dos upgrades. Preservar P02–P12 nas fases seguintes.
+Integrated Dynamics segue seu [plano de integração](integrations/INTEGRATED_DYNAMICS.md), com piloto 1.21.1 e portes condicionados ao aceite. A [fase 0](integrations/INTEGRATED_DYNAMICS_PHASE_0.md) fixa Cyclops Core 1.30.0, Common Capabilities 2.11.6 e os quatro mods Integrated no manifesto próprio; a fase 0 não registrava o backend. A [fase 1](integrations/INTEGRATED_DYNAMICS_PHASE_1.md) acrescenta vínculo multipart por Omni, acesso revalidado e perfis/harness nativos no piloto. Recursos, fluidos e visual continuam para a fase 2; não declarar os upgrades operacionais. Preservar P02–P12 nas fases seguintes.
 
 <a id="P02"></a>
 ### P02 — Item universal e vínculo

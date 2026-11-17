@@ -1,0 +1,53 @@
+// Reports must belong to this invocation and contain the required scenario names.
+def report = layout.buildDirectory.file('reports/integration/' + backendProfile + '/gametest.xml')
+tasks.named('runGameTestServer') {
+    doFirst {
+        if (backendProfile == 'legacy') throw new GradleException('GameTests require an explicit -PbackendProfile')
+        report.get().asFile.parentFile.mkdirs()
+        report.get().asFile.delete()
+        layout.buildDirectory.file('reports/integration/' + backendProfile + '/summary.json').get().asFile.delete()
+    }
+    doLast {
+        def factory = javax.xml.parsers.DocumentBuilderFactory.newInstance()
+        factory.setFeature('http://apache.org/xml/features/disallow-doctype-decl', true)
+        def xml = factory.newDocumentBuilder().parse(report.get().asFile)
+        def cases = xml.getElementsByTagName('testcase')
+        def names = (0..<cases.length).collect { cases.item(it).getAttribute('name').toLowerCase() }
+        def required = ['profile']
+        if ('integratedtunnels' in profileBackends) required += ['topology', 'binding', 'unavailable']
+        if (xml.getElementsByTagName('failure').length || xml.getElementsByTagName('error').length || xml.getElementsByTagName('skipped').length
+                || names.size() != required.size() || names.toSet().size() != required.size()
+                || required.any { name -> names.count { it == name } != 1 }) {
+            throw new GradleException('Incomplete or failed phase 1 GameTests: ' + names)
+        }
+        layout.buildDirectory.file('reports/integration/' + backendProfile + '/summary.json').get().asFile.text =
+                groovy.json.JsonOutput.toJson([profile: backendProfile, scenarios: names, result: 'passed']) + '\n'
+    }
+}
+
+
+tasks.named('test', Test) {
+    maxHeapSize = '2G'
+    afterSuite { descriptor, result ->
+        if (descriptor.parent == null && (result.testCount == 0 || result.skippedTestCount != 0)) {
+            throw new GradleException('Mandatory JUnit profile ran no tests or skipped tests')
+        }
+    }
+}
+tasks.register('verifyIntegratedJar') {
+    dependsOn tasks.named('jar')
+    doLast {
+        def artifact = tasks.named('jar').get().archiveFile.get().asFile
+        new java.util.zip.ZipFile(artifact).withCloseable { zip ->
+            def names = zip.entries().collect { it.name }
+            def base = 'com/radaeli/sophisticatedbackpacksdigitalstoragesexpansion/storage/'
+            ['IntegratedDynamicsStorageAdapter', 'IntegratedDynamicsLinkDiscovery', 'IntegratedDynamicsAccessPolicy'].each {
+                if (!names.contains(base + it + '.class')) throw new GradleException('Missing Integrated class: ' + it)
+            }
+            if (names.any { it.startsWith('org/cyclops/') || it.contains('/gametest/') || it.startsWith('data/digitalstorage_tests/') || it.startsWith('digitalstorage_tests') }) {
+                throw new GradleException('Dependency or test fixture leaked into the production JAR')
+            }
+        }
+    }
+}
+tasks.named('check') { dependsOn 'verifyIntegratedJar' }

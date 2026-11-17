@@ -67,3 +67,32 @@ jobs:
             targets/26.1.2/integration-*.log
             runs/26.1.2/gametest-*/logs/**
           if-no-files-found: error
+
+  integration-121:
+    name: NeoForge 1.21.1 access / ${{ matrix.profile }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        profile: [none, integrated, full, all]
+    steps:
+      - uses: actions/checkout@v7
+        with: {persist-credentials: false}
+      - uses: radaeli-mc-mods/mc-ci/actions/setup-build@main
+        with: {java: '21'}
+      - name: Unit tests and native access GameTests
+        working-directory: targets/1.21.1
+        shell: bash
+        run: |
+          set -o pipefail
+          sh ./gradlew :neoforge:check -PbackendProfile=${{ matrix.profile }} --console=plain --stacktrace 2>&1 | tee access-${{ matrix.profile }}.log
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: access-1.21.1-${{ matrix.profile }}
+          path: |
+            targets/1.21.1/neoforge/build/reports/**
+            targets/1.21.1/neoforge/build/test-results/**
+            targets/1.21.1/access-*.log
+            runs/1.21.1/gametest-*/logs/**
+          if-no-files-found: error

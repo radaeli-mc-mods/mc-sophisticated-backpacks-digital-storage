@@ -12,10 +12,14 @@ class StorageAdapterRegistryTest extends MinecraftStorageTest {
     void optionalAdaptersRemainUnloadedWhenOnlySophisticatedIsInstalled() {
         assertTrue(ModList.get().isLoaded("sophisticatedcore"));
         assertTrue(ModList.get().isLoaded("sophisticatedbackpacks"));
-        assertFalse(ModList.get().isLoaded("ae2"));
-        assertFalse(ModList.get().isLoaded("refinedstorage"));
-        assertFalse(ModList.get().isLoaded("toms_storage"));
-        assertEquals(Set.of(), StorageAdapterRegistry.installedBackendIds());
+        String profile = System.getProperty("digitalstorage.backendProfile", "legacy");
+        var expected = new java.util.HashSet<String>();
+        for (String id : java.util.List.of("ae2", "refinedstorage", "toms_storage", "scc")) {
+            if (ModList.get().isLoaded(id)) expected.add(id);
+        }
+        if (ModList.get().isLoaded("integrateddynamics") && ModList.get().isLoaded("integratedtunnels")) expected.add("integrateddynamics");
+        if (profile.equals("legacy") || profile.equals("none") || profile.equals("dynamics")) assertEquals(Set.of(), expected);
+        assertEquals(expected, StorageAdapterRegistry.installedBackendIds());
         assertThrows(UnsupportedOperationException.class, () -> StorageAdapterRegistry.installedBackendIds().add("ae2"));
     }
 

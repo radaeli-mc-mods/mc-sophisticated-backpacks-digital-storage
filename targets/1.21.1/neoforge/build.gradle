@@ -18,8 +18,11 @@ java {
     withSourcesJar()
 }
 
+sourceSets { gameTest { compileClasspath += sourceSets.main.output + sourceSets.main.compileClasspath; runtimeClasspath += sourceSets.main.output + sourceSets.main.runtimeClasspath } }
+
 neoForge {
     version = neoforge_version
+    addModdingDependenciesTo(sourceSets.gameTest)
     accessTransformers.from('src/main/resources/META-INF/accesstransformer.cfg')
 
     runs {
@@ -29,6 +32,14 @@ neoForge {
             programArgument '--quickPlaySingleplayer'
             programArgument 'New World'
         }
+        gameTestServer {
+            type = 'gameTestServer'
+            sourceSet = sourceSets.gameTest
+            gameDirectory = project.file('../../../runs/1.21.1/gametest-' + providers.gradleProperty('backendProfile').getOrElse('legacy'))
+            systemProperty 'neoforge.enabledGameTestNamespaces', 'digitalstorage_tests'
+            systemProperty 'digitalstorage.backendProfile', providers.gradleProperty('backendProfile').getOrElse('legacy')
+            systemProperty 'digitalstorage.testReport', layout.buildDirectory.file('reports/integration/' + providers.gradleProperty('backendProfile').getOrElse('legacy') + '/gametest.xml').get().asFile.absolutePath
+        }
         server {
             server()
             gameDirectory = project.file('../../../runs/1.21.1/server')
@@ -37,6 +48,7 @@ neoForge {
     }
 
     mods {
+        digitalstorage_tests { sourceSet sourceSets.gameTest }
         "${mod_id}" {
             sourceSet sourceSets.main
         }
@@ -45,6 +57,7 @@ neoForge {
     unitTest {
         enable()
         testedMod = mods[mod_id]
+        loadedMods = [mods[mod_id]]
     }
 }
 
@@ -54,42 +67,72 @@ configurations {
 
 apply from: rootProject.file('../../gradle/verify-integrated-dependencies.gradle')
 
+def profile = providers.gradleProperty('backendProfile').getOrElse('legacy')
+def integratedBase = ['cyclopscore', 'commoncapabilities', 'integrateddynamics']
+def integratedMin = integratedBase + ['integratedtunnels']
+def profiles = [none: [], dynamics: integratedBase, integrated: integratedMin,
+    terminals: integratedMin + ['integratedterminals'],
+    full: integratedMin + ['integratedterminals', 'integratedcrafting'],
+    ae2: ['ae2'], rs: ['refinedstorage'], toms: ['toms_storage'], scc: ['scc'],
+    all: ['ae2', 'refinedstorage', 'toms_storage', 'scc'] + integratedMin + ['integratedterminals', 'integratedcrafting'],
+    legacy: ['ae2', 'refinedstorage', 'toms_storage', 'scc']]
+if (!profiles.containsKey(profile)) throw new GradleException('Unknown backendProfile: ' + profile)
+if (providers.gradleProperty('sccTests').isPresent() && providers.gradleProperty('backendProfile').isPresent()) {
+    throw new GradleException('Use either -PsccTests or -PbackendProfile, not both')
+}
+ext.backendProfile = profile
+ext.profileBackends = profiles[profile]
+def integratedLock = new groovy.json.JsonSlurper().parse(rootProject.file('integrated-dependencies.lock.json'))
+def integratedPaths = integratedLock.dependencies.collectEntries { dep ->
+    [(dep.id): rootProject.file('../../libs/1.21.1/integrated/' + dep.file)]
+}
+def backends = [ae2: 'maven.modrinth:ae2:KDnFUmMm', refinedstorage: 'maven.modrinth:refined-storage:lHHiI26k',
+    toms_storage: 'maven.modrinth:toms-storage:WQAMoIMC', scc: files('../../../libs/scc-1.5.3.jar')]
+
 dependencies {
     compileOnly 'mezz.jei:jei-1.21.1-neoforge-api:19.64.0.455'
     localRuntime 'mezz.jei:jei-1.21.1-neoforge:19.64.0.455'
-    compileOnly files('../../../libs/scc-1.5.3.jar')
-    testCompileOnly files('../../../libs/scc-1.5.3.jar')
-    if (providers.gradleProperty('sccTests').isPresent()) testRuntimeOnly files('../../../libs/scc-1.5.3.jar')
-    localRuntime files('../../../libs/scc-1.5.3.jar')
     compileOnly 'io.github.llamalad7:mixinextras-neoforge:0.5.3'
     localRuntime 'io.github.llamalad7:mixinextras-neoforge:0.5.3'
     testImplementation 'org.junit.jupiter:junit-jupiter:5.11.4'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-    testImplementation 'maven.modrinth:nmoqTijg:PXl6rB3q'
-    testImplementation 'maven.modrinth:TyCTlI4b:AhPnzNtJ'
-    compileOnly 'maven.modrinth:nmoqTijg:PXl6rB3q'
-    compileOnly 'maven.modrinth:TyCTlI4b:AhPnzNtJ'
-    compileOnly 'maven.modrinth:ae2:KDnFUmMm'
-    compileOnly 'maven.modrinth:refined-storage:lHHiI26k'
-    compileOnly 'maven.modrinth:toms-storage:WQAMoIMC'
+    ['maven.modrinth:nmoqTijg:PXl6rB3q', 'maven.modrinth:TyCTlI4b:AhPnzNtJ'].each {
+        compileOnly it
+        testImplementation it
+        localRuntime it
+    }
+    backends.each { id, dependency ->
+        compileOnly dependency
+        testCompileOnly dependency
+        if (id in profiles[profile]) localRuntime dependency
+        if (profile != 'legacy' && id in profiles[profile]) testRuntimeOnly dependency
+    }
+    if (providers.gradleProperty('sccTests').isPresent()) testRuntimeOnly backends.scc
     compileOnly 'org.appliedenergistics:guideme:21.1.1:api'
-    localRuntime 'maven.modrinth:nmoqTijg:PXl6rB3q'
-    localRuntime 'maven.modrinth:TyCTlI4b:AhPnzNtJ'
-    localRuntime 'maven.modrinth:ae2:KDnFUmMm'
-    localRuntime 'maven.modrinth:refined-storage:lHHiI26k'
-    localRuntime 'maven.modrinth:toms-storage:WQAMoIMC'
-    localRuntime 'org.appliedenergistics:guideme:21.1.1'
+    if ('ae2' in profiles[profile]) localRuntime 'org.appliedenergistics:guideme:21.1.1'
+    if (profile != 'legacy' && 'ae2' in profiles[profile]) testRuntimeOnly 'org.appliedenergistics:guideme:21.1.1'
+    compileOnly files(integratedPaths.values())
+    testCompileOnly files(integratedPaths.values())
+    localRuntime files(profiles[profile].findAll { integratedPaths.containsKey(it) }.collect { integratedPaths[it] })
+    testRuntimeOnly files(profiles[profile].findAll { integratedPaths.containsKey(it) }.collect { integratedPaths[it] })
 }
+
+tasks.withType(JavaCompile).configureEach { dependsOn 'verifyIntegratedDependencies' }
 
 tasks.named('test', Test).configure {
     useJUnitPlatform()
+    systemProperty 'digitalstorage.backendProfile', profile
+    if (profile != 'legacy') {
+        reports.junitXml.outputLocation = layout.buildDirectory.dir('test-results/' + profile)
+        reports.html.outputLocation = layout.buildDirectory.dir('reports/tests/' + profile)
+    }
     if (providers.gradleProperty('sccTests').isPresent()) {
         reports.junitXml.outputLocation = layout.buildDirectory.dir('test-results/scc-contract')
         reports.html.outputLocation = layout.buildDirectory.dir('reports/tests/scc-contract')
         maxHeapSize = '2G'
         include '**/SccNativeContractTest*', '**/SccAccessPolicyTest*'
     } else {
-        exclude '**/SccNativeContractTest*'
+        if (!(profile in ['scc', 'all'])) exclude '**/SccNativeContractTest*'
     }
 }
 
@@ -138,3 +181,9 @@ tasks.register('verifySccJar') {
 tasks.named('compileJava') { dependsOn('verifySccJar') }
 
 sourceSets.main.resources.srcDir('../../../shared/src/main/resources')
+
+neoForge.runs.configureEach { run ->
+    run.loadedMods = run.name == 'gameTestServer' ? [neoForge.mods[mod_id], neoForge.mods.digitalstorage_tests] : [neoForge.mods[mod_id]]
+}
+apply from: rootProject.file('../../gradle/integrated-gametest-gate.gradle')
+if (profile != 'legacy') tasks.named('check') { dependsOn 'runGameTestServer' }

@@ -79,3 +79,7 @@ O porte desta função preserva seu comportamento e as premissas P01–P12 aplic
 O target usa inventário Sophisticated transacional, snapshot de identidades e extração real, preservando a recuperação e os filtros (P03/P05/P08/P10). O GameTest aciona o container nativo e verifica a conservação após extração da rede. A evidência automatizada não encerra a aceitação manual P12.
 
 Correção da hotbar no NeoForge 26.1.2 (P07/P12): atualizar o atlas de texturas não invalida a imagem pronta mantida por GuiItemAtlas. LinkedUpgradeGuiAnimationMixin marca ItemStackRenderState como animado somente durante a transição e somente para LinkedModelProperty. Isso faz o cache da GUI redesenhar o canvas a cada frame; ao terminar, o ícone estático volta a ser reutilizado. A correção anterior de upload, isoladamente, não resolveu a hotbar, conforme reprodução do usuário. Validação visual desta correção permanece pendente.
+
+## Integrated Dynamics — fundação 1.21.1
+
+P01–P04/P11/P12: a [fase 1 da integração](../integrations/INTEGRATED_DYNAMICS_PHASE_1.md) acrescenta vínculo universal por Omni e revalidação de acesso no piloto. O formato persistido e as reservas existentes permanecem preservados. Esta fundação ainda recusa operações de recursos; a função será validada na sua fase específica do [plano Integrated](../integrations/INTEGRATED_DYNAMICS.md), após as operações básicas da fase 2. Não encerra os gates deste plano individual.

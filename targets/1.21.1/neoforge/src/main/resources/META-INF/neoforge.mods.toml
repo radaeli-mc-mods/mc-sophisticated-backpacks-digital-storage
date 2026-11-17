@@ -74,3 +74,17 @@ type="optional"
 versionRange="[1.5.3,)"
 ordering="AFTER"
 side="BOTH"
+
+[[dependencies.${mod_id}]]
+modId="integrateddynamics"
+type="optional"
+versionRange="[1.38.2,)"
+ordering="AFTER"
+side="BOTH"
+
+[[dependencies.${mod_id}]]
+modId="integratedtunnels"
+type="optional"
+versionRange="[1.13.0,)"
+ordering="AFTER"
+side="BOTH"

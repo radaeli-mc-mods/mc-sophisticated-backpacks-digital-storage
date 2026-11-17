@@ -74,3 +74,7 @@ The NeoForge path includes SCC 1.5.3 through the shared adapters. Follow the fun
 O porte desta função preserva seu comportamento e as premissas P01–P12 aplicáveis. A implementação específica e os testes ficam no target 26.1.2; versões antigas conservam suas próprias fontes. APIs fixadas, transferência transacional, matriz por backend e evidências são registradas no [plano de porte](../PORT_26_1_2.md). Implementação, testes automatizados e aceitação manual são estados distintos.
 
 O target usa `DataComponents.FOOD` e `ItemStack.finishUsingItem` para conservar o consumo e os efeitos nativos, mantendo a reserva e recuperação (P04/P08/P09). Os GameTests usam jogador em sobrevivência e verificam aumento de alimentação e contagem por origem nas duas prioridades. A evidência automatizada não encerra a aceitação manual P12.
+
+## Integrated Dynamics — fundação 1.21.1
+
+P01–P04/P11/P12: a [fase 1 da integração](../integrations/INTEGRATED_DYNAMICS_PHASE_1.md) acrescenta vínculo universal por Omni e revalidação de acesso no piloto. O formato persistido e as reservas existentes permanecem preservados. Esta fundação ainda recusa operações de recursos; a função será validada na sua fase específica do [plano Integrated](../integrations/INTEGRATED_DYNAMICS.md), após as operações básicas da fase 2. Não encerra os gates deste plano individual.
