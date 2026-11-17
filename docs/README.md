@@ -24,3 +24,5 @@ Player guides: [Linking upgrades](player/linking.md), [Filters and source priori
 - [SCC integration](integrations/SCC.md) — audited APIs, implementation phases and pending runtime matrix.
 - [Plano de integração com Integrated Dynamics](integrations/INTEGRATED_DYNAMICS.md) — fundação, nove upgrades, testes e guardrails; piloto 1.21.1 e portes após aceite manual.
 - [Integrated Dynamics — evidências da fase 0](integrations/INTEGRATED_DYNAMICS_PHASE_0.md) — dependências fixadas, auditoria e baseline anterior à implementação do backend.
+
+- [Integrated Dynamics — evidências da fase 1](integrations/INTEGRATED_DYNAMICS_PHASE_1.md) — perfis, acesso, descoberta multipart, vínculo e persistência no piloto 1.21.1.

@@ -1,6 +1,6 @@
 # Integrated Dynamics: integração faseada dos nove upgrades
 
-Plano aprovado em 2026-11-16. Fase 0 implementada em 2026-11-16; evidências e limites no [registro da fase 0](INTEGRATED_DYNAMICS_PHASE_0.md). O backend ainda não foi implementado. As evidências de auditoria abaixo se referem ao checkout e aos JARs inspecionados nessa data.
+Plano aprovado em 2026-11-16. Fase 0 implementada em 2026-11-16; evidências e limites no [registro da fase 0](INTEGRATED_DYNAMICS_PHASE_0.md). A fase 1 implementa a fundação de vínculo e acesso no piloto; operações e apresentação permanecem na fase 2. Ver [evidências e limites da fase 1](INTEGRATED_DYNAMICS_PHASE_1.md). As evidências de auditoria abaixo se referem ao checkout e aos JARs inspecionados nessa data.
 
 ## 1. Objetivo e decisões aprovadas
 
@@ -86,7 +86,7 @@ Cada fase acrescenta sua evidência à documentação interna. As referências n
 | **9 — Aceite do piloto** | Consolidar regressão, artefato de produção, cliente, servidor dedicado, documentação e roteiro manual. | Automação verde e aceite manual do usuário nos nove upgrades, visual e multiplayer. |
 | **10 — Portes** | Adaptar primeiro para 26.1.2 e depois Forge 1.20.1, repetindo os gates por target. | Paridade funcional demonstrada, suites preservadas e aceitação manual registrada por plataforma. |
 
-A fase 1 adaptará a infraestrutura existente de redes reais do 26.1.2 ao 1.21.1. Fixtures de cada backend ficarão em classes isoladas, evitando carregamento acidental de APIs ausentes.
+A fase 1 adapta a infraestrutura de perfis e harness de redes reais do 26.1.2 ao 1.21.1, usando a API de GameTests desta versão. A fixture Integrated fica isolada e só é registrada com Dynamics + Tunnels. Os demais perfis validam carregamento e regressão JUnit; redes reais dos demais backends continuam cobertas no target 26.1.2.
 
 Planos individuais obrigatórios: [Deposit](../upgrades/DEPOSIT.md), [Restock](../upgrades/RESTOCK.md), [Pickup](../upgrades/PICKUP.md), [Magnet](../upgrades/MAGNET.md), [Refill](../upgrades/REFILL.md), [Feeding](../upgrades/FEEDING.md), [Alchemy](../upgrades/ALCHEMY.md), [Pump](../upgrades/PUMP.md) e [Crafting](../upgrades/CRAFTING.md). Crafting segue também o [plano de experiência e preenchimento](../remote-crafting-plan.md).
 

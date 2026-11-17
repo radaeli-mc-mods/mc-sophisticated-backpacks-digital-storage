@@ -1,0 +1,1 @@
+{"required":true,"package":"com.radaeli.sophisticatedbackpacksdigitalstoragesexpansion.gametest.mixin","compatibilityLevel":"JAVA_21","mixins":["GameTestNamespaceMixin"],"injectors":{"defaultRequire":1}}

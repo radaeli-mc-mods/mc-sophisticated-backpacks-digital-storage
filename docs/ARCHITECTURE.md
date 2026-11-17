@@ -8,7 +8,7 @@ Os nove upgrades aparecem em uma aba criativa própria. A tooltip base do Sophis
 
 A hierarquia compartilhada das tooltips segue [P02](UPGRADES.md#P02): nome nativo → descrição em `GRAY` → status em `DARK_GRAY`, destacando somente o backend vinculado em `GREEN` → instrução de desvínculo em `DARK_GRAY`, somente se houver vínculo. `LinkedStorageUpgradeItem` preserva as linhas traduzidas pelo Sophisticated e aplica essa apresentação aos oito itens em EN-US/PT-BR. `StorageText.tooltipSummary` estiliza o resumo do item; o resumo das abas permanece independente. Pump acrescenta seu aviso de fluido pendente ao status por `getLinkStatus`, antes da instrução. Endereço avançado usa `DARK_GRAY`; nenhuma rede é resolvida para montar a tooltip.
 
-Cada função tem seu próprio item universal, configurado manualmente para um endpoint de AE2, Refined Storage ou Tom’s, e também SCC nos targets NeoForge. Os serviços cobrem inserção, extração, pickup, magnetismo, reposição, alimentação, alquimia, crafting e bombeamento de fluidos AE2/RS/SCC; SCC limita as identidades de fluidos conforme sua API. Tom’s continua sem capacidade de fluidos. Integrated Dynamics está na preparação de dependências descrita abaixo; ainda não existe adaptador implementado.
+Cada função tem seu próprio item universal, configurado manualmente para um endpoint de AE2, Refined Storage ou Tom’s, e também SCC nos targets NeoForge. Os serviços cobrem inserção, extração, pickup, magnetismo, reposição, alimentação, alquimia, crafting e bombeamento de fluidos AE2/RS/SCC; SCC limita as identidades de fluidos conforme sua API. Tom’s continua sem capacidade de fluidos. Integrated Dynamics possui a fundação de vínculo no piloto 1.21.1 descrita abaixo; operações e apresentação ficam na fase 2.
 
 ## Estrutura multiloader
 
@@ -272,11 +272,17 @@ Verificação: `BackpackVariantRecipeTest` cobre preservação de todos os compo
 
 The eight universal upgrade paths now include the optional SCC 1.5.3 adapter. See [SCC integration](integrations/SCC.md) for exact coverage, native permissions, virtual decompression, component limits and outstanding runtime acceptance. This is implementation status, not gameplay validation.
 
-## Integrated Dynamics — preparação do piloto
+## Integrated Dynamics — fundação do piloto
 
-P01/P11/P12: a [fase 0](integrations/INTEGRATED_DYNAMICS_PHASE_0.md) do [plano aprovado](integrations/INTEGRATED_DYNAMICS.md) fixa a pilha 1.21.1 em `targets/1.21.1/integrated-dependencies.lock.json`. A tarefa explícita `:neoforge:verifyIntegratedDependencies`, definida em `gradle/verify-integrated-dependencies.gradle`, baixa somente arquivos ausentes e rejeita SHA-256 divergente. Não altera os classpaths ou registros de adaptadores. `common` continua Java 17 sem tipos Minecraft/Cyclops.
+P01–P04/P11/P12: o [plano aprovado](integrations/INTEGRATED_DYNAMICS.md) e o [registro da fase 1](integrations/INTEGRATED_DYNAMICS_PHASE_1.md) orientam o piloto 1.21.1. O manifesto da fase 0 continua fixando os seis JARs; `verifyIntegratedDependencies` agora precede a compilação. As dependências são `compileOnly` e entram no runtime somente conforme o perfil; não são embutidas.
 
-Os registros atuais continuam construindo os adaptadores existentes em branches de mod carregado. `StorageAdapter.identify(Level, BlockPos)` não recebe uma face: a descoberta multipart futura deve tratar esse contrato conforme o plano. `StorageTarget.canBind` permite separar elegibilidade de vínculo de autorização para transferir, e `EndpointLinkHandler` só grava após `connectForBinding` retornar um target. Política de acesso, descoberta Omni, persistência do novo backend, perfis, operações, traduções e visual ainda pertencem às fases seguintes. A baseline aqui registrada não comprova carregamento ou gameplay da pilha Integrated.
+`StorageAdapterRegistry` constrói `IntegratedDynamicsStorageAdapter` somente com Dynamics **e** Tunnels carregados. `IntegratedDynamicsLinkDiscovery` inspeciona hosts multipart, recusa cabo puro e percorre membros da rede nativa. Prefere o Omni no bloco clicado; demais candidatos são ordenados por dimensão, X/Y/Z e face. Cada candidato exige mundo/chunk já disponível, host e rede atuais, grupo Omni configurado/ativo, estado habilitado e validadores nativos, incluindo simulação de energia. Nenhuma busca carrega chunks.
+
+`IntegratedDynamicsAccessPolicy` revalida jogador real elegível, proteção no mundo do endpoint e o Omni naquele bloco. Não exige terminal portátil, não acrescenta raio e não procura outro bloco quando o endpoint salvo falha. `EndpointLinkHandler` e `EndpointBinding` conservam protocolo e representação backend/dimensão/posição; tentativas sem target autorizado preservam o vínculo anterior. Nenhum objeto nativo é persistido.
+
+Nesta fase, `canBind` valida infraestrutura; `canAccess` de recursos permanece fechado, snapshots são vazios e inserções devolvem a oferta intacta. O registro de fluidos não oferece ainda esse backend. Consulta, presença, transferências, autorização por capacidade, canais wildcard, traduções e visual pertencem à fase 2; isso não declara os nove upgrades operacionais em Integrated.
+
+O source set `gameTest` contém exclusivamente o mod de fixtures. Perfis explícitos exercitam servidor nativo e JUnit com relatórios separados, remoção do XML/summary anterior e gate por nomes obrigatórios, unicidade, falhas e skips. Um Mixin somente de teste filtra holders de terceiros antes do carregamento: NeoForge 1.21.1 filtra namespaces tarde demais e fixtures de compatibilidade RS do Integrated referenciam RS mesmo quando ausente. Esse Mixin, fixtures e APIs Cyclops ficam fora do JAR, conferido por `verifyIntegratedJar`. `common`, Forge e 26.1.2 não receberam alterações.
 
 ## Stored content — correção de 2026-10-30
 

@@ -421,6 +421,63 @@
         "panel": "dedicated",
         "clear": true
       }
+    },
+    {
+      "label": "Digital Storages Expansion: 1.21.1 Check Profile",
+      "type": "process",
+      "command": "powershell.exe",
+      "args": [
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "${workspaceFolder}\\.vscode\\run-gradle.ps1",
+        ":neoforge:check",
+        "-PbackendProfile=${input:pilotBackendProfile}",
+        "--console=plain"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}/targets/1.21.1"
+      },
+      "problemMatcher": "$gradle"
+    },
+    {
+      "label": "Digital Storages Expansion: 1.21.1 Client Profile",
+      "type": "process",
+      "command": "powershell.exe",
+      "args": [
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "${workspaceFolder}\\.vscode\\run-gradle.ps1",
+        ":neoforge:runClient",
+        "-PbackendProfile=${input:pilotBackendProfile}",
+        "--console=plain"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}/targets/1.21.1"
+      },
+      "problemMatcher": "$gradle"
+    },
+    {
+      "label": "Digital Storages Expansion: 1.21.1 Server Profile",
+      "type": "process",
+      "command": "powershell.exe",
+      "args": [
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "${workspaceFolder}\\.vscode\\run-gradle.ps1",
+        ":neoforge:runServer",
+        "-PbackendProfile=${input:pilotBackendProfile}",
+        "--console=plain"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}/targets/1.21.1"
+      },
+      "problemMatcher": "$gradle"
     }
   ],
   "inputs": [
@@ -437,6 +494,24 @@
         "scc"
       ],
       "default": "all"
+    },
+    {
+      "id": "pilotBackendProfile",
+      "type": "pickString",
+      "description": "Backend profile for the 1.21.1 pilot",
+      "options": [
+        "none",
+        "dynamics",
+        "integrated",
+        "terminals",
+        "full",
+        "ae2",
+        "rs",
+        "toms",
+        "scc",
+        "all"
+      ],
+      "default": "integrated"
     }
   ]
 }
