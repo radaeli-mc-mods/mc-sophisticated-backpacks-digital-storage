@@ -1,0 +1,79 @@
+{
+  "minecraft": "1.21.1",
+  "loader": "neoforge",
+  "neoforge": "21.1.238",
+  "java": 21,
+  "auditedOn": "2026-11-16",
+  "dependencies": [
+    {
+      "id": "cyclopscore",
+      "version": "1.30.0",
+      "file": "cyclopscore-1.21.1-neoforge-1.30.0-1205.jar",
+      "url": "https://cdn.modrinth.com/data/Z9DM0LJ4/versions/MHVHsQ3p/cyclopscore-1.21.1-neoforge-1.30.0-1205.jar",
+      "source": "https://modrinth.com/mod/cyclops-core/version/MHVHsQ3p",
+      "sha256": "dccf7a02f5bb9bf249b492b1bc2be6ae8984c161c0ffcc4195727acdfa5f741e",
+      "license": "MIT",
+      "licenseUrl": "https://github.com/CyclopsMC/CyclopsCore/blob/1.21.1-1.30.0/LICENSE.txt",
+      "requiredMods": {"minecraft": "[1.21.1,]", "neoforge": "[21.1.2,)"}
+    },
+    {
+      "id": "commoncapabilities",
+      "version": "2.11.6",
+      "file": "commoncapabilities-1.21.1-neoforge-2.11.6.jar",
+      "url": "https://cdn.modrinth.com/data/oFXrCkDI/versions/R9PufPlP/commoncapabilities-1.21.1-neoforge-2.11.6.jar",
+      "source": "https://modrinth.com/mod/common-capabilities/version/R9PufPlP",
+      "sha256": "494fd342065cad35c8a729cb66dfc1287fc592e6800809e8f461362cf73ef520",
+      "license": "MIT",
+      "licenseUrl": "https://github.com/CyclopsMC/CommonCapabilities/blob/1.21.1-2.11.6/LICENSE.txt",
+      "requiredMods": {"minecraft": "[1.21.1,]", "neoforge": "[21.1.21,)", "cyclopscore": "[1.25.1,)"}
+    },
+    {
+      "id": "integrateddynamics",
+      "version": "1.38.2",
+      "file": "integrateddynamics-1.21.1-neoforge-1.38.2.jar",
+      "url": "https://edge.forgecdn.net/files/9385/193/integrateddynamics-1.21.1-neoforge-1.38.2.jar",
+      "source": "https://www.curseforge.com/minecraft/mc-mods/integrated-dynamics/files/9385193",
+      "sha256": "7dee30453f1e8972962108175cf46c09c7531ab273279888bf2162198d241198",
+      "license": "MIT",
+      "licenseUrl": "https://github.com/CyclopsMC/IntegratedDynamics/blob/1.21.1-1.38.2/LICENSE.txt",
+      "requiredMods": {"minecraft": "[1.21.1,]", "neoforge": "[21.1.228,)", "cyclopscore": "[1.30.0,)", "commoncapabilities": "[2.9.11,)"},
+      "embeddedMods": [{"id": "integrateddynamicscompat", "version": "1.0.0", "neoforge": "[21.1.238,)"}],
+      "thirdPartyNotices": ["LICENSE-re2j.txt", "LICENSE-netty.txt"]
+    },
+    {
+      "id": "integratedtunnels",
+      "version": "1.13.0",
+      "file": "integratedtunnels-1.21.1-neoforge-1.13.0.jar",
+      "url": "https://edge.forgecdn.net/files/9046/753/integratedtunnels-1.21.1-neoforge-1.13.0.jar",
+      "source": "https://www.curseforge.com/minecraft/mc-mods/integrated-tunnels/files/9046753",
+      "sha256": "0858df6c837b202e7fe976fc0a25d8bcac5a79cb3da63432190efc7a4000e318",
+      "license": "MIT",
+      "licenseUrl": "https://github.com/CyclopsMC/IntegratedTunnels/blob/1.21.1-1.13.0/LICENSE.txt",
+      "requiredMods": {"minecraft": "[1.21.1,]", "neoforge": "[21.1.228,)", "cyclopscore": "[1.30.0,)", "commoncapabilities": "[2.9.11,)", "integrateddynamics": "[1.37.1,)"},
+      "embeddedMods": [{"id": "integratedtunnelscompat", "version": "${file.jarVersion}", "neoforge": "[21.1.2,)"}]
+    },
+    {
+      "id": "integratedterminals",
+      "version": "1.11.1",
+      "file": "integratedterminals-1.21.1-neoforge-1.11.1.jar",
+      "url": "https://edge.forgecdn.net/files/9220/317/integratedterminals-1.21.1-neoforge-1.11.1.jar",
+      "source": "https://www.curseforge.com/minecraft/mc-mods/integrated-terminals/files/9220317",
+      "sha256": "b913d6894713deab0ec470d2a6cd7ad5c690bede8097d274caa2c1fea62413b9",
+      "license": "MIT",
+      "licenseUrl": "https://github.com/CyclopsMC/IntegratedTerminals/blob/1.21.1-1.11.1/LICENSE.txt",
+      "requiredMods": {"minecraft": "[1.21.1,]", "neoforge": "[21.1.228,)", "cyclopscore": "[1.30.0,)", "commoncapabilities": "[2.11.6,)", "integrateddynamics": "[1.37.1,)"},
+      "embeddedMods": [{"id": "integratedterminalscompat", "version": "1.0.0", "neoforge": "[21.1.228,)"}]
+    },
+    {
+      "id": "integratedcrafting",
+      "version": "1.8.1",
+      "file": "integratedcrafting-1.21.1-neoforge-1.8.1.jar",
+      "url": "https://edge.forgecdn.net/files/9383/656/integratedcrafting-1.21.1-neoforge-1.8.1.jar",
+      "source": "https://www.curseforge.com/minecraft/mc-mods/integrated-crafting/files/9383656",
+      "sha256": "b8a526dd03029d110d4b3b2f4b52cc516f66666ad8fa2ab73bf7c130c7fb5bb0",
+      "license": "MIT",
+      "licenseUrl": "https://github.com/CyclopsMC/IntegratedCrafting/blob/1.21.1-1.8.1/LICENSE.txt",
+      "requiredMods": {"minecraft": "[1.21.1,]", "neoforge": "[21.1.228,)", "cyclopscore": "[1.30.0,)", "commoncapabilities": "[2.11.5,)", "integrateddynamics": "[1.37.1,)"}
+    }
+  ]
+}

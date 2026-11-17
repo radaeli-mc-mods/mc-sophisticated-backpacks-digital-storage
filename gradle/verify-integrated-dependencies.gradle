@@ -1,0 +1,64 @@
+import groovy.json.JsonSlurper
+import java.nio.file.Files
+import java.nio.file.StandardCopyOption
+import java.security.MessageDigest
+
+// Phase 0 only: audit/download on explicit invocation, without changing any classpath.
+def lockFile = rootProject.file('integrated-dependencies.lock.json')
+def dependencyDir = rootProject.file('../../libs/1.21.1/integrated')
+
+tasks.register('verifyIntegratedDependencies') {
+    group = 'verification'
+    description = 'Fetch and verify the six pinned Integrated pilot artifacts (no runtime activation).'
+    inputs.file(lockFile)
+    outputs.upToDateWhen { false }
+    doLast {
+        def lock = new JsonSlurper().parse(lockFile)
+        if (lock.minecraft != minecraft_version || lock.neoforge != neoforge_version
+                || lock.java != (java_version as int) || lock.loader != 'neoforge') {
+            throw new GradleException('Integrated dependency audit does not match the pilot target')
+        }
+        def hashFile = { File artifact ->
+            def digest = MessageDigest.getInstance('SHA-256')
+            artifact.withInputStream { input ->
+                byte[] buffer = new byte[8192]
+                int length
+                while ((length = input.read(buffer)) != -1) digest.update(buffer, 0, length)
+            }
+            digest.digest().encodeHex().toString()
+        }
+        lock.dependencies.each { dep ->
+            if (dep.file != new File(dep.file).name || !(dep.sha256 ==~ /[0-9a-f]{64}/)
+                    || !dep.url.startsWith('https://')) {
+                throw new GradleException("Invalid Integrated dependency entry: ${dep.id}")
+            }
+            def artifact = new File(dependencyDir, dep.file)
+            if (!artifact.isFile()) {
+                if (gradle.startParameter.offline) {
+                    throw new GradleException("Missing Integrated dependency in offline mode: ${artifact}")
+                }
+                dependencyDir.mkdirs()
+                def temporary = new File(dependencyDir, dep.file + '.part')
+                try {
+                    logger.lifecycle('Downloading audited Integrated dependency: {}', dep.file)
+                    def connection = new URI(dep.url).toURL().openConnection()
+                    connection.connectTimeout = 30000
+                    connection.readTimeout = 60000
+                    connection.getInputStream().withCloseable { input ->
+                        temporary.withOutputStream { output -> output << input }
+                    }
+                    if (hashFile(temporary) != dep.sha256) {
+                        throw new GradleException("SHA-256 mismatch for ${dep.file}")
+                    }
+                    Files.move(temporary.toPath(), artifact.toPath(), StandardCopyOption.REPLACE_EXISTING)
+                } finally {
+                    temporary.delete()
+                }
+            }
+            if (hashFile(artifact) != dep.sha256) {
+                throw new GradleException("SHA-256 mismatch for ${dep.file}; refusing to replace an existing artifact")
+            }
+            logger.lifecycle('Verified {} {} (SHA-256 {})', dep.id, dep.version, dep.sha256)
+        }
+    }
+}

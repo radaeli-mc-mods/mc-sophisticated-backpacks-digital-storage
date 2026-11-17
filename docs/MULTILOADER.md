@@ -7,7 +7,7 @@ A raiz coordena builds independentes por Minecraft, seguindo vertical-trapdoors.
 | Target | Loader | Java | Gradle |
 | --- | --- | --- | --- |
 | 1.20.1 | Forge 47.4.10 | 17 | 8.11.1 |
-| 1.21.1 | NeoForge 21.1.236 | 21 | 8.11.1 |
+| 1.21.1 | NeoForge 21.1.238 | 21 | 8.11.1 |
 | 26.1.2 | NeoForge 26.1.2.124 | 25 | 9.4.0 |
 
 Forge contém os nove upgrades e AE2/RS/Tom's. NeoForge inclui também SCC. Tom's não oferece fluidos; SCC limita fluidos às identidades preservadas por sua API. O [porte 26.1.2](PORT_26_1_2.md) segue P01–P12 e os planos individuais.
