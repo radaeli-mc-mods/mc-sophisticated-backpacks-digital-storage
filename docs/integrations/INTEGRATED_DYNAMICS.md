@@ -1,6 +1,6 @@
 # Integrated Dynamics: integração faseada dos nove upgrades
 
-Plano aprovado em 2026-11-16. Fase 0 implementada em 2026-11-16; evidências e limites no [registro da fase 0](INTEGRATED_DYNAMICS_PHASE_0.md). A fase 1 implementa a fundação de vínculo e acesso no piloto; operações e apresentação permanecem na fase 2. Ver [evidências e limites da fase 1](INTEGRATED_DYNAMICS_PHASE_1.md). As evidências de auditoria abaixo se referem ao checkout e aos JARs inspecionados nessa data.
+Plano aprovado em 2026-11-16. Fase 0 implementada em 2026-11-16; evidências e limites no [registro da fase 0](INTEGRATED_DYNAMICS_PHASE_0.md). A fase 1 implementa vínculo e acesso; a [fase 2](INTEGRATED_DYNAMICS_PHASE_2.md) acrescenta as operações básicas e apresentação no piloto, com validação e limites registrados separadamente. Ver [evidências e limites da fase 1](INTEGRATED_DYNAMICS_PHASE_1.md). As evidências de auditoria abaixo se referem ao checkout e aos JARs inspecionados nessa data.
 
 ## 1. Objetivo e decisões aprovadas
 

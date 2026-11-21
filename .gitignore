@@ -10,6 +10,9 @@ out/
 .gradle*/
 **/logs/
 design
+!/docs/design/
+/docs/design/*
+!/docs/design/upgrade_visuals_integrated_pilot.png
 
 libs/26.1.2/*.jar
 !libs/26.1.2/scc-1.6.5.jar

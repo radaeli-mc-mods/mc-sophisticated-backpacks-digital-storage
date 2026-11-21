@@ -26,3 +26,5 @@ Player guides: [Linking upgrades](player/linking.md), [Filters and source priori
 - [Integrated Dynamics — evidências da fase 0](integrations/INTEGRATED_DYNAMICS_PHASE_0.md) — dependências fixadas, auditoria e baseline anterior à implementação do backend.
 
 - [Integrated Dynamics — evidências da fase 1](integrations/INTEGRATED_DYNAMICS_PHASE_1.md) — perfis, acesso, descoberta multipart, vínculo e persistência no piloto 1.21.1.
+
+- [Integrated Dynamics — operações e apresentação da fase 2](integrations/INTEGRATED_DYNAMICS_PHASE_2.md) — contratos nativos de itens/fluidos, quinto estado visual e evidências do piloto.
