@@ -31,6 +31,7 @@ for (const [name, contents] of entries) {
   if (name.endsWith('.jar')) assert(loader === 'forge' && name.toLowerCase().includes('mixinextras'), `Bundled JAR dependency: ${name}`);
   assert(!['org/cyclops/', 'de/scc/', 'appeng/', 'com/refinedmods/', 'com/tom/', 'net/p3pp3rf1y/', 'guideme/'].some(prefix => name.startsWith(prefix)), `Bundled dependency: ${name}`);
   assert(!name.includes('digitalstorage_tests') && !name.includes('UpgradeNetworkGameTests') && !name.includes('RealNetworks.class'), `Bundled integration fixture: ${name}`);
+  assert(!name.startsWith(packagePath + 'junit/') && !name.includes('digitalstorage_junit'), 'Bundled JUnit fixture: ' + name);
   assert(!name.startsWith(packagePath + 'gametest/'), `Bundled GameTest package: ${name}`);
   if (name.startsWith(packagePath) && name.endsWith('.class')) {
     assert.equal(contents.readUInt32BE(0), 0xcafebabe, `Invalid class: ${name}`);
@@ -68,7 +69,7 @@ for (const [name] of entries) {
 const recipes = loader === 'forge' ? 'recipes' : 'recipe';
 const tag = JSON.parse(read(`data/sophisticatedbackpacks/tags/${loader === 'forge' ? 'items' : 'item'}/upgrade.json`));
 const en = JSON.parse(read(`assets/${modId}/lang/en_us.json`)), pt = JSON.parse(read(`assets/${modId}/lang/pt_br.json`));
-const integratedSupported = minecraft === '1.21.1' || (minecraft === '1.20.1' && loader === 'forge');
+const integratedSupported = minecraft === '26.1.2' || minecraft === '1.21.1' || (minecraft === '1.20.1' && loader === 'forge');
 if (integratedSupported) {
   for (const name of ['IntegratedDynamicsStorageAdapter', 'IntegratedDynamicsFluidStorageAdapter', 'IntegratedDynamicsAccessPolicy', 'IntegratedDynamicsLinkDiscovery']) {
     assert(entries.has(packagePath + `storage/${name}.class`), `Missing Integrated foundation: ${name}`);
@@ -89,23 +90,28 @@ for (const upgrade of ['deposit','restock','pickup','magnet','refill','feeding',
   if (integratedSupported) {
     const backends = ['ae2', 'refinedstorage', 'toms_storage', 'scc', 'integrateddynamics'];
     const model = JSON.parse(read(`assets/${modId}/models/item/${item}.json`));
-    assert.equal(model.overrides.length, 6, `Expected five backends and a canvas: ${item}`);
+    if (minecraft !== '26.1.2') assert.equal(model.overrides.length, 6, `Expected five backends and a canvas: ${item}`);
     for (const [index, backend] of backends.entries()) {
-      assert.equal(model.overrides[index].predicate[`${modId}:network`], index + 1);
-      assert.equal(model.overrides[index].model, `${modId}:item/${item}_linked_${backend}`);
+      if (minecraft !== '26.1.2') assert.equal(model.overrides[index].predicate[`${modId}:network`], index + 1);
+      if (minecraft !== '26.1.2') assert.equal(model.overrides[index].model, `${modId}:item/${item}_linked_${backend}`);
       for (const previous of ['unlinked', ...backends]) {
         const path = `assets/${modId}/textures/link_animation/${item}/${previous}_to_${backend}.png`;
         const strip = entries.get(path);
         assert(strip && strip.readUInt32BE(16) === 16 && strip.readUInt32BE(20) === 400, `Invalid 25-frame transition strip: ${path}`);
       }
     }
-    assert.equal(model.overrides.at(-1).predicate[`${modId}:link_frame`], 1);
+    if (minecraft !== '26.1.2') assert.equal(model.overrides.at(-1).predicate[`${modId}:link_frame`], 1);
   }
   assert(en[`item.${modId}.${item}`] && pt[`item.${modId}.${item}`], `Missing translation: ${item}`);
   if (minecraft === '26.1.2') {
     const definition = JSON.parse(read(`assets/${modId}/items/${item}.json`));
+    for (const [index, backend] of ['ae2','refinedstorage','toms_storage','scc','integrateddynamics','canvas'].entries()) {
+      const entry = definition.model.entries[index];
+      assert.equal(entry.threshold, index + 1, 'Wrong linked-state index');
+      assert.equal(entry.model.model, modId + ':item/' + item + (backend === 'canvas' ? '_link_canvas' : '_linked_' + backend));
+    }
     assert.equal(definition.model.property, `${modId}:linked_state`);
-    assert.equal(definition.model.entries.length, 5, `Missing linked or animation models: ${item}`);
+    assert.equal(definition.model.entries.length, 6, `Missing linked or animation models: ${item}`);
   }
 }
 const mixins = JSON.parse(read(`${modId}.mixins.json`));

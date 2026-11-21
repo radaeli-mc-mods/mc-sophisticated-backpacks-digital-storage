@@ -34,12 +34,13 @@ import com.radaeli.sophisticatedbackpacksdigitalstoragesexpansion.storage.*;
 @Mod("digitalstorage_tests")
 public final class UpgradeNetworkGameTests {
     private static final String ID = "digitalstorage_tests";
-    private static final List<String> BACKENDS = List.of("ae2", "refinedstorage", "toms_storage", "scc");
+    private static final List<String> BACKENDS = List.of("ae2", "refinedstorage", "toms_storage", "scc", "integrateddynamics");
     private static final List<String> UPGRADES = List.of("deposit", "restock", "pickup", "magnet", "refill", "feeding", "alchemy", "pump", "crafting", "access_contract");
     private static final DeferredRegister<Consumer<GameTestHelper>> FUNCTIONS = DeferredRegister.create(Registries.TEST_FUNCTION, ID);
     private final Map<String, DeferredHolder<Consumer<GameTestHelper>, Consumer<GameTestHelper>>> tests = new LinkedHashMap<>();
 
     public UpgradeNetworkGameTests(IEventBus bus) {
+        if (ModList.get().isLoaded("integrateddynamics") && ModList.get().isLoaded("integratedtunnels")) IntegratedResourceFixture.register(bus);
         tests.put("profile", FUNCTIONS.register("profile", () -> this::profile));
         if (!System.getProperty("digitalstorage.restartPhase", "").isEmpty()) {
             for (String backend : expectedBackends()) {
@@ -62,18 +63,30 @@ public final class UpgradeNetworkGameTests {
                 tests.put(alternate, FUNCTIONS.register(alternate, () -> helper -> run(helper, backend, upgrade, true)));
             }
         }
+        if (expectedBackends().contains("integrateddynamics")) {
+            Map<String, Consumer<GameTestHelper>> integrated = Map.of(
+                "topology", IntegratedAccessGameTests::topology, "binding", IntegratedAccessGameTests::binding,
+                "unavailable", IntegratedAccessGameTests::unavailable, "items", IntegratedResourceGameTests::items,
+                "channelsandlongcounts", IntegratedResourceGameTests::channelsandlongcounts,
+                "nativefilters", IntegratedResourceGameTests::nativefilters,
+                "fluidsandcachedguard", IntegratedResourceGameTests::fluidsandcachedguard,
+                "nativeinterceptors", IntegratedResourceGameTests::nativeinterceptors,
+                "cachedbackpackguard", IntegratedResourceGameTests::cachedbackpackguard);
+            integrated.forEach((name, function) -> tests.put("integrated_"+name, FUNCTIONS.register("integrated_"+name, () -> function)));
+        }
         FUNCTIONS.register(bus);
         bus.addListener(this::registerTests);
     }
     private static Identifier id(String name) { return Identifier.fromNamespaceAndPath(ID, name); }
     private static List<String> expectedBackends() {
         return switch (System.getProperty("digitalstorage.backendProfile", "none")) {
-            case "none" -> List.of(); case "ae2" -> List.of("ae2"); case "rs" -> List.of("refinedstorage");
+            case "none", "dynamics" -> List.of(); case "integrated", "terminals", "full" -> List.of("integrateddynamics"); case "ae2" -> List.of("ae2"); case "rs" -> List.of("refinedstorage");
             case "toms" -> List.of("toms_storage"); case "scc" -> List.of("scc"); case "all" -> BACKENDS;
             default -> throw new IllegalArgumentException("Invalid backend profile");
         };
     }
     private void registerTests(RegisterGameTestsEvent event) {
+        if (expectedBackends().contains("integrateddynamics")) org.cyclops.integrateddynamics.GeneralConfig.energyConsumptionMultiplier = 1;
         var environment = event.registerEnvironment(id("environment"));
         tests.forEach((name, function) -> event.registerTest(id(name), new FunctionGameTestInstance(
                 function.getKey(), new TestData<>(environment, id("empty"), 800, 20, true))));
@@ -81,7 +94,7 @@ public final class UpgradeNetworkGameTests {
     private void profile(GameTestHelper helper) {
         helper.assertTrue(ModList.get().isLoaded("sophisticatedcore") && ModList.get().isLoaded("sophisticatedbackpacks"), "Required Sophisticated mods were not loaded");
         helper.assertTrue(ModList.get().isLoaded("guideme") == expectedBackends().contains("ae2"), "Unexpected GuideME profile");
-        for (String backend : BACKENDS) helper.assertTrue(ModList.get().isLoaded(backend) == expectedBackends().contains(backend), "Unexpected mod profile: " + backend);
+        for (String backend : BACKENDS) helper.assertTrue(ModList.get().isLoaded(backend) == (expectedBackends().contains(backend) || (backend.equals("integrateddynamics") && System.getProperty("digitalstorage.backendProfile").equals("dynamics"))), "Unexpected mod profile: " + backend);
         helper.assertTrue(ModItems.ITEMS.getEntries().size() == 9, "Expected all nine upgrades");
         helper.succeed();
     }
@@ -178,7 +191,10 @@ public final class UpgradeNetworkGameTests {
                 helper.assertTrue(count(target, player, Items.STONE) == (backpackFirst ? 0 : 7) && drop.getItem().isEmpty()
                         && local.getStackInSlot(0).getCount() == (backpackFirst ? 7 : 0), "Native pickup did not deliver the real remainder");
                 if (!network.backend().equals("scc")) {
-                    target.insert(new ItemStack(Items.STONE, Integer.MAX_VALUE), player);
+                    if (network.backend().equals("integrateddynamics")) {
+                        for (int fill = 0; fill < 100 && target.simulateInsert(new ItemStack(Items.STONE, 64), player) > 0; fill++)
+                            target.insert(new ItemStack(Items.STONE, 64), player);
+                    } else target.insert(new ItemStack(Items.STONE, Integer.MAX_VALUE), player);
                     local.insertItem(new ItemStack(Items.STONE, Integer.MAX_VALUE), false);
                     helper.assertTrue(target.simulateInsert(new ItemStack(Items.STONE, 7), player) == 0
                             && local.insertItem(new ItemStack(Items.STONE, 7), true).getCount() == 7, "Fixture did not fill both real destinations");
@@ -305,7 +321,7 @@ public final class UpgradeNetworkGameTests {
         helper.assertTrue(StorageAdapterRegistry.connect(player, new StorageEndpoint(network.backend(), missingDimension, network.endpoint()),
                 SourceLocation.carriedBy(player), StorageOperation.EXTRACT).status() == StorageConnection.Status.DIMENSION_UNAVAILABLE,
                 "Missing dimension was accepted");
-        if (!network.backend().equals("toms_storage")) {
+        if (!List.of("toms_storage", "integrateddynamics").contains(network.backend())) {
             var otherDimension = new SourceLocation(net.minecraft.world.level.Level.NETHER, player.position());
             for (var operation : StorageOperation.values()) helper.assertTrue(StorageAdapterRegistry.connect(player, network.binding(), otherDimension, operation).target().isEmpty(),
                     "Cross-dimension item access ignored the native wireless setup");
@@ -342,12 +358,12 @@ public final class UpgradeNetworkGameTests {
         var original = player.position();
         player.setPos(original.add(2048, 0, 0));
         for (var operation : StorageOperation.values()) helper.assertTrue(StorageAdapterRegistry.connect(player, network.binding(),
-                SourceLocation.carriedBy(player), operation).target().isEmpty(), "Distant access allowed: " + operation);
+                SourceLocation.carriedBy(player), operation).target().isPresent() == network.backend().equals("integrateddynamics"), "Native distance policy violated: " + operation);
         player.setPos(original);
         Runnable removeEndpoint = () -> {
             helper.getLevel().removeBlock(network.endpoint(), false);
             for (var operation : StorageOperation.values()) helper.assertTrue(StorageAdapterRegistry.connect(player, network.binding(),
-                    SourceLocation.carriedBy(player), operation).status() == StorageConnection.Status.ENDPOINT_MISSING,
+                    SourceLocation.carriedBy(player), operation).status() == (network.backend().equals("integrateddynamics") ? StorageConnection.Status.UNAVAILABLE : StorageConnection.Status.ENDPOINT_MISSING),
                     "Removed endpoint accepted: " + operation);
         };
         if (network.backend().equals("toms_storage")) { removeEndpoint.run(); helper.succeed(); }

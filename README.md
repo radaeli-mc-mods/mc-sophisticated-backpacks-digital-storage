@@ -28,8 +28,8 @@ Each upgrade links to one network endpoint and follows that network's access and
 
 <p align="center" style="background-color: #F4ECD0; text-align: center;"><img src="https://raw.githubusercontent.com/radaelilucca/mc-sophisticated-backpacks-digital-storage/main/docs/gallery/section-titles/how-do-i-use-it.png" alt="HOW DO I USE IT?" width="371"></p>
 
-1. Hold a Remote Upgrade and **Shift-right-click a compatible network block** to link it. Use an **ME Wireless Access Point** for Applied Energistics 2, a **Controller** for Refined Storage, a **Storage Terminal** for Tom's Simple Storage, or a **Network Antenna** for Super Cool Calculator.
-2. Watch the upgrade change: its screen turns dark and its icon takes the color of the network (purple for AE2, blue for Refined Storage, oak brown for Tom's Simple Storage, gold for SCC), and a short animation plays when you link or switch networks. The four corners always show which networks are supported.
+1. Hold a Remote Upgrade and **Shift-right-click a compatible network block** to link it. Use an **ME Wireless Access Point** for Applied Energistics 2, a **Controller** for Refined Storage, a **Storage Terminal** for Tom's Simple Storage, a **Network Antenna** for Super Cool Calculator, or an **Omni-Directional Connector** for Integrated Dynamics.
+2. Watch the upgrade change: its screen turns dark and its icon takes the color of the network (purple for AE2, blue for Refined Storage, oak brown for Tom's Simple Storage, gold for SCC, Menril cyan for Integrated Dynamics), and a short animation plays when you link or switch networks. The four corners always show which networks are supported.
 3. Place the linked upgrade in a backpack upgrade slot and open its tab to configure filters, priorities, or transfer settings.
 4. Craft Remote Upgrades with **3 diamonds**, **2 Ender Pearls**, **2 redstone dust**, and the matching advanced Sophisticated Backpacks upgrade. For **Remote Crafting**, use the regular **Crafting Upgrade**.
 5. To change networks, link the upgrade to another compatible block. To remove its link while keeping its settings, place the upgrade by itself in a crafting grid.
@@ -47,10 +47,10 @@ These upgrades do not create wireless access or bypass your storage network's pe
 Install the mod on **both the client and server**.
 
 - **Minecraft 26.1.2 · NeoForge 26.1.2.124+ · Java 25** — Sophisticated Backpacks 3.26.20+ and Sophisticated Core 1.5.34+.
-- **Minecraft 1.21.1 · NeoForge 21.1.236+** — Sophisticated Backpacks 3.26.3+ and Sophisticated Core 1.5.1+.
+- **Minecraft 1.21.1 · NeoForge 21.1.238+** — Sophisticated Backpacks 3.26.3+ and Sophisticated Core 1.5.1+.
 - **Minecraft 1.20.1 · Forge 47.4.10+** — Sophisticated Backpacks 3.26.12+ and Sophisticated Core 1.5.10+.
 
-For **26.1.2**, use **AE2 26.1.13-beta** with **GuideME 26.1.14-beta**, **Refined Storage 3.2.1**, **Tom's Storage 2.10.3**, or **SCC 1.6.5**.
+For **26.1.2**, use **AE2 26.1.13-beta** with **GuideME 26.1.14-beta**, **Refined Storage 3.2.1**, **Tom's Storage 2.10.3**, **SCC 1.6.5**, or **Integrated Dynamics 1.37.1+** with **Integrated Tunnels 1.13.2**, **Cyclops Core 1.31.5**, and **Common Capabilities 2.11.8**. Integrated Terminals and Integrated Crafting are optional. Integrated Dynamics supports all nine upgrades, including fluid transfer with Remote Pump.
 
 On the earlier Minecraft versions, connect each upgrade to the network you use: **Applied Energistics 2** (19.2.18+ on NeoForge; 15.4.11 on Forge), **Refined Storage** (2.0.9+ on NeoForge; 1.12.4 on Forge), **Tom's Simple Storage** (2.4.2+ on NeoForge; 1.7.1 on Forge), or **Super Cool Calculator** (1.5.3+ on NeoForge 1.21.1). You can use more than one network; each upgrade keeps the network you link it to.
 

@@ -57,6 +57,7 @@ record RealNetworks(GameTestHelper helper, String backend, BlockPos endpoint) {
                 }
                 network.power();
             }
+            case "integrateddynamics" -> IntegratedNetworkFixture.create(helper, origin);
             default -> throw new IllegalArgumentException(backend);
         }
         return network;
@@ -87,6 +88,7 @@ record RealNetworks(GameTestHelper helper, String backend, BlockPos endpoint) {
             }
             case "refinedstorage" -> place(endpoint, "refinedstorage:controller");
             case "scc" -> helper.getLevel().removeBlock(endpoint.east(), false);
+            case "integrateddynamics" -> helper.getLevel().removeBlock(endpoint.below(), false);
             default -> throw new IllegalStateException("This backend does not use network power");
         }
     }
@@ -98,6 +100,7 @@ record RealNetworks(GameTestHelper helper, String backend, BlockPos endpoint) {
     }
     String diagnostic(ServerPlayer player) {
         var connection = StorageAdapterRegistry.connect(player, binding(), SourceLocation.carriedBy(player), StorageOperation.INSERT);
+        if (backend.equals("integrateddynamics")) return IntegratedNetworkFixture.diagnostic(helper, endpoint, connection.status().toString());
         if (backend.equals("toms_storage")) return connection.status() + "; connector=" + ((com.tom.storagemod.block.entity.InventoryConnectorBlockEntity) helper.getLevel().getBlockEntity(endpoint.north())).getUsage() + "; nodes=" + com.tom.storagemod.inventory.InventoryCableNetwork.getNetwork(helper.getLevel()).getNetworkNodes(endpoint);
         if (!backend.equals("refinedstorage")) return connection.status().toString();
         var controller = (com.refinedmods.refinedstorage.common.controller.ControllerBlockEntity) helper.getLevel().getBlockEntity(endpoint);

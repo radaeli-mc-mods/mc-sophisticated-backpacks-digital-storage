@@ -29,6 +29,9 @@ public final class FluidStorageAdapterRegistry {
                 register(adapters, new RefinedStorageFluidStorageAdapter());
             }
             if (ModList.get().isLoaded("scc")) register(adapters, new SccFluidStorageAdapter());
+            if (ModList.get().isLoaded("integrateddynamics") && ModList.get().isLoaded("integratedtunnels")) {
+                register(adapters, new IntegratedDynamicsFluidStorageAdapter());
+            }
             return Collections.unmodifiableMap(adapters);
         }
 

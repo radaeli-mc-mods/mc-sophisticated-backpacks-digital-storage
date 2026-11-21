@@ -479,6 +479,33 @@
         "cwd": "${workspaceFolder}/targets/1.21.1"
       },
       "problemMatcher": "$gradle"
+    },
+    {
+      "label": "Digital Storages Expansion: Run NeoForge 26.1.2 Client (Integrated)",
+      "type": "process",
+      "command": "powershell.exe",
+      "args": [
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "${workspaceFolder}\\.vscode\\run-gradle.ps1",
+        "--no-daemon",
+        "--no-parallel",
+        ":neoforge:runClient",
+        "-PbackendProfile=all",
+        "--console=plain"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}/targets/26.1.2"
+      },
+      "group": "test",
+      "problemMatcher": "$gradle",
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "clear": true
+      }
     }
   ],
   "inputs": [
@@ -489,6 +516,10 @@
       "options": [
         "all",
         "none",
+        "dynamics",
+        "integrated",
+        "terminals",
+        "full",
         "ae2",
         "rs",
         "toms",

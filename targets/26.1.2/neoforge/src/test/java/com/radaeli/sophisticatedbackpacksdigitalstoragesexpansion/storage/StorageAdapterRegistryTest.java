@@ -13,13 +13,13 @@ class StorageAdapterRegistryTest extends MinecraftStorageTest {
         assertTrue(ModList.get().isLoaded("sophisticatedcore"));
         assertTrue(ModList.get().isLoaded("sophisticatedbackpacks"));
         Set<String> expected = switch (System.getProperty("digitalstorage.backendProfile", "none")) {
-            case "none" -> Set.of(); case "ae2" -> Set.of("ae2"); case "rs" -> Set.of("refinedstorage");
+            case "none", "dynamics" -> Set.of(); case "integrated", "terminals", "full" -> Set.of("integrateddynamics"); case "ae2" -> Set.of("ae2"); case "rs" -> Set.of("refinedstorage");
             case "toms" -> Set.of("toms_storage"); case "scc" -> Set.of("scc");
-            case "all" -> Set.of("ae2", "refinedstorage", "toms_storage", "scc");
+            case "all" -> Set.of("ae2", "refinedstorage", "toms_storage", "scc", "integrateddynamics");
             default -> throw new IllegalArgumentException("Unknown backend profile");
         };
-        for (String backend : Set.of("ae2", "refinedstorage", "toms_storage", "scc")) {
-            assertEquals(expected.contains(backend), ModList.get().isLoaded(backend), backend);
+        for (String backend : Set.of("ae2", "refinedstorage", "toms_storage", "scc", "integrateddynamics")) {
+            assertEquals(expected.contains(backend) || (backend.equals("integrateddynamics") && System.getProperty("digitalstorage.backendProfile").equals("dynamics")), ModList.get().isLoaded(backend), backend);
         }
         assertEquals(expected.contains("ae2"), ModList.get().isLoaded("guideme"), "GuideME must follow the AE2 profile");
         assertEquals(expected, StorageAdapterRegistry.installedBackendIds());

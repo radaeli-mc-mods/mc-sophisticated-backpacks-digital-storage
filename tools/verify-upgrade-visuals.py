@@ -24,7 +24,9 @@ def raster(relative):
         return image.convert("RGBA")
 
 
-def verify(preview=None):
+def verify(preview=None, target="1.21.1"):
+    global PILOT
+    PILOT = ROOT / f"targets/{target}/neoforge/src/main/resources/assets/{MOD}"
     sheet = Image.new("RGB", (560, 48 + len(UPGRADES) * 82), "#1b1d22")
     draw = ImageDraw.Draw(sheet)
     for column, name in enumerate(["unlinked", "AE2", "RS", "Tom's", "SCC", "Integrated"]):
@@ -34,11 +36,20 @@ def verify(preview=None):
         original = raster(f"textures/item/{item}.png")
         states = {"unlinked": original}
         model = json.loads((PILOT / f"models/item/{item}.json").read_text())
-        assert len(model["overrides"]) == 6, item
+        if target != "26.1.2":
+            assert len(model["overrides"]) == 6, item
         for index, backend in enumerate(BACKENDS, 1):
-            override = model["overrides"][index - 1]
-            assert override["predicate"] == {f"{MOD}:network": index}, item
-            assert override["model"].endswith(f"{item}_linked_{backend}"), item
+            if target == "26.1.2":
+                definition = json.loads((PILOT / f"items/{item}.json").read_text())["model"]
+                assert len(definition["entries"]) == 6, item
+                entry = definition["entries"][index - 1]
+                assert entry["threshold"] == index, item
+                assert entry["model"]["model"].endswith(f"{item}_linked_{backend}"), item
+                assert definition["entries"][-1]["threshold"] == 6, item
+            else:
+                override = model["overrides"][index - 1]
+                assert override["predicate"] == {f"{MOD}:network": index}, item
+                assert override["model"].endswith(f"{item}_linked_{backend}"), item
             image = raster(f"textures/item/{item}_linked_{backend}.png")
             assert image.size == (16, 16), item
             # All four corner glyphs remain byte-identical; the new accent occupies the top center.
@@ -49,13 +60,14 @@ def verify(preview=None):
                 assert image.getpixel((7, 1))[:3] == (176, 242, 231), item
                 assert image.getpixel((8, 1))[:3] == (54, 185, 178), item
             states[backend] = image
-        assert model["overrides"][-1]["predicate"] == {f"{MOD}:link_frame": 1}, item
-        for target in BACKENDS:
+        if target != "26.1.2":
+            assert model["overrides"][-1]["predicate"] == {f"{MOD}:link_frame": 1}, item
+        for destination in BACKENDS:
             for source, image in states.items():
-                strip = raster(f"textures/link_animation/{item}/{source}_to_{target}.png")
-                assert strip.size == (16, 400), (item, source, target)
-                assert strip.crop((0, 0, 16, 16)).tobytes() == image.tobytes(), (item, source, target, "first frame")
-                assert strip.crop((0, 384, 16, 400)).tobytes() == states[target].tobytes(), (item, source, target, "last frame")
+                strip = raster(f"textures/link_animation/{item}/{source}_to_{destination}.png")
+                assert strip.size == (16, 400), (item, source, destination)
+                assert strip.crop((0, 0, 16, 16)).tobytes() == image.tobytes(), (item, source, destination, "first frame")
+                assert strip.crop((0, 384, 16, 400)).tobytes() == states[destination].tobytes(), (item, source, destination, "last frame")
         draw.text((4, 54 + row * 82), upgrade, fill="white")
         for column, image in enumerate(states.values()):
             sheet.paste(image.resize((64, 64), Image.Resampling.NEAREST), (90 + column * 76, 42 + row * 82), image.resize((64, 64), Image.Resampling.NEAREST))
@@ -68,4 +80,6 @@ def verify(preview=None):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--preview", type=Path)
-    verify(parser.parse_args().preview)
+    parser.add_argument("--target", choices=["1.21.1", "26.1.2"], default="1.21.1")
+    args = parser.parse_args()
+    verify(args.preview, args.target)

@@ -19,16 +19,18 @@ java {
 }
 
 sourceSets { gameTest { compileClasspath += sourceSets.main.output + sourceSets.main.compileClasspath; runtimeClasspath += sourceSets.main.output + sourceSets.main.runtimeClasspath } }
+sourceSets { junitSupport { compileClasspath += sourceSets.main.compileClasspath; runtimeClasspath += sourceSets.main.runtimeClasspath } }
 
 neoForge {
     version = neoforge_version
     addModdingDependenciesTo(sourceSets.gameTest)
+    addModdingDependenciesTo(sourceSets.junitSupport)
     accessTransformers.from('src/main/resources/META-INF/accesstransformer.cfg')
 
     runs {
         client {
             client()
-            gameDirectory = project.file('../../../runs/26.1.2/client')
+            gameDirectory = project.file('../../../runs/26.1.2/client' + (providers.gradleProperty('backendProfile').getOrElse('none') == 'all' ? '' : '-' + providers.gradleProperty('backendProfile').getOrElse('none')))
             programArgument '--quickPlaySingleplayer'
             programArgument 'New World'
         }
@@ -43,12 +45,13 @@ neoForge {
         }
         server {
             server()
-            gameDirectory = project.file('../../../runs/26.1.2/server')
+            gameDirectory = project.file('../../../runs/26.1.2/server' + (providers.gradleProperty('backendProfile').getOrElse('none') == 'all' ? '' : '-' + providers.gradleProperty('backendProfile').getOrElse('none')))
             programArgument '--nogui'
         }
     }
 
     mods {
+        digitalstorage_junit { sourceSet sourceSets.junitSupport }
         digitalstorage_tests { sourceSet sourceSets.gameTest }
         "${mod_id}" {
             sourceSet sourceSets.main
@@ -58,7 +61,7 @@ neoForge {
     unitTest {
         enable()
         testedMod = mods[mod_id]
-        loadedMods = [mods[mod_id]]
+        loadedMods = [mods[mod_id], mods.digitalstorage_junit]
     }
 }
 
@@ -74,6 +77,7 @@ dependencies {
  compileOnly 'io.github.llamalad7:mixinextras-neoforge:0.5.3'
  testImplementation 'org.junit.jupiter:junit-jupiter:5.11.4'
  testImplementation 'net.neoforged:testframework:26.1.2.124'
+ junitSupportCompileOnly 'net.neoforged:testframework:26.1.2.124'
  testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
@@ -155,9 +159,25 @@ def validateNativeReport = { File report, int expected ->
  def cases = document.getElementsByTagName('testcase')
  def names = (0..<cases.length).collect { cases.item(it).getAttribute('name') }.findAll { it.startsWith('digitalstorage_tests:') }
  if (names.size() != expected || names.toSet().size() != expected
-     || document.getElementsByTagName('failure').length != 0 || document.getElementsByTagName('skipped').length != 0) {
+     || document.getElementsByTagName('failure').length != 0 || document.getElementsByTagName('error').length != 0 || document.getElementsByTagName('skipped').length != 0) {
   throw new GradleException('Incomplete GameTest report: expected ' + expected + ', discovered ' + names.size() + ' in ' + report)
  }
+ def backends = backendProfile == 'all' ? ['ae2', 'refinedstorage', 'toms_storage', 'scc', 'integrateddynamics'] :
+     backendProfile in ['integrated', 'terminals', 'full'] ? ['integrateddynamics'] :
+     backendProfile in ['none', 'dynamics'] ? [] : [backendProfile == 'rs' ? 'refinedstorage' : backendProfile == 'toms' ? 'toms_storage' : backendProfile]
+ def required = ['profile']
+ if (report.path.contains('restart')) required += backends.collect { 'restart_' + it }
+ else {
+  backends.each { backend ->
+   ['deposit', 'restock', 'pickup', 'magnet', 'refill', 'feeding', 'alchemy', 'pump', 'crafting', 'access_contract'].each { upgrade ->
+    required += backend + '_' + upgrade
+    if (upgrade in ['deposit', 'restock', 'crafting']) required += backend + '_' + upgrade + '_placed'
+    if (!(upgrade in ['deposit', 'restock', 'access_contract'])) required += backend + '_' + upgrade + '_backpack_first'
+   }
+  }
+  if ('integrateddynamics' in backends) required += ['topology', 'binding', 'unavailable', 'items', 'channelsandlongcounts', 'nativefilters', 'fluidsandcachedguard', 'nativeinterceptors', 'cachedbackpackguard'].collect { 'integrated_' + it }
+ }
+ if (names.toSet() != required.collect { 'digitalstorage_tests:' + it }.toSet()) throw new GradleException('Missing required GameTest scenarios: ' + required + '; got ' + names)
  return names.size()
 }
 
@@ -175,7 +195,7 @@ def validateNativeReport = { File report, int expected ->
    report.get().asFile.parentFile.mkdirs()
    report.get().asFile.delete()
   }
-  doLast { validateNativeReport(report.get().asFile, 5) }
+  doLast { validateNativeReport(report.get().asFile, 6) }
  }
 }
 tasks.named('runRestartVerify') { dependsOn 'runRestartPrepare' }
@@ -193,7 +213,7 @@ tasks.named('runGameTestServer') {
   report.get().asFile.delete()
  }
  doLast {
-  def expected = backendProfile == 'none' ? 1 : backendProfile == 'all' ? 81 : 21
+  def expected = backendProfile in ['none', 'dynamics'] ? 1 : backendProfile == 'all' ? 110 : backendProfile in ['integrated', 'terminals', 'full'] ? 30 : 21
   def discovered = validateNativeReport(report.get().asFile, expected)
   def summary = layout.buildDirectory.file('reports/integration/' + backendProfile + '/summary.json').get().asFile
   summary.parentFile.mkdirs()
@@ -202,3 +222,11 @@ tasks.named('runGameTestServer') {
 }
 
 sourceSets.main.resources.srcDir('../../../shared/src/main/resources')
+
+tasks.register('verifyIntegratedResources', Exec) {
+ dependsOn tasks.named('jar')
+ commandLine 'node', rootProject.file('../../tools/verify-jar.mjs').absolutePath,
+  tasks.named('jar').get().archiveFile.get().asFile.absolutePath,
+  minecraft_version, 'neoforge', java_version.toString(), mod_id, mod_version
+}
+tasks.named('check') { dependsOn 'verifyIntegratedResources' }

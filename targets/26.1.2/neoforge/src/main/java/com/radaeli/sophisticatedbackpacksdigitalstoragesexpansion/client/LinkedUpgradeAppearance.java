@@ -36,7 +36,7 @@ import com.radaeli.sophisticatedbackpacksdigitalstoragesexpansion.storage.Endpoi
 public final class LinkedUpgradeAppearance {
     private static final Logger LOGGER = LogUtils.getLogger();
     // Matches the order of the model overrides; 0 keeps the unlinked sprite.
-    private static final List<String> NETWORKS = List.of("ae2", "refinedstorage", "toms_storage", "scc");
+    private static final List<String> NETWORKS = List.of("ae2", "refinedstorage", "toms_storage", "scc", "integrateddynamics");
     private static final Identifier NETWORK_PROPERTY = id("network");
     private static final Identifier LINK_FRAME_PROPERTY = id("link_frame");
     // Strip frames: 0 previous state, 1..10 rim fill, 11..14 diagonal screen wipe, 15..24 rim retract.
@@ -62,7 +62,7 @@ public final class LinkedUpgradeAppearance {
 
     static float modelState(ItemStack stack) {
         Canvas canvas = CANVASES.computeIfAbsent(stack.getItem(), item -> new Canvas(net.minecraft.core.registries.BuiltInRegistries.ITEM.getKey(item).getPath()));
-        return canvas.show(stack) ? 5 : networkIndex(stack);
+        return canvas.show(stack) ? 6 : networkIndex(stack);
     }
 
     static void uploadPendingFrames(RenderFrameEvent.Pre event) {

@@ -1,0 +1,9 @@
+modLoader="javafml"
+loaderVersion="[4,)"
+license="MIT"
+[[mods]]
+modId="digitalstorage_junit"
+version="1"
+displayName="Digital Storage JUnit World Support"
+[[mixins]]
+config="digitalstorage_junit.mixins.json"

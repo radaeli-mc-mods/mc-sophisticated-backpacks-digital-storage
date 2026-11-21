@@ -34,7 +34,7 @@ def write_image(path, image, fallback=None):
     image.save(path)
 
 
-def export(upgrade, assets, backends, shared=None):
+def export(upgrade, assets, backends, shared=None, target="1.21.1"):
     item = upgrade.item
     def texture(relative, image):
         write_image(assets / relative, image, shared / relative if shared else None)
@@ -54,6 +54,14 @@ def export(upgrade, assets, backends, shared=None):
     overrides.append({"predicate": {f"{MOD_ID}:link_frame": 1}, "model": f"{MOD_ID}:item/{canvas}"})
     write_json(assets / f"models/item/{item}.json", {**model(item), "overrides": overrides})
 
+    if target == "26.1.2":
+        entries = [{"threshold": index, "model": {"type": "minecraft:model", "model": f"{MOD_ID}:item/{item}_linked_{backend}"}}
+                   for index, backend in enumerate(backends.values(), 1)]
+        entries.append({"threshold": len(backends) + 1, "model": {"type": "minecraft:model", "model": f"{MOD_ID}:item/{canvas}"}})
+        write_json(assets / f"models/item/{item}.json", model(item))
+        write_json(assets / f"items/{item}.json", {"model": {"type": "minecraft:range_dispatch", "property": f"{MOD_ID}:linked_state",
+                   "fallback": {"type": "minecraft:model", "model": f"{MOD_ID}:item/{item}"}, "entries": entries}})
+
     # One vertical strip per (previous state, network), outside the item atlas.
     strips = assets / f"textures/link_animation/{item}"
     strips.mkdir(parents=True, exist_ok=True)
@@ -69,16 +77,16 @@ def export(upgrade, assets, backends, shared=None):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--target", choices=["1.21.1", "1.20.1"], default="1.21.1")
+    parser.add_argument("--target", choices=["1.21.1", "1.20.1", "26.1.2"], default="1.21.1")
     parser.add_argument("--assets", type=Path, help="Optional staging/export directory, instead of writing target resources")
     args = parser.parse_args()
     loader = "forge" if args.target == "1.20.1" else "neoforge"
     assets = args.assets or ROOT / f"targets/{args.target}/{loader}/src/main/resources/assets/{MOD_ID}"
-    # Only the pilot has the fifth backend. The transactional 26.1.2 model format is ported in phase 10.
-    backends = BACKENDS if args.target == "1.21.1" else {k: v for k, v in BACKENDS.items() if k != "integrateddynamics"}
+    # NeoForge targets include the fifth backend; 26.1.2 uses range dispatch.
+    backends = BACKENDS if args.target in ["1.21.1", "26.1.2"] else {k: v for k, v in BACKENDS.items() if k != "integrateddynamics"}
     shared = None if args.assets else ROOT / f"shared/src/main/resources/assets/{MOD_ID}"
     for name in UPGRADES:
-        export(Upgrade(name), assets, backends, shared)
+        export(Upgrade(name), assets, backends, shared, args.target)
 
 
 if __name__ == "__main__":

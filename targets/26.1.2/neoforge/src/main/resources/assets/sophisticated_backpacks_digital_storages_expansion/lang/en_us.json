@@ -91,5 +91,7 @@
   "message.sophisticated_backpacks_digital_storages_expansion.crafting.ready": "Recipe ready.",
   "message.sophisticated_backpacks_digital_storages_expansion.crafting.missing": "Ingredient slots still missing: %s",
   "message.sophisticated_backpacks_digital_storages_expansion.pickup_pending": " — Pickup recovery pending",
-  "message.sophisticated_backpacks_digital_storages_expansion.pickup_uncertain": " — Pickup recovery paused: uncertain network result"
+  "message.sophisticated_backpacks_digital_storages_expansion.pickup_uncertain": " — Pickup recovery paused: uncertain network result",
+  "backend.sophisticated_backpacks_digital_storages_expansion.integrateddynamics": "Integrated Dynamics",
+  "backend.sophisticated_backpacks_digital_storages_expansion.integrateddynamics.short": "Integrated Dynamics"
 }

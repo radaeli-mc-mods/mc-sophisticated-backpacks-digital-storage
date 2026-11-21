@@ -45,7 +45,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        profile: [all]
+        profile: [none, integrated, full, all]
     steps:
       - uses: actions/checkout@v7
         with: {persist-credentials: false}

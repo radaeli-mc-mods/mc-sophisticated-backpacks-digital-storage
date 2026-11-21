@@ -39,6 +39,13 @@
         "threshold": 5,
         "model": {
           "type": "minecraft:model",
+          "model": "sophisticated_backpacks_digital_storages_expansion:item/remote_crafting_upgrade_linked_integrateddynamics"
+        }
+      },
+      {
+        "threshold": 6,
+        "model": {
+          "type": "minecraft:model",
           "model": "sophisticated_backpacks_digital_storages_expansion:item/remote_crafting_upgrade_link_canvas"
         }
       }

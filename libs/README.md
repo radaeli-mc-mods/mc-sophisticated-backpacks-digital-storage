@@ -34,3 +34,7 @@ A tarefa baixa arquivos ausentes para `libs/1.21.1/integrated`, verifica o SHA-2
 Esta tarefa é explícita: a fase 0 prepara dependências e não as adiciona à compilação, aos testes, ao runtime ou ao JAR do addon. Perfis e ativação opcional pertencem à fase 1 do [plano](../docs/integrations/INTEGRATED_DYNAMICS.md). Os JARs de referência fornecidos em `libs/to-support` foram removidos após a auditoria, a pedido do usuário; seus hashes permanecem registrados no relatório. O build não depende desse diretório.
 
 Os quatro releases Integrated foram baixados do CurseForge e comparados aos JARs fornecidos. O Modrinth oferece arquivos diferentes, inclusive com o mesmo número de versão; não substituir a origem mantendo o hash anterior. As bibliotecas faltantes foram obtidas por IDs de versão fixos do Modrinth. Evidência e baseline: [fase 0](../docs/integrations/INTEGRATED_DYNAMICS_PHASE_0.md).
+
+## Integrated Dynamics — NeoForge 26.1.2
+
+O manifesto [integrated-dependencies.lock.json](../targets/26.1.2/integrated-dependencies.lock.json) fixa seis artefatos oficiais com SHA-256, URLs, licenças e requisitos. A tarefa `:neoforge:verifyIntegratedDependencies` verifica os arquivos em `libs/26.1.2/integrated` antes da compilação. Os arquivos permanecem ignorados pelo Git e não entram no JAR. Veja o [registro do port](../docs/integrations/INTEGRATED_DYNAMICS_26_1_2.md).

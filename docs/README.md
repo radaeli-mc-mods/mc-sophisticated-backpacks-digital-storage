@@ -29,3 +29,5 @@ Player guides: [Linking upgrades](player/linking.md), [Filters and source priori
 
 - [Integrated Dynamics — operações e apresentação da fase 2](integrations/INTEGRATED_DYNAMICS_PHASE_2.md) — contratos nativos de itens/fluidos, quinto estado visual e evidências do piloto.
 - [Integrated Dynamics — porte Forge da fase 10](integrations/INTEGRATED_DYNAMICS_PHASE_10.md) — adaptadores 1.20.1, dependências fixadas, compilação e validação manual ainda pendente.
+
+- [Integrated Dynamics — port NeoForge 26.1.2](integrations/INTEGRATED_DYNAMICS_26_1_2.md)

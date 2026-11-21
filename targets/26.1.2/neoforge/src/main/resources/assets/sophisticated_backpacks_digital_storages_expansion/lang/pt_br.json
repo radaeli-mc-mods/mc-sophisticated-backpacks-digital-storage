@@ -91,5 +91,7 @@
   "message.sophisticated_backpacks_digital_storages_expansion.crafting.ready": "Receita pronta.",
   "message.sophisticated_backpacks_digital_storages_expansion.crafting.missing": "Slots de ingredientes ainda vazios: %s",
   "message.sophisticated_backpacks_digital_storages_expansion.pickup_pending": " — Recuperação de coleta pendente",
-  "message.sophisticated_backpacks_digital_storages_expansion.pickup_uncertain": " — Recuperação de coleta pausada: resultado incerto da rede"
+  "message.sophisticated_backpacks_digital_storages_expansion.pickup_uncertain": " — Recuperação de coleta pausada: resultado incerto da rede",
+  "backend.sophisticated_backpacks_digital_storages_expansion.integrateddynamics": "Integrated Dynamics",
+  "backend.sophisticated_backpacks_digital_storages_expansion.integrateddynamics.short": "Integrated Dynamics"
 }

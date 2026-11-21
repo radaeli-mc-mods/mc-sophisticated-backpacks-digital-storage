@@ -25,7 +25,7 @@ import net.p3pp3rf1y.sophisticatedbackpacks.backpack.wrapper.BackpackWrapper;
 
 /** Uses vanilla chunk data, Sophisticated SavedData, and native backend persistence across JVMs. */
 final class RestartNetworkGameTests {
-    private static final List<String> BACKENDS = List.of("ae2", "refinedstorage", "toms_storage", "scc");
+    private static final List<String> BACKENDS = List.of("ae2", "refinedstorage", "toms_storage", "scc", "integrateddynamics");
     static void run(GameTestHelper helper, String backend) {
         var level = helper.getLevel();
         BlockPos origin = new BlockPos(10_000 + BACKENDS.indexOf(backend) * 128, 80, 0);
@@ -35,7 +35,7 @@ final class RestartNetworkGameTests {
         boolean prepare = "prepare".equals(System.getProperty("digitalstorage.restartPhase"));
         RealNetworks network = prepare ? RealNetworks.createAt(helper, backend, origin, false) : new RealNetworks(helper, backend, origin);
         ServerPlayer player = player(helper, backend, origin);
-        helper.startSequence().thenWaitUntil(() -> helper.assertTrue(network.ready(player), "Restart network unavailable: " + backend))
+        helper.startSequence().thenWaitUntil(() -> helper.assertTrue(network.ready(player), "Restart network unavailable: " + backend + "; " + network.diagnostic(player)))
                 .thenIdle(20).thenExecute(() -> {
                     BlockPos chestPosition = origin.south(3);
                     var target = network.target(player);

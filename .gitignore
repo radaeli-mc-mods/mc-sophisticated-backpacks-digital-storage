@@ -31,3 +31,5 @@ libs/1.20.1/integrated/*.part
 /final-build.log
 /legacy-scc.log
 /final-check.log
+libs/26.1.2/integrated/*.jar
+libs/26.1.2/integrated/*.part

@@ -1,6 +1,6 @@
 # Integrated Dynamics — porte Forge 1.20.1 (fase 10)
 
-Registro do porte solicitado em 2026-11-21, antes do aceite manual do piloto. O escopo é Forge 47.4.10 / Java 17; o porte 26.1.2 permanece pendente. Este registro complementa o [plano canônico](INTEGRATED_DYNAMICS.md), as premissas [P01–P12](../UPGRADES.md) e os planos individuais dos nove upgrades, indexados em [UPGRADES.md](../UPGRADES.md).
+Registro do porte solicitado em 2026-11-21, antes do aceite manual do piloto. O escopo é Forge 47.4.10 / Java 17; o porte 26.1.2 foi implementado posteriormente na mesma data, conforme [registro próprio](INTEGRATED_DYNAMICS_26_1_2.md). Este registro complementa o [plano canônico](INTEGRATED_DYNAMICS.md), as premissas [P01–P12](../UPGRADES.md) e os planos individuais dos nove upgrades, indexados em [UPGRADES.md](../UPGRADES.md).
 
 ## Implementação
 

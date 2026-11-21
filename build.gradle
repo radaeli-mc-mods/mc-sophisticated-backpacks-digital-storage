@@ -3,7 +3,7 @@ allprojects { group = mod_group_id; version = mod_version; repositories { mavenC
 def targets = ['forge-1.20.1': ['1.20.1','forge',17], 'neoforge-1.21.1': ['1.21.1','neoforge',21], 'neoforge-26.1.2': ['26.1.2','neoforge',25]]
 def windows = System.getProperty('os.name').startsWith('Windows')
 def wrapper = windows ? ['cmd.exe','/d','/c','gradlew.bat'] : ['sh','./gradlew']
-def profiles = ['none','ae2','rs','toms','scc','all']
+def profiles = ['none','dynamics','integrated','terminals','full','ae2','rs','toms','scc','all']
 def integrationTasks = []
 profiles.eachWithIndex { profile, index ->
  def task = tasks.register('check-neoforge-26.1.2-' + profile, Exec) {

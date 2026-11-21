@@ -87,3 +87,7 @@ A entrega Pickup grava o marcador de operação em andamento antes de cada desti
 ## Integrated Dynamics — fundação e porte Forge
 
 P01–P04/P07–P12: a [fase 1 da integração](../integrations/INTEGRATED_DYNAMICS_PHASE_1.md) acrescenta vínculo universal por Omni e revalidação de acesso no piloto. O formato persistido e as reservas existentes permanecem preservados. A [fase 2](../integrations/INTEGRATED_DYNAMICS_PHASE_2.md) implementa os contratos básicos de itens/fluidos e o quinto estado visual do piloto. A [fase 10](../integrations/INTEGRATED_DYNAMICS_PHASE_10.md) porta esses contratos para Forge 1.20.1; `:forge:compileJava` passou. O gate operacional de Pickup e o aceite em jogo ainda estão pendentes, conforme o [plano Integrated](../integrations/INTEGRATED_DYNAMICS.md) e este plano individual.
+
+## Integrated Dynamics — porte 26.1.2
+
+P01–P12: o [port 26.1.2](../integrations/INTEGRATED_DYNAMICS_26_1_2.md) acrescenta o backend transacional aos serviços existentes desta função. Preserva Omni, filtros, prioridade aplicável, reservas e recuperação. Os GameTests nativos desta função fazem parte dos perfis integrated/terminals/full/all; comandos, evidências e limites ficam no registro. Nesta tarefa o usuário dispensou testes de interação com Java; nenhuma aprovação manual foi inferida.

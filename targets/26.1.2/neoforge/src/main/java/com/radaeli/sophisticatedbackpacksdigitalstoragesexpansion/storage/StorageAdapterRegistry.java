@@ -38,6 +38,9 @@ public final class StorageAdapterRegistry {
             if (ModList.get().isLoaded("toms_storage")) {
                 register(adapters, new TomsStorageAdapter());
             }
+            if (ModList.get().isLoaded("integrateddynamics") && ModList.get().isLoaded("integratedtunnels")) {
+                register(adapters, new IntegratedDynamicsStorageAdapter());
+            }
             return Collections.unmodifiableMap(adapters);
         }
 

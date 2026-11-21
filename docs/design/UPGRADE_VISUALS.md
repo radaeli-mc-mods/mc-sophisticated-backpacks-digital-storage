@@ -87,3 +87,7 @@ python tools/verify-upgrade-visuals.py --preview build/integrated-audit/phase2-v
 O verificador confere os nove modelos, índices estáveis, quinas preservadas e primeiro/último quadro das 270 faixas. O gate do JAR confere os destinos e dimensões dos recursos empacotados. Evidências e limites estão no [registro da fase 2](../integrations/INTEGRATED_DYNAMICS_PHASE_2.md).
 
 Correção da hotbar no NeoForge 26.1.2 (P07/P12): atualizar o atlas de texturas não invalida a imagem pronta mantida por GuiItemAtlas. LinkedUpgradeGuiAnimationMixin marca ItemStackRenderState como animado somente durante a transição e somente para LinkedModelProperty. Isso faz o cache da GUI redesenhar o canvas a cada frame; ao terminar, o ícone estático volta a ser reutilizado. A correção anterior de upload, isoladamente, não resolveu a hotbar, conforme reprodução do usuário. Validação visual desta correção permanece pendente.
+
+## Port 26.1.2 — quinto estado
+
+Integrated ocupa 5 e o canvas passa a 6 em linked_state. O exportador aceita --target 26.1.2 e grava definições de item range_dispatch; os quatro índices anteriores, sprites e tempos ficam preservados. tools/verify-upgrade-visuals.py --target 26.1.2 verifica os pixels e as 270 faixas, e o gate do JAR verifica definições e recursos empacotados. [Evidências](../integrations/INTEGRATED_DYNAMICS_26_1_2.md).

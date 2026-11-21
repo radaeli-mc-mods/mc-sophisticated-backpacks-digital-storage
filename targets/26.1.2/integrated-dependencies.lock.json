@@ -1,0 +1,145 @@
+{
+  "minecraft": "26.1.2",
+  "loader": "neoforge",
+  "neoforge": "26.1.2.124",
+  "java": 25,
+  "auditedOn": "2026-11-21",
+  "dependencies": [
+    {
+      "id": "cyclopscore",
+      "version": "1.31.5",
+      "file": "cyclopscore-26.1.2-neoforge-1.31.5.jar",
+      "url": "https://cdn.modrinth.com/data/Z9DM0LJ4/versions/O8vN3VAW/cyclopscore-26.1.2-neoforge-1.31.5.jar",
+      "source": "https://modrinth.com/mod/cyclops-core/version/O8vN3VAW",
+      "sha256": "bf356bc47c42af9c3fe7490a56239f17e51b5fd62bc5ae6b53aa40f104cbae7c",
+      "license": "MIT",
+      "licenseUrl": "https://github.com/CyclopsMC/CyclopsCore/blob/26.1.2-1.31.5/LICENSE.txt",
+      "requiredMods": {
+        "minecraft": "[26.1.2,]",
+        "neoforge": "[26.1.2.22-beta,)"
+      }
+    },
+    {
+      "id": "commoncapabilities",
+      "version": "2.11.8",
+      "file": "commoncapabilities-26.1.2-neoforge-2.11.8.jar",
+      "url": "https://cdn.modrinth.com/data/oFXrCkDI/versions/7MhV0z4z/commoncapabilities-26.1.2-neoforge-2.11.8.jar",
+      "source": "https://modrinth.com/mod/common-capabilities/version/7MhV0z4z",
+      "sha256": "d64382f06661eb8a3ed61edede83f173e0ac50b2e76e81b9e32f7196a129a891",
+      "license": "MIT",
+      "licenseUrl": "https://github.com/CyclopsMC/CommonCapabilities/blob/26.1.2-2.11.8/LICENSE.txt",
+      "requiredMods": {
+        "minecraft": "[26.1.2,]",
+        "neoforge": "[26.1.2.22-beta,)",
+        "cyclopscore": "[1.29.5,)"
+      }
+    },
+    {
+      "id": "integrateddynamics",
+      "version": "1.37.1",
+      "file": "integrateddynamics-26.1.2-neoforge-1.37.1.jar",
+      "url": "https://cdn.modrinth.com/data/yYzdQHJI/versions/GhOcJc5U/integrateddynamics-26.1.2-neoforge-1.37.1.jar",
+      "source": "https://modrinth.com/mod/integrated-dynamics/version/GhOcJc5U",
+      "sha256": "0f8774f26e7ef42bc1e2c1f592a258094415368084d1bd053cbbb7650858eeb5",
+      "license": "MIT",
+      "licenseUrl": "https://github.com/CyclopsMC/IntegratedDynamics/blob/26.1.2-1.37.1/LICENSE.txt",
+      "requiredMods": {
+        "minecraft": "[26.1.2,]",
+        "commoncapabilities": "[2.11.4,)",
+        "neoforge": "[26.1.2.22-beta,)",
+        "cyclopscore": "[1.31.0,)"
+      },
+      "embeddedMods": [
+        {
+          "requiredMods": {
+            "cyclopscore": "[1.31.0,)",
+            "integrateddynamics": "[1.36.2,)",
+            "minecraft": "[26.1.2,]",
+            "neoforge": "[26.1.2.109,)"
+          },
+          "version": "1.0.0-245",
+          "id": "integrateddynamicscompat"
+        }
+      ],
+      "thirdPartyNotices": [
+        "LICENSE-netty.txt",
+        "LICENSE-re2j.txt"
+      ]
+    },
+    {
+      "id": "integratedtunnels",
+      "version": "1.13.2",
+      "file": "integratedtunnels-26.1.2-neoforge-1.13.2.jar",
+      "url": "https://cdn.modrinth.com/data/Etqy1Omb/versions/QNIZr1Rp/integratedtunnels-26.1.2-neoforge-1.13.2.jar",
+      "source": "https://modrinth.com/mod/integrated-tunnels/version/QNIZr1Rp",
+      "sha256": "977d2b4f183c5b2dfd1c33ba2f6a089b8f122adf3f68daa42e38ad78edc3e1ca",
+      "license": "MIT",
+      "licenseUrl": "https://github.com/CyclopsMC/IntegratedTunnels/blob/26.1.2-1.13.2/LICENSE.txt",
+      "requiredMods": {
+        "minecraft": "[26.1.2,]",
+        "integrateddynamics": "[1.35.0,)",
+        "commoncapabilities": "[2.11.4,)",
+        "neoforge": "[26.1.2.22-beta,)",
+        "cyclopscore": "[1.31.0,)"
+      },
+      "embeddedMods": [
+        {
+          "requiredMods": {
+            "cyclopscore": "[1.29.0,)",
+            "minecraft": "[26.1.1,]",
+            "neoforge": "[26.1.1.1-beta,)",
+            "integratedtunnels": "[1.9.4,)"
+          },
+          "version": "1.0.0-86",
+          "id": "integratedtunnelscompat"
+        }
+      ]
+    },
+    {
+      "id": "integratedterminals",
+      "version": "1.11.1",
+      "file": "integratedterminals-26.1.2-neoforge-1.11.1.jar",
+      "url": "https://cdn.modrinth.com/data/HmLJoQ1K/versions/IpsycxKm/integratedterminals-26.1.2-neoforge-1.11.1.jar",
+      "source": "https://modrinth.com/mod/integrated-terminals/version/IpsycxKm",
+      "sha256": "e1cf0b36eb6bd9067125a81b189304548b774e668ea0e5e8b4cbd95a9b248bea",
+      "license": "MIT",
+      "licenseUrl": "https://github.com/CyclopsMC/IntegratedTerminals/blob/26.1.2-1.11.1/LICENSE.txt",
+      "requiredMods": {
+        "minecraft": "[26.1.2,]",
+        "integrateddynamics": "[1.35.0,)",
+        "commoncapabilities": "[2.11.8,)",
+        "neoforge": "[26.1.2.22-beta,)",
+        "cyclopscore": "[1.31.0,)"
+      },
+      "embeddedMods": [
+        {
+          "requiredMods": {
+            "cyclopscore": "[1.31.0,)",
+            "minecraft": "[26.1.2,]",
+            "integratedterminals": "[1.9.1,)",
+            "neoforge": "[26.1.2.22-beta,)"
+          },
+          "version": "1.0.0-211",
+          "id": "integratedterminalscompat"
+        }
+      ]
+    },
+    {
+      "id": "integratedcrafting",
+      "version": "1.8.1",
+      "file": "integratedcrafting-26.1.2-neoforge-1.8.1.jar",
+      "url": "https://cdn.modrinth.com/data/qwpACdla/versions/hQ28XP1D/integratedcrafting-26.1.2-neoforge-1.8.1.jar",
+      "source": "https://modrinth.com/mod/integrated-crafting/version/hQ28XP1D",
+      "sha256": "6de274d9a31e55acb8ddb00676d81b5a582aca2e7a3940f8ef77cac60915efa2",
+      "license": "MIT",
+      "licenseUrl": "https://github.com/CyclopsMC/IntegratedCrafting/blob/26.1.2-1.8.1/LICENSE.txt",
+      "requiredMods": {
+        "minecraft": "[26.1.2,]",
+        "integrateddynamics": "[1.35.0,)",
+        "commoncapabilities": "[2.11.4,)",
+        "neoforge": "[26.1.2.22-beta,)",
+        "cyclopscore": "[1.31.0,)"
+      }
+    }
+  ]
+}

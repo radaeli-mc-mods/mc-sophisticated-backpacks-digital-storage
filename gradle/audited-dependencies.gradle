@@ -3,13 +3,20 @@ import java.security.MessageDigest
 
 def audited = new JsonSlurper().parse(rootProject.file('dependencies.lock.json'))
 def profile = providers.gradleProperty('backendProfile').getOrElse('none')
-def profiles = ['none': [], 'ae2': ['ae2'], 'rs': ['refinedstorage'],
+def integratedBase = ['cyclopscore', 'commoncapabilities', 'integrateddynamics']
+def integratedMin = integratedBase + ['integratedtunnels']
+def integratedFull = integratedMin + ['integratedterminals', 'integratedcrafting']
+def profiles = ['none': [], 'dynamics': integratedBase, 'integrated': integratedMin, 'terminals': integratedMin + ['integratedterminals'], 'full': integratedFull, 'ae2': ['ae2'], 'rs': ['refinedstorage'],
                 'toms': ['toms_storage'], 'scc': ['scc'],
-                'all': ['ae2', 'refinedstorage', 'toms_storage', 'scc']]
+                'all': ['ae2', 'refinedstorage', 'toms_storage', 'scc'] + integratedFull]
 if (!profiles.containsKey(profile)) throw new GradleException("Unknown backendProfile: ${profile}")
 ext.backendProfile = profile
 def required = ['sophisticatedcore', 'sophisticatedbackpacks']
 def paths = audited.collectEntries { dep -> [(dep.id): rootProject.file("../../libs/26.1.2/${dep.file}")] }
+def integratedLock = new JsonSlurper().parse(rootProject.file('integrated-dependencies.lock.json'))
+paths.putAll(integratedLock.dependencies.collectEntries { dep -> [(dep.id): rootProject.file('../../libs/26.1.2/integrated/' + dep.file)] })
+ext.integratedDependencyDirectory = '../../libs/26.1.2/integrated'
+apply from: rootProject.file('../../gradle/verify-integrated-dependencies.gradle')
 tasks.register('verifyAuditedDependencies') {
     inputs.file(rootProject.file('dependencies.lock.json'))
     outputs.upToDateWhen { false }
@@ -45,4 +52,4 @@ dependencies {
         testRuntimeOnly files(paths.guideme)
     }
 }
-tasks.withType(JavaCompile).configureEach { dependsOn 'verifyAuditedDependencies' }
+tasks.withType(JavaCompile).configureEach { dependsOn 'verifyAuditedDependencies', 'verifyIntegratedDependencies' }

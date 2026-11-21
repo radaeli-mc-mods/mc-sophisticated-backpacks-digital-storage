@@ -4,7 +4,7 @@ Plano aprovado em 2026-11-16. Fase 0 implementada em 2026-11-16; evidências e l
 
 ## 1. Objetivo e decisões aprovadas
 
-Implementar primeiro no **Minecraft 1.21.1 / NeoForge 21.1.238 / Java 21**. O plano original condicionava os portes ao aceite do piloto. A pedido explícito do usuário, Forge 1.20.1 foi portado antes desse aceite; 26.1.2 continua aguardando os gates do piloto.
+Implementar primeiro no **Minecraft 1.21.1 / NeoForge 21.1.238 / Java 21**. O plano original condicionava os portes ao aceite do piloto. A pedido explícito do usuário, Forge 1.20.1 foi portado antes desse aceite. Em 2026-11-21, o usuário autorizou também o porte 26.1.2 antes do aceite manual, com validação exclusivamente automatizada nesta rodada; registro no [porte 26.1.2](INTEGRATED_DYNAMICS_26_1_2.md).
 
 - Backend persistido: `integrateddynamics`; nome apresentado: **Integrated Dynamics**.
 - Ativação com **Integrated Dynamics + Integrated Tunnels**, acompanhados de suas bibliotecas obrigatórias. Integrated Terminals e Integrated Crafting permanecem opcionais, com testes de coexistência.
@@ -36,7 +36,7 @@ As mudanças de interface ficam limitadas a:
 | Target | Dynamics | Tunnels | Terminals | Crafting |
 |---|---:|---:|---:|---:|
 | 1.21.1 — piloto | 1.38.2 | 1.13.0 | 1.11.1 | 1.8.1 |
-| 26.1.2 | 1.36.3 | 1.13.2 | 1.11.1 | 1.8.1 |
+| 26.1.2 — baseline final do port | 1.37.1 | 1.13.2 | 1.11.1 | 1.8.1 |
 | Forge 1.20.1 | 1.31.4 | 1.9.0 | 1.7.0 | 1.4.10 |
 
 A inspeção confirmou redes nativas de itens/fluidos, canais, filtros por interface, simulação e índices com quantidades `long`. Os hashes dos doze JARs dos targets 1.21.1 e 26.1.2 foram levantados; os seis artefatos Forge 1.20.1 foram posteriormente fixados e verificados na fase 10.
@@ -85,7 +85,7 @@ Cada fase acrescenta sua evidência à documentação interna. As referências n
 | **7 — Pump** | Integrar o adaptador de fluidos ao roteamento e às reservas existentes. | Entrada/saída, ambas as prioridades, mãos/mundo/handlers, componentes, evaporação, capacidade parcial, recuperação desativado e tanque exposto à própria rede. |
 | **8 — Remote Crafting** | Validar seletor, preenchimento, JEI simples/lote e reabastecimento nativo da grade com a nova fonte. | Shaped/shapeless, alternativas, preenchimento parcial, componentes, recipientes e pedidos obsoletos; nenhum pedido de autocrafting criado. |
 | **9 — Aceite do piloto** | Consolidar regressão, artefato de produção, cliente, servidor dedicado, documentação e roteiro manual. | Automação verde e aceite manual do usuário nos nove upgrades, visual e multiplayer. |
-| **10 — Portes** | Adaptar para 26.1.2 e Forge 1.20.1, repetindo os gates por target. O porte Forge está implementado e `:forge:compileJava` passou; evidências no [registro da fase 10](INTEGRATED_DYNAMICS_PHASE_10.md). | Forge: compilação comprovada; carregamento, operações, regressão de cada upgrade, visual e aceite manual ainda pendentes. 26.1.2 ainda não portado. |
+| **10 — Portes** | Adaptar para 26.1.2 e Forge 1.20.1, repetindo os gates por target. O porte Forge está implementado e `:forge:compileJava` passou; evidências no [registro da fase 10](INTEGRATED_DYNAMICS_PHASE_10.md). | Forge: compilação comprovada; carregamento, operações, regressão de cada upgrade, visual e aceite manual ainda pendentes. 26.1.2 portado conforme o [registro específico](INTEGRATED_DYNAMICS_26_1_2.md); aceite manual não solicitado nesta rodada. |
 
 A fase 1 adapta a infraestrutura de perfis e harness de redes reais do 26.1.2 ao 1.21.1, usando a API de GameTests desta versão. A fixture Integrated fica isolada e só é registrada com Dynamics + Tunnels. Os demais perfis validam carregamento e regressão JUnit; redes reais dos demais backends continuam cobertas no target 26.1.2.
 
@@ -144,7 +144,7 @@ Mudanças em serviços compartilhados exigem regressão dos consumidores e backe
 
 ## 5. Portes, documentação e limites
 
-**26.1.2:** adaptar simulação por abort e execução por commit às APIs transacionais auditadas, preservando o journal e a entrega após commit do Pickup. Não executar transferência remota durante uma transação local abortável. Auditar também os metadados das integrações embutidas: o Tunnels fornecido contém uma declaração de compatibilidade referindo 26.1.1, que precisa ser resolvida antes de homologar o conjunto. Seguir também o [plano do target](../PORT_26_1_2.md).
+**26.1.2:** adaptar simulação por abort e execução por commit às APIs transacionais auditadas, preservando o journal e a entrega após commit do Pickup. Não executar transferência remota durante uma transação local abortável. Auditar também os metadados das integrações embutidas: o Tunnels fornecido declara limites inferiores [26.1.1,] e [26.1.1.1-beta,), que aceitam 26.1.2 sem alterar o JAR; o carregamento está incluído no [registro do port](INTEGRATED_DYNAMICS_26_1_2.md). Seguir também o [plano do target](../PORT_26_1_2.md).
 
 **Forge 1.20.1:** porte implementado para itens, fluidos, vínculo Omni e estado visual. Os seis JARs estão fixados em `targets/1.20.1/integrated-dependencies.lock.json`; `:forge:compileJava --offline` e `:forge:verifyForgeResources` passaram com seus SHA-256 verificados. A compilação não executa os testes de preservação, gates do JAR reobfuscado, perfis de runtime ou gameplay. Esses gates e a aceitação manual por upgrade continuam pendentes; preservar os critérios da [base multiloader](../MULTILOADER.md).
 
@@ -153,3 +153,7 @@ Este documento é o plano canônico da integração, indexado no catálogo. Arqu
 Guias públicos EN/PT-BR serão sincronizados após haver comportamento verificado, seguindo `mod-docs-sync`. Planejamento e progresso permanecem internos.
 
 A rodada de planejamento realizou inspeção de documentos, código, metadados, assinaturas, bytecode e hashes. **Não executou suítes, alterou código ou validou gameplay.** O salvamento deste plano e sua inclusão no índice são alterações documentais posteriores à auditoria. O plano não inclui commit, versão, publicação ou instalação em instância existente.
+
+## Entrega 26.1.2 autorizada em 2026-11-21
+
+A autorização explícita antecipa a fase 10 e dispensa interação com Java nesta tarefa. Implementação, harness transacional, perfis, estado visual, comandos e evidências estão no [registro do port](INTEGRATED_DYNAMICS_26_1_2.md). Os gates manuais anteriores continuam distintos da entrega automatizada atual.
