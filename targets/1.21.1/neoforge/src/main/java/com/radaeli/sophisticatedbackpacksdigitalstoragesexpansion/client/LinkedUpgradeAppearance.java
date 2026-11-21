@@ -33,7 +33,7 @@ import com.radaeli.sophisticatedbackpacksdigitalstoragesexpansion.storage.Endpoi
 public final class LinkedUpgradeAppearance {
     private static final Logger LOGGER = LogUtils.getLogger();
     // Matches the order of the model overrides; 0 keeps the unlinked sprite.
-    private static final List<String> NETWORKS = List.of("ae2", "refinedstorage", "toms_storage", "scc");
+    private static final List<String> NETWORKS = List.of("ae2", "refinedstorage", "toms_storage", "scc", "integrateddynamics");
     private static final ResourceLocation NETWORK_PROPERTY = id("network");
     private static final ResourceLocation LINK_FRAME_PROPERTY = id("link_frame");
     // Strip frames: 0 previous state, 1..10 rim fill, 11..14 diagonal screen wipe, 15..24 rim retract.

@@ -29,7 +29,7 @@ const packagePath = 'com/radaeli/sophisticatedbackpacksdigitalstoragesexpansion/
 assert(entries.has(packagePath + 'SophisticatedBackpacksDigitalStoragesExpansion.class'), 'Missing entry point');
 for (const [name, contents] of entries) {
   if (name.endsWith('.jar')) assert(loader === 'forge' && name.toLowerCase().includes('mixinextras'), `Bundled JAR dependency: ${name}`);
-  assert(!['de/scc/', 'appeng/', 'com/refinedmods/', 'com/tom/', 'net/p3pp3rf1y/', 'guideme/'].some(prefix => name.startsWith(prefix)), `Bundled dependency: ${name}`);
+  assert(!['org/cyclops/', 'de/scc/', 'appeng/', 'com/refinedmods/', 'com/tom/', 'net/p3pp3rf1y/', 'guideme/'].some(prefix => name.startsWith(prefix)), `Bundled dependency: ${name}`);
   assert(!name.includes('digitalstorage_tests') && !name.includes('UpgradeNetworkGameTests') && !name.includes('RealNetworks.class'), `Bundled integration fixture: ${name}`);
   assert(!name.startsWith(packagePath + 'gametest/'), `Bundled GameTest package: ${name}`);
   if (name.startsWith(packagePath) && name.endsWith('.class')) {
@@ -68,11 +68,41 @@ for (const [name] of entries) {
 const recipes = loader === 'forge' ? 'recipes' : 'recipe';
 const tag = JSON.parse(read(`data/sophisticatedbackpacks/tags/${loader === 'forge' ? 'items' : 'item'}/upgrade.json`));
 const en = JSON.parse(read(`assets/${modId}/lang/en_us.json`)), pt = JSON.parse(read(`assets/${modId}/lang/pt_br.json`));
+if (loader === 'forge') {
+  assert(![...entries.keys()].some(name => name.startsWith('assets/') && name.includes('integrateddynamics')), 'Pilot Integrated assets leaked into Forge before its port');
+  assert(!Object.keys(en).concat(Object.keys(pt)).some(key => key.includes('.integrateddynamics')), 'Pilot Integrated translations leaked into Forge before its port');
+}
+if (minecraft === '1.21.1') {
+  for (const name of ['IntegratedDynamicsStorageAdapter', 'IntegratedDynamicsFluidStorageAdapter', 'IntegratedDynamicsAccessPolicy', 'IntegratedDynamicsLinkDiscovery']) {
+    assert(entries.has(packagePath + `storage/${name}.class`), `Missing Integrated foundation: ${name}`);
+  }
+  for (const backend of ['integrateddynamics', 'integratedtunnels']) {
+    assert(metadata.split('[[dependencies.').some(section => section.includes(`modId="${backend}"`) && section.includes('type="optional"')), `Integrated dependency is not optional: ${backend}`);
+  }
+  for (const locale of [en, pt]) for (const suffix of ['', '.short']) {
+    assert.equal(locale[`backend.${modId}.integrateddynamics${suffix}`], 'Integrated Dynamics');
+  }
+}
 for (const upgrade of ['deposit','restock','pickup','magnet','refill','feeding','alchemy','pump','crafting']) {
   const item = `remote_${upgrade}_upgrade`;
   assert(tag.values.includes(`${modId}:${item}`), `Missing upgrade tag: ${item}`);
   JSON.parse(read(`data/${modId}/${recipes}/${item}.json`));
   JSON.parse(read(`assets/${modId}/models/item/${item}.json`));
+  if (minecraft === '1.21.1') {
+    const backends = ['ae2', 'refinedstorage', 'toms_storage', 'scc', 'integrateddynamics'];
+    const model = JSON.parse(read(`assets/${modId}/models/item/${item}.json`));
+    assert.equal(model.overrides.length, 6, `Expected five backends and a canvas: ${item}`);
+    for (const [index, backend] of backends.entries()) {
+      assert.equal(model.overrides[index].predicate[`${modId}:network`], index + 1);
+      assert.equal(model.overrides[index].model, `${modId}:item/${item}_linked_${backend}`);
+      for (const previous of ['unlinked', ...backends]) {
+        const path = `assets/${modId}/textures/link_animation/${item}/${previous}_to_${backend}.png`;
+        const strip = entries.get(path);
+        assert(strip && strip.readUInt32BE(16) === 16 && strip.readUInt32BE(20) === 400, `Invalid 25-frame transition strip: ${path}`);
+      }
+    }
+    assert.equal(model.overrides.at(-1).predicate[`${modId}:link_frame`], 1);
+  }
   assert(en[`item.${modId}.${item}`] && pt[`item.${modId}.${item}`], `Missing translation: ${item}`);
   if (minecraft === '26.1.2') {
     const definition = JSON.parse(read(`assets/${modId}/items/${item}.json`));

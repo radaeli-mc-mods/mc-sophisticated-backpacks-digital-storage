@@ -30,6 +30,12 @@
     },
     {
       "predicate": {
+        "sophisticated_backpacks_digital_storages_expansion:network": 5
+      },
+      "model": "sophisticated_backpacks_digital_storages_expansion:item/remote_restock_upgrade_linked_integrateddynamics"
+    },
+    {
+      "predicate": {
         "sophisticated_backpacks_digital_storages_expansion:link_frame": 1
       },
       "model": "sophisticated_backpacks_digital_storages_expansion:item/remote_restock_upgrade_link_canvas"

@@ -61,6 +61,9 @@ class Upgrade:
         for p, c in self.icon.items():
             px[p] = recolor.get(c, c)
         paint_corners(px)
+        if network == "integrateddynamics":
+            # A two-pixel top marker preserves all four existing corners and the icon silhouette.
+            px[7, 1], px[8, 1] = NETWORKS[network][0], NETWORKS[network][1]
         return im
 
     def frames(self, network, previous=None):

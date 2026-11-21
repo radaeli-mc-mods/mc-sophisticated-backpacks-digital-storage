@@ -14,11 +14,11 @@ tasks.named('runGameTestServer') {
         def cases = xml.getElementsByTagName('testcase')
         def names = (0..<cases.length).collect { cases.item(it).getAttribute('name').toLowerCase() }
         def required = ['profile']
-        if ('integratedtunnels' in profileBackends) required += ['topology', 'binding', 'unavailable']
+        if ('integratedtunnels' in profileBackends) required += ['topology', 'binding', 'unavailable', 'items', 'channelsandlongcounts', 'nativefilters', 'fluidsandcachedguard', 'nativeinterceptors', 'cachedbackpackguard']
         if (xml.getElementsByTagName('failure').length || xml.getElementsByTagName('error').length || xml.getElementsByTagName('skipped').length
                 || names.size() != required.size() || names.toSet().size() != required.size()
                 || required.any { name -> names.count { it == name } != 1 }) {
-            throw new GradleException('Incomplete or failed phase 1 GameTests: ' + names)
+            throw new GradleException('Incomplete or failed Integrated GameTests: ' + names)
         }
         layout.buildDirectory.file('reports/integration/' + backendProfile + '/summary.json').get().asFile.text =
                 groovy.json.JsonOutput.toJson([profile: backendProfile, scenarios: names, result: 'passed']) + '\n'
@@ -41,7 +41,7 @@ tasks.register('verifyIntegratedJar') {
         new java.util.zip.ZipFile(artifact).withCloseable { zip ->
             def names = zip.entries().collect { it.name }
             def base = 'com/radaeli/sophisticatedbackpacksdigitalstoragesexpansion/storage/'
-            ['IntegratedDynamicsStorageAdapter', 'IntegratedDynamicsLinkDiscovery', 'IntegratedDynamicsAccessPolicy'].each {
+            ['IntegratedDynamicsStorageAdapter', 'IntegratedDynamicsFluidStorageAdapter', 'IntegratedDynamicsLinkDiscovery', 'IntegratedDynamicsAccessPolicy'].each {
                 if (!names.contains(base + it + '.class')) throw new GradleException('Missing Integrated class: ' + it)
             }
             if (names.any { it.startsWith('org/cyclops/') || it.contains('/gametest/') || it.startsWith('data/digitalstorage_tests/') || it.startsWith('digitalstorage_tests') }) {
@@ -51,3 +51,10 @@ tasks.register('verifyIntegratedJar') {
     }
 }
 tasks.named('check') { dependsOn 'verifyIntegratedJar' }
+tasks.register('verifyIntegratedResources', Exec) {
+    dependsOn tasks.named('jar')
+    commandLine 'node', rootProject.file('../../tools/verify-jar.mjs').absolutePath,
+            tasks.named('jar').get().archiveFile.get().asFile.absolutePath,
+            minecraft_version, 'neoforge', java_version.toString(), mod_id, mod_version
+}
+tasks.named('verifyIntegratedJar') { dependsOn 'verifyIntegratedResources' }

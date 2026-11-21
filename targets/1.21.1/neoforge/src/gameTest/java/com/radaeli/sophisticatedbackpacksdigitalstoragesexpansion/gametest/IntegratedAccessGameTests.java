@@ -19,7 +19,7 @@ import com.radaeli.sophisticatedbackpacksdigitalstoragesexpansion.upgrade.Endpoi
 /** Native fixtures are loaded only by the Integrated-enabled profile. */
 @PrefixGameTestTemplate(false)
 public final class IntegratedAccessGameTests {
-    private static BlockPos network(GameTestHelper h, int x) {
+    static BlockPos network(GameTestHelper h, int x) {
         BlockPos pos = h.absolutePos(new BlockPos(x, 2, 2));
         var level = h.getLevel();
         level.setBlockAndUpdate(pos, RegistryEntries.BLOCK_CABLE.get().defaultBlockState());
@@ -43,7 +43,7 @@ public final class IntegratedAccessGameTests {
         h.assertTrue(PartHelpers.addPart(h.getLevel(), pos, Direction.UP, PartTypes.CONNECTOR_OMNI, state), "Second Omni failed");
         return pos;
     }
-    private static ServerPlayer player(GameTestHelper h) {
+    static ServerPlayer player(GameTestHelper h) {
         var profile = new com.mojang.authlib.GameProfile(java.util.UUID.randomUUID(), "access-test");
         var cookie = net.minecraft.server.network.CommonListenerCookie.createInitial(profile, false);
         ServerPlayer player = new ServerPlayer(h.getLevel().getServer(), h.getLevel(), profile, cookie.clientInformation()) {};
@@ -60,6 +60,11 @@ public final class IntegratedAccessGameTests {
         EndpointLinkHandler.onRightClickBlock(new PlayerInteractEvent.RightClickBlock(player, InteractionHand.MAIN_HAND,
                 pos, new BlockHitResult(net.minecraft.world.phys.Vec3.atCenterOf(pos), Direction.UP, pos, false)));
     }
+    static void whenReady(GameTestHelper h, BlockPos pos, ServerPlayer player, Runnable action) {
+        h.startSequence().thenWaitUntil(() -> h.assertTrue(IntegratedDynamicsAccessPolicy.resolve(player,
+                new StorageEndpoint("integrateddynamics", h.getLevel().dimension(), pos), SourceLocation.carriedBy(player)).isPresent(),
+                "Native Omni infrastructure is not ready")).thenExecute(action);
+    }
     @GameTest(template = "empty", templateNamespace = "digitalstorage_tests", timeoutTicks = 200)
     public static void topology(GameTestHelper h) {
         var a = network(h, 1);
@@ -67,7 +72,8 @@ public final class IntegratedAccessGameTests {
         var b = network(h, 6);
         var pure = a.south();
         h.getLevel().setBlockAndUpdate(pure, RegistryEntries.BLOCK_CABLE.get().defaultBlockState());
-        h.runAfterDelay(40, () -> {
+        h.startSequence().thenWaitUntil(() -> h.assertTrue(StorageAdapterRegistry.identify(h.getLevel(), a.east()).isPresent()
+                && StorageAdapterRegistry.identify(h.getLevel(), b.east()).isPresent(), "Native topologies are not ready")).thenExecute(() -> {
             h.assertTrue(StorageAdapterRegistry.identify(h.getLevel(), pure).isEmpty(), "Pure cable accepted");
             h.assertTrue(StorageAdapterRegistry.identify(h.getLevel(), a.east()).orElseThrow().pos().equals(a), "Reader crossed topology A");
             h.assertTrue(StorageAdapterRegistry.identify(h.getLevel(), b.east()).orElseThrow().pos().equals(b), "Reader crossed topology B");
@@ -80,7 +86,7 @@ public final class IntegratedAccessGameTests {
     public static void binding(GameTestHelper h) {
         var pos = network(h, 1);
         var player = player(h);
-        h.runAfterDelay(40, () -> {
+        whenReady(h, pos, player, () -> {
             click(player, pos.east());
             var stack = player.getMainHandItem();
             var endpoint = EndpointBinding.read(stack).orElseThrow();
@@ -89,7 +95,8 @@ public final class IntegratedAccessGameTests {
             click(player, pos.offset(0, 0, 3));
             h.assertTrue(EndpointBinding.read(stack).orElseThrow().equals(endpoint), "Invalid click replaced binding");
             h.assertTrue(StorageAdapterRegistry.connectForBinding(player, endpoint, SourceLocation.carriedBy(player)).target().isPresent(), "No terminal should be required");
-            h.assertTrue(StorageAdapterRegistry.connect(player, endpoint, SourceLocation.carriedBy(player)).target().isEmpty(), "Phase 1 must not transfer");
+            h.assertTrue(StorageAdapterRegistry.connect(player, endpoint, SourceLocation.carriedBy(player)).target().orElseThrow()
+                    .simulateInsert(new ItemStack(Items.DIAMOND), player) == 0, "Network without interfaces must not accept resources");
             for (var item : ModItems.ITEMS.getEntries()) {
                 player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(item.get()));
                 click(player, pos);
@@ -105,7 +112,7 @@ public final class IntegratedAccessGameTests {
         var noPower = network(h, 6);
         h.getLevel().destroyBlock(noPower.below(), false);
         var player = player(h);
-        h.runAfterDelay(40, () -> {
+        whenReady(h, pos, player, () -> {
             click(player, pos);
             var stack = player.getMainHandItem();
             var endpoint = EndpointBinding.read(stack).orElseThrow();
