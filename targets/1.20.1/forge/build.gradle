@@ -144,6 +144,7 @@ def sharedResources = tasks.register('prepareSharedForgeResources', Sync) {
         exclude('data/*/recipe/backpack_variant_scc.json')
         // Integrated is a 1.21.1 pilot until phase 10; do not inherit its new visual assets.
         exclude('**/*integrateddynamics*')
+        exclude('data/*/recipe/backpack_variant_id.json')
         eachFile { details ->
             if (details.path.contains('/tags/item/')) {
                 details.path = details.path.replace('/tags/item/', '/tags/items/')
