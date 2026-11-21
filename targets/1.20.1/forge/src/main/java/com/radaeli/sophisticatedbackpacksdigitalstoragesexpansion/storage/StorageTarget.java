@@ -22,6 +22,11 @@ public interface StorageTarget {
 
     boolean isReachable(ServerPlayer player, SourceLocation source);
 
+    /** Validates that an endpoint can be linked without requiring an item/fluid interface. */
+    default boolean canBind(ServerPlayer player, SourceLocation source) {
+        return isReachable(player, source);
+    }
+
     IItemHandler getAvailableItems(ServerPlayer player);
 
     int simulateInsert(ItemStack stack, ServerPlayer player);
