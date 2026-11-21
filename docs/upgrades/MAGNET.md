@@ -81,6 +81,6 @@ O porte desta função preserva seu comportamento e as premissas P01–P12 aplic
 
 O target mantém tick, elegibilidade e coleta nativos, adapta filtros e destinos ao inventário transacional e preserva as duas prioridades (P04/P05/P08/P10). Os GameTests acionam o wrapper instalado e verificam drop, mochila e rede reais. A evidência automatizada não encerra a aceitação manual P12.
 
-## Integrated Dynamics — fundação 1.21.1
+## Integrated Dynamics — fundação e porte Forge
 
-P01–P04/P11/P12: a [fase 1 da integração](../integrations/INTEGRATED_DYNAMICS_PHASE_1.md) acrescenta vínculo universal por Omni e revalidação de acesso no piloto. O formato persistido e as reservas existentes permanecem preservados. A [fase 2](../integrations/INTEGRATED_DYNAMICS_PHASE_2.md) implementa os contratos básicos de itens/fluidos e o quinto estado visual do piloto. A função continua sujeita à sua fase específica de validação no [plano Integrated](../integrations/INTEGRATED_DYNAMICS.md). Não encerra os gates deste plano individual.
+P01–P04/P07–P12: a [fase 1 da integração](../integrations/INTEGRATED_DYNAMICS_PHASE_1.md) acrescenta vínculo universal por Omni e revalidação de acesso no piloto. O formato persistido e as reservas existentes permanecem preservados. A [fase 2](../integrations/INTEGRATED_DYNAMICS_PHASE_2.md) implementa os contratos básicos de itens/fluidos e o quinto estado visual do piloto. A [fase 10](../integrations/INTEGRATED_DYNAMICS_PHASE_10.md) porta esses contratos para Forge 1.20.1; `:forge:compileJava` passou. O gate operacional de Magnet e o aceite em jogo ainda estão pendentes, conforme o [plano Integrated](../integrations/INTEGRATED_DYNAMICS.md) e este plano individual.

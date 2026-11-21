@@ -36,7 +36,7 @@ public final class EndpointLinkHandler {
             return;
         }
         StorageEndpoint endpoint = identified.get();
-        StorageConnection connection = StorageAdapterRegistry.connect(player, endpoint, SourceLocation.carriedBy(player));
+        StorageConnection connection = StorageAdapterRegistry.connectForBinding(player, endpoint, SourceLocation.carriedBy(player));
         if (connection.target().isEmpty()) {
             player.displayClientMessage(Component.translatable(connection.status().messageKey()), true);
             return;

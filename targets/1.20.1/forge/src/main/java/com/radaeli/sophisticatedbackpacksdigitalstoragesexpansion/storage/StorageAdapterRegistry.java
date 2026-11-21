@@ -33,7 +33,14 @@ public final class StorageAdapterRegistry {
             if (ModList.get().isLoaded("toms_storage")) {
                 register(adapters, new TomsStorageAdapter());
             }
+            if (integratedDynamicsAvailable()) {
+                register(adapters, new IntegratedDynamicsStorageAdapter());
+            }
             return Collections.unmodifiableMap(adapters);
+        }
+
+        private static boolean integratedDynamicsAvailable() {
+            return ModList.get().isLoaded("integrateddynamics") && ModList.get().isLoaded("integratedtunnels");
         }
 
         private static void register(Map<String, StorageAdapter> adapters, StorageAdapter adapter) {
@@ -77,6 +84,16 @@ public final class StorageAdapterRegistry {
 
     public static StorageConnection connect(ServerPlayer player, StorageEndpoint endpoint, SourceLocation source,
             StorageOperation operation) {
+        return connect(player, endpoint, source, operation, false);
+    }
+
+    /** Resolves and validates an endpoint for linking without requiring an item-storage operation. */
+    public static StorageConnection connectForBinding(ServerPlayer player, StorageEndpoint endpoint, SourceLocation source) {
+        return connect(player, endpoint, source, StorageOperation.INSERT, true);
+    }
+
+    private static StorageConnection connect(ServerPlayer player, StorageEndpoint endpoint, SourceLocation source,
+            StorageOperation operation, boolean binding) {
         StorageAdapter adapter = InstalledAdapters.ALL.get(endpoint.backendId());
         if (adapter == null) {
             return StorageConnection.unavailable(Status.BACKEND_MISSING);
@@ -96,7 +113,7 @@ public final class StorageAdapterRegistry {
         if (target.isEmpty()) {
             return StorageConnection.unavailable(Status.ENDPOINT_MISSING);
         }
-        return target.filter(value -> value.canAccess(player, source, operation))
+        return target.filter(value -> binding ? value.canBind(player, source) : value.canAccess(player, source, operation))
                 .map(StorageConnection::connected)
                 .orElseGet(() -> StorageConnection.unavailable(Status.UNAVAILABLE));
     }

@@ -1,0 +1,69 @@
+{
+  "minecraft": "1.20.1",
+  "loader": "forge",
+  "forge": "47.4.10",
+  "java": 17,
+  "auditedOn": "2026-11-21",
+  "dependencies": [
+    {
+      "id": "cyclopscore",
+      "version": "1.22.5",
+      "file": "CyclopsCore-1.20.1-1.22.5.jar",
+      "url": "https://edge.forgecdn.net/files/9607/385/CyclopsCore-1.20.1-1.22.5.jar",
+      "source": "https://www.curseforge.com/minecraft/mc-mods/cyclops-core/files/9607385",
+      "sha256": "9d2c1a8df02be2a4282bd64a39e58a788f3874d5098d53224620051694abe4b4",
+      "license": "MIT",
+      "licenseUrl": "https://github.com/CyclopsMC/CyclopsCore/blob/1.20.1-1.22.5/LICENSE.txt"
+    },
+    {
+      "id": "commoncapabilities",
+      "version": "2.9.11",
+      "file": "CommonCapabilities-1.20.1-2.9.11.jar",
+      "url": "https://edge.forgecdn.net/files/7229/322/CommonCapabilities-1.20.1-2.9.11.jar",
+      "source": "https://www.curseforge.com/minecraft/mc-mods/common-capabilities/files/7229322",
+      "sha256": "caf68731fbfb061f5c1a52c7e62bded0da8bfcaafda149d7eca273ee90e87722",
+      "license": "MIT",
+      "licenseUrl": "https://github.com/CyclopsMC/CommonCapabilities/blob/1.20.1-2.9.11/LICENSE.txt"
+    },
+    {
+      "id": "integrateddynamics",
+      "version": "1.31.4",
+      "file": "IntegratedDynamics-1.20.1-1.31.4.jar",
+      "url": "https://edge.forgecdn.net/files/9385/153/IntegratedDynamics-1.20.1-1.31.4.jar",
+      "source": "https://www.curseforge.com/minecraft/mc-mods/integrated-dynamics/files/9385153",
+      "sha256": "11de72c8d7efdeb191198610404ba940e01d5a047de3433f5940946274866ba7",
+      "license": "MIT",
+      "licenseUrl": "https://github.com/CyclopsMC/IntegratedDynamics/blob/1.20.1-1.31.4/LICENSE.txt"
+    },
+    {
+      "id": "integratedtunnels",
+      "version": "1.9.0",
+      "file": "IntegratedTunnels-1.20.1-1.9.0.jar",
+      "url": "https://edge.forgecdn.net/files/7076/217/IntegratedTunnels-1.20.1-1.9.0.jar",
+      "source": "https://www.curseforge.com/minecraft/mc-mods/integrated-tunnels/files/7076217",
+      "sha256": "2b9f53a962e4902caf392b6d80f05502eb8813cf4da7ebd5c435389e08e78d76",
+      "license": "MIT",
+      "licenseUrl": "https://github.com/CyclopsMC/IntegratedTunnels/blob/1.20.1-1.9.0/LICENSE.txt"
+    },
+    {
+      "id": "integratedterminals",
+      "version": "1.7.0",
+      "file": "IntegratedTerminals-1.20.1-1.7.0.jar",
+      "url": "https://edge.forgecdn.net/files/8726/24/IntegratedTerminals-1.20.1-1.7.0.jar",
+      "source": "https://www.curseforge.com/minecraft/mc-mods/integrated-terminals/files/8726024",
+      "sha256": "9fec43958c4b9fbf9598946d5d6871cf55eb7b00e6639f00b15dcca0bd4b738f",
+      "license": "MIT",
+      "licenseUrl": "https://github.com/CyclopsMC/IntegratedTerminals/blob/1.20.1-1.7.0/LICENSE.txt"
+    },
+    {
+      "id": "integratedcrafting",
+      "version": "1.4.10",
+      "file": "IntegratedCrafting-1.20.1-1.4.10.jar",
+      "url": "https://edge.forgecdn.net/files/9383/621/IntegratedCrafting-1.20.1-1.4.10.jar",
+      "source": "https://www.curseforge.com/minecraft/mc-mods/integrated-crafting/files/9383621",
+      "sha256": "13f971438a149d3fa4644adb4b8f3d46156bfc64d4ef2e8fd103a2f449eae307",
+      "license": "MIT",
+      "licenseUrl": "https://github.com/CyclopsMC/IntegratedCrafting/blob/1.20.1-1.4.10/LICENSE.txt"
+    }
+  ]
+}

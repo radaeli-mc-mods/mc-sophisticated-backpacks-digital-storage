@@ -4,6 +4,10 @@ plugins {
 
 repositories {
     maven { url = 'https://maven.blamejared.com' }
+    maven {
+        url = 'https://cursemaven.com'
+        content { includeGroup 'curse.maven' }
+    }
 }
 
 base {
@@ -14,6 +18,57 @@ java {
     toolchain.languageVersion = JavaLanguageVersion.of(java_version_common as int)
     withSourcesJar()
 }
+
+def runClientRequested = gradle.startParameter.taskNames.any { it.endsWith(':runClient') || it == 'runClient' }
+def defaultBackendProfile = runClientRequested ? 'legacy-integrated' : 'legacy'
+def backendProfile = providers.gradleProperty('backendProfile').getOrElse(defaultBackendProfile)
+def integratedBase = ['cyclopscore', 'commoncapabilities', 'integrateddynamics']
+def integratedMin = integratedBase + ['integratedtunnels']
+def profiles = [
+        none: [],
+        dynamics: integratedBase,
+        integrated: integratedMin,
+        terminals: integratedMin + ['integratedterminals'],
+        full: integratedMin + ['integratedterminals', 'integratedcrafting'],
+        ae2: ['ae2'],
+        rs: ['refinedstorage'],
+        toms: ['toms_storage'],
+        legacy: ['ae2', 'refinedstorage', 'toms_storage'],
+        'legacy-integrated': ['ae2', 'refinedstorage', 'toms_storage'] + integratedMin + ['integratedterminals', 'integratedcrafting'],
+        all: ['ae2', 'refinedstorage', 'toms_storage'] + integratedMin + ['integratedterminals', 'integratedcrafting']
+]
+if (!profiles.containsKey(backendProfile)) {
+    throw new GradleException('Unknown backendProfile: ' + backendProfile)
+}
+ext.backendProfile = backendProfile
+ext.profileBackends = profiles[backendProfile]
+ext.integratedDependencyLockFile = 'integrated-dependencies.lock.json'
+ext.integratedDependencyDirectory = '../../libs/1.20.1/integrated'
+ext.integratedDependencyLoader = 'forge'
+ext.integratedDependencyLoaderVersion = forge_version
+ext.integratedDependencyJava = java_version_common
+apply from: rootProject.file('../../gradle/verify-integrated-dependencies.gradle')
+
+def integratedLock = new groovy.json.JsonSlurper().parse(rootProject.file('integrated-dependencies.lock.json'))
+def integratedPaths = integratedLock.dependencies.collectEntries { dep ->
+    [(dep.id): rootProject.file('../../libs/1.20.1/integrated/' + dep.file)]
+}
+// ModDevGradle remaps these production Forge jars from SRG to official mappings.
+// Their locked local copies remain the compile-time API and checksum audit source.
+def integratedModules = [
+        cyclopscore: [project: 232758, file: 9607385],
+        commoncapabilities: [project: 247007, file: 7229322],
+        integrateddynamics: [project: 236307, file: 9385153],
+        integratedtunnels: [project: 251389, file: 7076217],
+        integratedterminals: [project: 295910, file: 8726024],
+        integratedcrafting: [project: 287357, file: 9383621]
+]
+def profileIntegratedModules = profiles[backendProfile].findAll { integratedModules.containsKey(it) }
+def profileClientFiles = ['sophisticated-core-e0UoBJSs.jar', 'sophisticated-backpacks-X7q2xTaV.jar',
+                          "jei-${minecraft_version}-forge-${jei_version}.jar"]
+if ('ae2' in profiles[backendProfile]) profileClientFiles += ['ae2-jYgSnxye.jar', 'guideme-20.1.7.jar']
+if ('refinedstorage' in profiles[backendProfile]) profileClientFiles += ['refined-storage-ZITLFjjf.jar']
+if ('toms_storage' in profiles[backendProfile]) profileClientFiles += ['toms-storage-XELeoPjZ.jar']
 
 legacyForge {
     version = "${forge_minecraft_version}-${forge_version}"
@@ -52,16 +107,22 @@ dependencies {
     modCompileOnly 'maven.modrinth:toms-storage:XELeoPjZ'
     modRuntimeOnly 'maven.modrinth:sophisticated-core:e0UoBJSs'
     modRuntimeOnly 'maven.modrinth:sophisticated-backpacks:X7q2xTaV'
-    // These optional mods are added only for the client launch, so GameTests
-    // retain the minimal dedicated-server profile.
-    def requestedTasks = gradle.startParameter.taskNames
-    if (requestedTasks.any { it.endsWith(':runClient') || it == 'runClient' }) {
+    // Optional backends are only loaded for runClient and the selected profile.
+    if (runClientRequested) {
         modRuntimeOnly "mezz.jei:jei-${minecraft_version}-forge:${jei_version}"
-        modRuntimeOnly 'maven.modrinth:ae2:jYgSnxye'
-        modRuntimeOnly 'maven.modrinth:refined-storage:ZITLFjjf'
-        modRuntimeOnly 'maven.modrinth:toms-storage:XELeoPjZ'
-        modRuntimeOnly 'org.appliedenergistics:guideme:20.1.7'
+        if ('ae2' in profiles[backendProfile]) {
+            modRuntimeOnly 'maven.modrinth:ae2:jYgSnxye'
+            modRuntimeOnly 'org.appliedenergistics:guideme:20.1.7'
+        }
+        if ('refinedstorage' in profiles[backendProfile]) modRuntimeOnly 'maven.modrinth:refined-storage:ZITLFjjf'
+        if ('toms_storage' in profiles[backendProfile]) modRuntimeOnly 'maven.modrinth:toms-storage:XELeoPjZ'
+        profileIntegratedModules.each { id ->
+            def artifact = integratedModules[id]
+            modRuntimeOnly "curse.maven:${id}-${artifact.project}:${artifact.file}"
+        }
     }
+    // Compile against the exact Forge artifacts in the target lock, but never package them in this mod.
+    compileOnly files(integratedPaths.values())
     compileOnly 'io.github.llamalad7:mixinextras-forge:0.4.1'
     modCompileOnly 'io.github.llamalad7:mixinextras-forge:0.4.1'
     compileOnly 'io.github.llamalad7:mixinextras-common:0.4.1'
@@ -95,15 +156,7 @@ dependencies {
 // additional runtime classpath makes jars visible to Java but does not install
 // them as Forge mods, which is required for in-game integration testing.
 tasks.register('prepareForgeClientMods', Copy) {
-    from({ sourceSets.main.runtimeClasspath.filter { it.name in [
-            'sophisticated-core-e0UoBJSs.jar',
-            'sophisticated-backpacks-X7q2xTaV.jar',
-            'ae2-jYgSnxye.jar',
-            'refined-storage-ZITLFjjf.jar',
-            'toms-storage-XELeoPjZ.jar',
-            "jei-${minecraft_version}-forge-${jei_version}.jar",
-            'guideme-20.1.7.jar'
-    ] } })
+    from({ sourceSets.main.runtimeClasspath.filter { it.name in profileClientFiles } })
     into('../../../runs/1.20.1/forge-client/mods')
     doFirst {
         delete(files('../../../runs/1.20.1/forge-client/mods/sophisticatedcore-1.20.1-1.5.10.2402.jar',
@@ -113,7 +166,13 @@ tasks.register('prepareForgeClientMods', Copy) {
                 '../../../runs/1.20.1/forge-client/mods/toms_storage-1.20-1.7.1.jar',
                 '../../../runs/1.20.1/forge-client/mods/ae2-jYgSnxye.jar',
                 '../../../runs/1.20.1/forge-client/mods/refined-storage-ZITLFjjf.jar',
-                '../../../runs/1.20.1/forge-client/mods/toms-storage-XELeoPjZ.jar'))
+                '../../../runs/1.20.1/forge-client/mods/toms-storage-XELeoPjZ.jar',
+                '../../../runs/1.20.1/forge-client/mods/CyclopsCore-1.20.1-1.22.5.jar',
+                '../../../runs/1.20.1/forge-client/mods/CommonCapabilities-1.20.1-2.9.11.jar',
+                '../../../runs/1.20.1/forge-client/mods/IntegratedDynamics-1.20.1-1.31.4.jar',
+                '../../../runs/1.20.1/forge-client/mods/IntegratedTunnels-1.20.1-1.9.0.jar',
+                '../../../runs/1.20.1/forge-client/mods/IntegratedTerminals-1.20.1-1.7.0.jar',
+                '../../../runs/1.20.1/forge-client/mods/IntegratedCrafting-1.20.1-1.4.10.jar'))
     }
 }
 
@@ -142,8 +201,6 @@ def sharedResources = tasks.register('prepareSharedForgeResources', Sync) {
         exclude('META-INF/neoforge.mods.toml', 'META-INF/accesstransformer.cfg', 'pack.mcmeta', "${mod_id}.mixins.json")
         // SCC has no Forge 1.20.1 release, so its backpack variant does not exist on this target.
         exclude('data/*/recipe/backpack_variant_scc.json')
-        // Integrated is a 1.21.1 pilot until phase 10; do not inherit its new visual assets.
-        exclude('**/*integrateddynamics*')
         exclude('data/*/recipe/backpack_variant_id.json')
         eachFile { details ->
             if (details.path.contains('/tags/item/')) {
@@ -154,16 +211,8 @@ def sharedResources = tasks.register('prepareSharedForgeResources', Sync) {
     }
     into(layout.buildDirectory.dir('generated/sharedResources'))
     doLast {
-        fileTree(destinationDir).matching { include('assets/**/models/item/remote_*_upgrade.json', 'assets/**/lang/*.json') }.each { resourceFile ->
-            def data = new groovy.json.JsonSlurper().parse(resourceFile)
-            boolean changed = false
-            if (data.overrides instanceof List) {
-                changed = data.overrides.removeAll { it.model?.endsWith('_linked_integrateddynamics') }
-            } else {
-                changed = data.keySet().removeAll { it.contains('.integrateddynamics') }
-            }
-            if (changed) resourceFile.text = groovy.json.JsonOutput.prettyPrint(groovy.json.JsonOutput.toJson(data)) + '\n'
-        }
+        // Keep the Integrated Dynamics model overrides and translations on Forge now that
+        // the backend is ported; 1.20.1 still excludes only its separate backpack recipe.
         def recipes = fileTree(destinationDir).matching { include('data/**/recipes/*.json') }
         recipes.each { recipeFile ->
             def recipe = new groovy.json.JsonSlurper().parse(recipeFile)
@@ -202,6 +251,7 @@ mixin {
 }
 
 tasks.withType(JavaCompile).configureEach {
+    dependsOn 'verifyIntegratedDependencies'
     options.encoding = 'UTF-8'
     options.release = java_version_common as int
 }

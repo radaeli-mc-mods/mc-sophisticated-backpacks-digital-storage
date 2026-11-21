@@ -19,6 +19,8 @@ libs/26.1.2/*.jar
 
 libs/1.21.1/integrated/*.jar
 libs/1.21.1/integrated/*.part
+libs/1.20.1/integrated/*.jar
+libs/1.20.1/integrated/*.part
 
 /targets/*/*.log
 /baseline.log

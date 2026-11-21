@@ -44,3 +44,17 @@ mandatory=false
 versionRange="[${jei_version},)"
 ordering="AFTER"
 side="CLIENT"
+
+[[dependencies.${mod_id}]]
+modId="integrateddynamics"
+mandatory=false
+versionRange="[1.31.4,)"
+ordering="AFTER"
+side="BOTH"
+
+[[dependencies.${mod_id}]]
+modId="integratedtunnels"
+mandatory=false
+versionRange="[1.9.0,)"
+ordering="AFTER"
+side="BOTH"

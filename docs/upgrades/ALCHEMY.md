@@ -76,6 +76,6 @@ O porte desta função preserva seu comportamento e as premissas P01–P12 aplic
 
 O target preserva definições, condições, duração de uso e a reserva, adaptando os acessos a componentes e os efeitos nativos (P04/P08/P09). Os GameTests verificam o efeito e o consumo por origem com as duas prioridades. A evidência automatizada não encerra a aceitação manual P12.
 
-## Integrated Dynamics — fundação 1.21.1
+## Integrated Dynamics — fundação e porte Forge
 
-P01–P04/P11/P12: a [fase 1 da integração](../integrations/INTEGRATED_DYNAMICS_PHASE_1.md) acrescenta vínculo universal por Omni e revalidação de acesso no piloto. O formato persistido e as reservas existentes permanecem preservados. A [fase 2](../integrations/INTEGRATED_DYNAMICS_PHASE_2.md) implementa os contratos básicos de itens/fluidos e o quinto estado visual do piloto. A função continua sujeita à sua fase específica de validação no [plano Integrated](../integrations/INTEGRATED_DYNAMICS.md). Não encerra os gates deste plano individual.
+P01–P04/P07–P12: a [fase 1 da integração](../integrations/INTEGRATED_DYNAMICS_PHASE_1.md) acrescenta vínculo universal por Omni e revalidação de acesso no piloto. O formato persistido e as reservas existentes permanecem preservados. A [fase 2](../integrations/INTEGRATED_DYNAMICS_PHASE_2.md) implementa os contratos básicos de itens/fluidos e o quinto estado visual do piloto. A [fase 10](../integrations/INTEGRATED_DYNAMICS_PHASE_10.md) porta esses contratos para Forge 1.20.1; `:forge:compileJava` passou. O gate operacional de Alchemy e o aceite em jogo ainda estão pendentes, conforme o [plano Integrated](../integrations/INTEGRATED_DYNAMICS.md) e este plano individual.

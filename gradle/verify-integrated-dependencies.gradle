@@ -3,20 +3,25 @@ import java.nio.file.Files
 import java.nio.file.StandardCopyOption
 import java.security.MessageDigest
 
-// Phase 0 only: audit/download on explicit invocation, without changing any classpath.
-def lockFile = rootProject.file('integrated-dependencies.lock.json')
-def dependencyDir = rootProject.file('../../libs/1.21.1/integrated')
+// Audits pinned Integrated artifacts for each target without changing the mod jar.
+def lockFile = rootProject.file(project.findProperty('integratedDependencyLockFile') ?: 'integrated-dependencies.lock.json')
+def dependencyDir = rootProject.file(project.findProperty('integratedDependencyDirectory') ?: '../../libs/1.21.1/integrated')
+def expectedLoader = project.findProperty('integratedDependencyLoader') ?: 'neoforge'
+def expectedLoaderVersion = project.findProperty('integratedDependencyLoaderVersion')
+        ?: (expectedLoader == 'neoforge' ? neoforge_version : forge_version)
+def expectedJava = project.findProperty('integratedDependencyJava')
+        ?: (expectedLoader == 'neoforge' ? java_version : java_version_common)
 
 tasks.register('verifyIntegratedDependencies') {
     group = 'verification'
-    description = 'Fetch and verify the six pinned Integrated pilot artifacts (no runtime activation).'
+    description = 'Fetch and verify this target’s six pinned Integrated artifacts.'
     inputs.file(lockFile)
     outputs.upToDateWhen { false }
     doLast {
         def lock = new JsonSlurper().parse(lockFile)
-        if (lock.minecraft != minecraft_version || lock.neoforge != neoforge_version
-                || lock.java != (java_version as int) || lock.loader != 'neoforge') {
-            throw new GradleException('Integrated dependency audit does not match the pilot target')
+        if (lock.minecraft != minecraft_version || lock[expectedLoader] != expectedLoaderVersion
+                || lock.java != (expectedJava as int) || lock.loader != expectedLoader) {
+            throw new GradleException('Integrated dependency audit does not match this target')
         }
         def hashFile = { File artifact ->
             def digest = MessageDigest.getInstance('SHA-256')

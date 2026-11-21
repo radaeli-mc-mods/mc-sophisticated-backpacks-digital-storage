@@ -22,9 +22,10 @@ Player guides: [Linking upgrades](player/linking.md), [Filters and source priori
 - [Crafting](upgrades/CRAFTING.md) — bancada com busca de ingredientes na rede e na mochila.
 
 - [SCC integration](integrations/SCC.md) — audited APIs, implementation phases and pending runtime matrix.
-- [Plano de integração com Integrated Dynamics](integrations/INTEGRATED_DYNAMICS.md) — fundação, nove upgrades, testes e guardrails; piloto 1.21.1 e portes após aceite manual.
+- [Plano de integração com Integrated Dynamics](integrations/INTEGRATED_DYNAMICS.md) — fundação, nove upgrades, gates por target e estado dos portes.
 - [Integrated Dynamics — evidências da fase 0](integrations/INTEGRATED_DYNAMICS_PHASE_0.md) — dependências fixadas, auditoria e baseline anterior à implementação do backend.
 
 - [Integrated Dynamics — evidências da fase 1](integrations/INTEGRATED_DYNAMICS_PHASE_1.md) — perfis, acesso, descoberta multipart, vínculo e persistência no piloto 1.21.1.
 
 - [Integrated Dynamics — operações e apresentação da fase 2](integrations/INTEGRATED_DYNAMICS_PHASE_2.md) — contratos nativos de itens/fluidos, quinto estado visual e evidências do piloto.
+- [Integrated Dynamics — porte Forge da fase 10](integrations/INTEGRATED_DYNAMICS_PHASE_10.md) — adaptadores 1.20.1, dependências fixadas, compilação e validação manual ainda pendente.

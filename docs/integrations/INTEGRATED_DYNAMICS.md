@@ -1,10 +1,10 @@
 # Integrated Dynamics: integração faseada dos nove upgrades
 
-Plano aprovado em 2026-11-16. Fase 0 implementada em 2026-11-16; evidências e limites no [registro da fase 0](INTEGRATED_DYNAMICS_PHASE_0.md). A fase 1 implementa vínculo e acesso; a [fase 2](INTEGRATED_DYNAMICS_PHASE_2.md) acrescenta as operações básicas e apresentação no piloto, com validação e limites registrados separadamente. Ver [evidências e limites da fase 1](INTEGRATED_DYNAMICS_PHASE_1.md). As evidências de auditoria abaixo se referem ao checkout e aos JARs inspecionados nessa data.
+Plano aprovado em 2026-11-16. Fase 0 implementada em 2026-11-16; evidências e limites no [registro da fase 0](INTEGRATED_DYNAMICS_PHASE_0.md). A fase 1 implementa vínculo e acesso; a [fase 2](INTEGRATED_DYNAMICS_PHASE_2.md) acrescenta as operações básicas e apresentação no piloto. Em 2026-11-21, o usuário autorizou antecipar o porte Forge 1.20.1 antes do aceite em jogo; a implementação e compilação estão registradas na [fase 10](INTEGRATED_DYNAMICS_PHASE_10.md). A aceitação operacional continua pendente. Ver também [evidências da fase 1](INTEGRATED_DYNAMICS_PHASE_1.md).
 
 ## 1. Objetivo e decisões aprovadas
 
-Implementar primeiro no **Minecraft 1.21.1 / NeoForge 21.1.238 / Java 21**. Após os testes automatizados e o aceite manual do usuário no piloto, portar para 26.1.2 e Forge 1.20.1.
+Implementar primeiro no **Minecraft 1.21.1 / NeoForge 21.1.238 / Java 21**. O plano original condicionava os portes ao aceite do piloto. A pedido explícito do usuário, Forge 1.20.1 foi portado antes desse aceite; 26.1.2 continua aguardando os gates do piloto.
 
 - Backend persistido: `integrateddynamics`; nome apresentado: **Integrated Dynamics**.
 - Ativação com **Integrated Dynamics + Integrated Tunnels**, acompanhados de suas bibliotecas obrigatórias. Integrated Terminals e Integrated Crafting permanecem opcionais, com testes de coexistência.
@@ -39,11 +39,11 @@ As mudanças de interface ficam limitadas a:
 | 26.1.2 | 1.36.3 | 1.13.2 | 1.11.1 | 1.8.1 |
 | Forge 1.20.1 | 1.31.4 | 1.9.0 | 1.7.0 | 1.4.10 |
 
-A inspeção confirmou redes nativas de itens/fluidos, canais, filtros por interface, simulação e índices com quantidades `long`. Os hashes dos doze JARs foram levantados.
+A inspeção confirmou redes nativas de itens/fluidos, canais, filtros por interface, simulação e índices com quantidades `long`. Os hashes dos doze JARs dos targets 1.21.1 e 26.1.2 foram levantados; os seis artefatos Forge 1.20.1 foram posteriormente fixados e verificados na fase 10.
 
-Existem diferenças reais entre versões: Forge possui `getChannelInternal`, enquanto 26.1.2 usa `TransactionContext`. O porte será uma adaptação das APIs, sem cópia mecânica do piloto.
+Existem diferenças reais entre versões: Forge 1.20.1 usa `LazyOptional`, `IItemHandler` e `FluidStack` do Forge, além de contratos de alvo sem `SourceLocation` nas chamadas de operação; 26.1.2 usa `TransactionContext`. O porte adapta as APIs, sem cópia mecânica do piloto. A API Forge 1.20.1 também não expõe `INetwork.isValid`; a fase 10 registra a revalidação equivalente pelas referências nativas disponíveis.
 
-A fase 0 obteve e auditou **Cyclops Core 1.30.0 (build 1205) e Common Capabilities 2.11.6** para o piloto. Os seis artefatos exatos, URLs, licenças, metadados e SHA-256 estão no [manifesto do piloto](../../targets/1.21.1/integrated-dependencies.lock.json), verificável por `:neoforge:verifyIntegratedDependencies` a partir de `targets/1.21.1`. A compatibilidade embutida de Dynamics exige NeoForge 21.1.238. O conjunto está reproduzível em disco; carregamento integrado e perfis serão exercitados nas fases seguintes. As bibliotecas dos portes ainda serão fixadas na fase 10.
+A fase 0 obteve e auditou **Cyclops Core 1.30.0 (build 1205) e Common Capabilities 2.11.6** para o piloto. Os seis artefatos exatos, URLs, licenças, metadados e SHA-256 estão no [manifesto do piloto](../../targets/1.21.1/integrated-dependencies.lock.json), verificável por `:neoforge:verifyIntegratedDependencies` a partir de `targets/1.21.1`. A compatibilidade embutida de Dynamics exige NeoForge 21.1.238. O conjunto está reproduzível em disco; carregamento integrado e perfis serão exercitados nas fases seguintes. O porte Forge tem manifesto independente em `targets/1.20.1/integrated-dependencies.lock.json`.
 
 ### Contrato de acesso e vínculo — P02/P03/P04/P11
 
@@ -52,6 +52,7 @@ A fase 0 obteve e auditou **Cyclops Core 1.30.0 (build 1205) e Common Capabiliti
 - Como o contrato atual recebe a posição do bloco, identificar as partes funcionais presentes no host multipart; blocos contendo somente cabo não qualificam.
 - Em múltiplos candidatos, ordenar por dimensão, coordenadas e face. Após salvar o vínculo, a operação permanece ancorada naquele bloco, sem procurar outro Omni quando ele ficar indisponível.
 - Revalidar jogador, proteção do endpoint, chunk, rede atual, estado do Omni, energia e capacidade solicitada em cada chamada.
+- Validar vínculo por `canBind` sem exigir interfaces de recursos; operações de itens/fluidos exigem e revalidam suas capacidades nativas correspondentes.
 - Usar a infraestrutura remota nativa sem inventar raio próprio. Consultas a outros mundos ou posições exigem verificação prévia de disponibilidade e chunk carregado.
 - Preservar os contextos atuais de mochila carregada/colocada e a pausa quando não houver jogador elegível.
 - Respeitar os filtros nativos independentemente para consulta, inserção e extração; não criar permissões administrativas próprias.
@@ -84,7 +85,7 @@ Cada fase acrescenta sua evidência à documentação interna. As referências n
 | **7 — Pump** | Integrar o adaptador de fluidos ao roteamento e às reservas existentes. | Entrada/saída, ambas as prioridades, mãos/mundo/handlers, componentes, evaporação, capacidade parcial, recuperação desativado e tanque exposto à própria rede. |
 | **8 — Remote Crafting** | Validar seletor, preenchimento, JEI simples/lote e reabastecimento nativo da grade com a nova fonte. | Shaped/shapeless, alternativas, preenchimento parcial, componentes, recipientes e pedidos obsoletos; nenhum pedido de autocrafting criado. |
 | **9 — Aceite do piloto** | Consolidar regressão, artefato de produção, cliente, servidor dedicado, documentação e roteiro manual. | Automação verde e aceite manual do usuário nos nove upgrades, visual e multiplayer. |
-| **10 — Portes** | Adaptar primeiro para 26.1.2 e depois Forge 1.20.1, repetindo os gates por target. | Paridade funcional demonstrada, suites preservadas e aceitação manual registrada por plataforma. |
+| **10 — Portes** | Adaptar para 26.1.2 e Forge 1.20.1, repetindo os gates por target. O porte Forge está implementado e `:forge:compileJava` passou; evidências no [registro da fase 10](INTEGRATED_DYNAMICS_PHASE_10.md). | Forge: compilação comprovada; carregamento, operações, regressão de cada upgrade, visual e aceite manual ainda pendentes. 26.1.2 ainda não portado. |
 
 A fase 1 adapta a infraestrutura de perfis e harness de redes reais do 26.1.2 ao 1.21.1, usando a API de GameTests desta versão. A fixture Integrated fica isolada e só é registrada com Dynamics + Tunnels. Os demais perfis validam carregamento e regressão JUnit; redes reais dos demais backends continuam cobertas no target 26.1.2.
 
@@ -96,7 +97,7 @@ Planos individuais obrigatórios: [Deposit](../upgrades/DEPOSIT.md), [Restock](.
 - Acrescentar o estado Integrated Dynamics e transições nos dois sentidos, incluindo novo vínculo e revínculo.
 - Usar a marca superior como origem da animação, mantendo os tempos atuais.
 - Tornar o gerador compatível com os caminhos atuais e com exportação por target.
-- Manter os índices visuais existentes. No porte 26.1.2, atribuir o quinto estado à rede e mover o canvas de animação para um índice próprio, atualizando os verificadores.
+- Manter os quatro índices visuais existentes. O Forge 1.20.1 mantém o quinto estado como Integrated Dynamics e importa as transições do piloto. No porte 26.1.2, atribuir o quinto estado à rede e mover o canvas de animação para um índice próprio, atualizando os verificadores.
 - A identidade solicitada abrange os upgrades; uma variante cosmética de mochila não integra esta entrega.
 
 A [linha visual vigente](../design/UPGRADE_VISUALS.md) deverá incorporar essa extensão aprovada de P07 durante a implementação.
@@ -145,7 +146,7 @@ Mudanças em serviços compartilhados exigem regressão dos consumidores e backe
 
 **26.1.2:** adaptar simulação por abort e execução por commit às APIs transacionais auditadas, preservando o journal e a entrega após commit do Pickup. Não executar transferência remota durante uma transação local abortável. Auditar também os metadados das integrações embutidas: o Tunnels fornecido contém uma declaração de compatibilidade referindo 26.1.1, que precisa ser resolvida antes de homologar o conjunto. Seguir também o [plano do target](../PORT_26_1_2.md).
 
-**Forge 1.20.1:** adaptar capabilities, canais, NBT e unidades pelas assinaturas dessa versão; repetir testes de preservação de dados e os verificadores do JAR reobfuscado. Preservar os gates da [base multiloader](../MULTILOADER.md).
+**Forge 1.20.1:** porte implementado para itens, fluidos, vínculo Omni e estado visual. Os seis JARs estão fixados em `targets/1.20.1/integrated-dependencies.lock.json`; `:forge:compileJava --offline` e `:forge:verifyForgeResources` passaram com seus SHA-256 verificados. A compilação não executa os testes de preservação, gates do JAR reobfuscado, perfis de runtime ou gameplay. Esses gates e a aceitação manual por upgrade continuam pendentes; preservar os critérios da [base multiloader](../MULTILOADER.md).
 
 Este documento é o plano canônico da integração, indexado no catálogo. Arquitetura, premissas e planos individuais serão atualizados conforme cada comportamento for implementado, distinguindo implementação, automação e aceite manual.
 
