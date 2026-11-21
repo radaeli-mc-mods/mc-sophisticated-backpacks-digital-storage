@@ -234,6 +234,9 @@ Cada variante é um valor do enum `BackpackVariant` (`variant/`), que guarda o p
 | `rs` | `refinedstorage` | `refinedstorage:raw_advanced_processor` | `#3D7FC4` | `#16304F` |
 | `toms` | `toms_storage` | `toms_storage:inventory_connector` | `#A6763F` | `#3B2813` |
 | `scc` | `scc` | `scc:storage_connector` | `#E0A71E` | `#5A3A06` |
+| `id` | `integrateddynamics` | `integrateddynamics:crystalized_menril_chunk` | `#2FB8CC` | `#0F3F48` |
+
+A variante `id` (menril cristalizado ciano, `design/backpack-promo/paint_id.py`) existe só no piloto 1.21.1, como o restante do Integrated Dynamics; o Forge 1.20.1 exclui sua receita e o 26.1.2 a recebe no porte da fase 10.
 
 As cores são reservadas por variante e só servem de identidade e de aparência de contingência. Sem o mod, a mochila mantém o conteúdo e volta ao visual tingido padrão.
 
