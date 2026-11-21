@@ -68,16 +68,14 @@ for (const [name] of entries) {
 const recipes = loader === 'forge' ? 'recipes' : 'recipe';
 const tag = JSON.parse(read(`data/sophisticatedbackpacks/tags/${loader === 'forge' ? 'items' : 'item'}/upgrade.json`));
 const en = JSON.parse(read(`assets/${modId}/lang/en_us.json`)), pt = JSON.parse(read(`assets/${modId}/lang/pt_br.json`));
-if (loader === 'forge') {
-  assert(![...entries.keys()].some(name => name.startsWith('assets/') && name.includes('integrateddynamics')), 'Pilot Integrated assets leaked into Forge before its port');
-  assert(!Object.keys(en).concat(Object.keys(pt)).some(key => key.includes('.integrateddynamics')), 'Pilot Integrated translations leaked into Forge before its port');
-}
-if (minecraft === '1.21.1') {
+const integratedSupported = minecraft === '1.21.1' || (minecraft === '1.20.1' && loader === 'forge');
+if (integratedSupported) {
   for (const name of ['IntegratedDynamicsStorageAdapter', 'IntegratedDynamicsFluidStorageAdapter', 'IntegratedDynamicsAccessPolicy', 'IntegratedDynamicsLinkDiscovery']) {
     assert(entries.has(packagePath + `storage/${name}.class`), `Missing Integrated foundation: ${name}`);
   }
   for (const backend of ['integrateddynamics', 'integratedtunnels']) {
-    assert(metadata.split('[[dependencies.').some(section => section.includes(`modId="${backend}"`) && section.includes('type="optional"')), `Integrated dependency is not optional: ${backend}`);
+    const optionalDeclaration = loader === 'forge' ? 'mandatory=false' : 'type="optional"';
+    assert(metadata.split('[[dependencies.').some(section => section.includes(`modId="${backend}"`) && section.includes(optionalDeclaration)), `Integrated dependency is not optional: ${backend}`);
   }
   for (const locale of [en, pt]) for (const suffix of ['', '.short']) {
     assert.equal(locale[`backend.${modId}.integrateddynamics${suffix}`], 'Integrated Dynamics');
@@ -88,7 +86,7 @@ for (const upgrade of ['deposit','restock','pickup','magnet','refill','feeding',
   assert(tag.values.includes(`${modId}:${item}`), `Missing upgrade tag: ${item}`);
   JSON.parse(read(`data/${modId}/${recipes}/${item}.json`));
   JSON.parse(read(`assets/${modId}/models/item/${item}.json`));
-  if (minecraft === '1.21.1') {
+  if (integratedSupported) {
     const backends = ['ae2', 'refinedstorage', 'toms_storage', 'scc', 'integrateddynamics'];
     const model = JSON.parse(read(`assets/${modId}/models/item/${item}.json`));
     assert.equal(model.overrides.length, 6, `Expected five backends and a canvas: ${item}`);
