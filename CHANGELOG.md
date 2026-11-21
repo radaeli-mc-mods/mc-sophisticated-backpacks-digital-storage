@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.7.0.beta-1] - 2026-11-21
+
+### Added
+
+- Added Integrated Dynamics (with Integrated mods suite) 1.31.4 initial support for remote upgrades on NeoForge 1.21.1.
+
 ## [0.6.0] - 2026-11-13
 
 ### Added
