@@ -8,7 +8,7 @@ Os nove upgrades aparecem em uma aba criativa própria. A tooltip base do Sophis
 
 A hierarquia compartilhada das tooltips segue [P02](UPGRADES.md#P02): nome nativo → descrição em `GRAY` → status em `DARK_GRAY`, destacando somente o backend vinculado em `GREEN` → instrução de desvínculo em `DARK_GRAY`, somente se houver vínculo. `LinkedStorageUpgradeItem` preserva as linhas traduzidas pelo Sophisticated e aplica essa apresentação aos oito itens em EN-US/PT-BR. `StorageText.tooltipSummary` estiliza o resumo do item; o resumo das abas permanece independente. Pump acrescenta seu aviso de fluido pendente ao status por `getLinkStatus`, antes da instrução. Endereço avançado usa `DARK_GRAY`; nenhuma rede é resolvida para montar a tooltip.
 
-Cada função tem seu próprio item universal, configurado manualmente para um endpoint de AE2, Refined Storage ou Tom’s, e também SCC nos targets NeoForge. Os serviços cobrem inserção, extração, pickup, magnetismo, reposição, alimentação, alquimia, crafting e bombeamento de fluidos AE2/RS/SCC; SCC limita as identidades de fluidos conforme sua API. Tom’s continua sem capacidade de fluidos. Integrated Dynamics possui a fundação de vínculo no piloto 1.21.1 descrita abaixo; operações e apresentação ficam na fase 2.
+Cada função tem seu próprio item universal, configurado manualmente para um endpoint de AE2, Refined Storage ou Tom’s, e também SCC nos targets NeoForge. Os serviços cobrem inserção, extração, pickup, magnetismo, reposição, alimentação, alquimia, crafting e bombeamento de fluidos AE2/RS/SCC; SCC limita as identidades de fluidos conforme sua API. Tom’s continua sem capacidade de fluidos. Integrated Dynamics possui a fundação de vínculo no piloto 1.21.1 descrita abaixo; operações de itens/fluidos e apresentação do quinto backend estão implementadas no piloto; os gates individuais e o aceite manual permanecem separados.
 
 ## Estrutura multiloader
 
@@ -272,7 +272,7 @@ Verificação: `BackpackVariantRecipeTest` cobre preservação de todos os compo
 
 The eight universal upgrade paths now include the optional SCC 1.5.3 adapter. See [SCC integration](integrations/SCC.md) for exact coverage, native permissions, virtual decompression, component limits and outstanding runtime acceptance. This is implementation status, not gameplay validation.
 
-## Integrated Dynamics — fundação do piloto
+## Integrated Dynamics — fundação e operações do piloto
 
 P01–P04/P11/P12: o [plano aprovado](integrations/INTEGRATED_DYNAMICS.md) e o [registro da fase 1](integrations/INTEGRATED_DYNAMICS_PHASE_1.md) orientam o piloto 1.21.1. O manifesto da fase 0 continua fixando os seis JARs; `verifyIntegratedDependencies` agora precede a compilação. As dependências são `compileOnly` e entram no runtime somente conforme o perfil; não são embutidas.
 
@@ -280,9 +280,15 @@ P01–P04/P11/P12: o [plano aprovado](integrations/INTEGRATED_DYNAMICS.md) e o [
 
 `IntegratedDynamicsAccessPolicy` revalida jogador real elegível, proteção no mundo do endpoint e o Omni naquele bloco. Não exige terminal portátil, não acrescenta raio e não procura outro bloco quando o endpoint salvo falha. `EndpointLinkHandler` e `EndpointBinding` conservam protocolo e representação backend/dimensão/posição; tentativas sem target autorizado preservam o vínculo anterior. Nenhum objeto nativo é persistido.
 
-Nesta fase, `canBind` valida infraestrutura; `canAccess` de recursos permanece fechado, snapshots são vazios e inserções devolvem a oferta intacta. O registro de fluidos não oferece ainda esse backend. Consulta, presença, transferências, autorização por capacidade, canais wildcard, traduções e visual pertencem à fase 2; isso não declara os nove upgrades operacionais em Integrated.
+A [fase 2](integrations/INTEGRATED_DYNAMICS_PHASE_2.md) acrescenta `IntegratedDynamicsFluidStorageAdapter` e os contratos de itens. `canBind` continua validando infraestrutura independentemente de haver interfaces de recursos. `canAccess`/`isReachable` exigem a capacidade nativa correspondente; os filtros de cada identidade são aplicados pelo canal nativo em cada consulta/inserção/extração. Todos os métodos revalidam o endpoint e o jogador, inclusive em targets já obtidos. Não há cache de rede no wrapper nem mudança de persistência.
 
-O source set `gameTest` contém exclusivamente o mod de fixtures. Perfis explícitos exercitam servidor nativo e JUnit com relatórios separados, remoção do XML/summary anterior e gate por nomes obrigatórios, unicidade, falhas e skips. Um Mixin somente de teste filtra holders de terceiros antes do carregamento: NeoForge 1.21.1 filtra namespaces tarde demais e fixtures de compatibilidade RS do Integrated referenciam RS mesmo quando ausente. Esse Mixin, fixtures e APIs Cyclops ficam fora do JAR, conferido por `verifyIntegratedJar`. `common`, Forge e 26.1.2 não receberam alterações.
+Inserção usa `getChannel(WILDCARD_CHANNEL)` e mantém os interceptadores nativos, limites, prioridades e sobras. Consulta e extração dirigida usam `IngredientChannelPositioned` do JAR fixado, também com wildcard: o índice assíncrono do canal agregado pode estar vazio antes de abrir um terminal ou após um guard. Esse canal nativo faz busca dirigida por identidade nos storages posicionados, com os mesmos filtros de visão/extração, prioridades, limites e proteção de reentrância. Nenhum adaptador acessa inventários físicos diretamente. Snapshots agregam com `IngredientCollectionPrototypeMap.prototypeIterator`, preservando componentes e quantidades `long`, sem simular extração para consultar presença. O resultado da execução, e não a estimativa, determina a transferência.
+
+Fluidos usam identidade completa e mB; pedidos reais são limitados à representação `int` do `FluidStack`, e extrações de itens respeitam o máximo da stack. Os guards existentes continuam envolvendo as operações dos upgrades; o canal nativo alcança os handlers externos protegidos mesmo quando já estão em cache. Exceções nativas propagam sem restituição integral ou repetição no adaptador.
+
+O piloto acrescenta o quinto estado visual em ciano Menril e marca superior de dois pixels, traduções EN/PT-BR e todas as transições. Os quatro estados anteriores e seus sprites compartilhados permanecem intactos. O gerador escreve por target e reaproveita `shared`; o preparo Forge exclui os recursos e o override Integrated, preservando o porte para a fase 10. Isso não encerra os gates operacionais dos nove upgrades nem o aceite visual em jogo.
+
+O source set `gameTest` contém exclusivamente o mod de fixtures. Perfis explícitos exercitam servidor nativo e JUnit com relatórios separados, remoção do XML/summary anterior e gate por nomes obrigatórios, unicidade, falhas e skips. Um Mixin somente de teste filtra holders de terceiros antes do carregamento: NeoForge 1.21.1 filtra namespaces tarde demais e fixtures de compatibilidade RS do Integrated referenciam RS mesmo quando ausente. Esse Mixin, fixtures e APIs Cyclops ficam fora do JAR, conferido por `verifyIntegratedJar`. `common` e 26.1.2 não receberam alterações; Forge recebeu somente o isolamento dos recursos do piloto durante seu preparo.
 
 ## Stored content — correção de 2026-10-30
 

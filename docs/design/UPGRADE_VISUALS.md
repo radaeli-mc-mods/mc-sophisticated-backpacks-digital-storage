@@ -69,4 +69,21 @@ Vincular de novo à mesma rede toca a sequência normalmente. Desvincular pela r
 
 A implementação em jogo está descrita em [ARCHITECTURE.md](../ARCHITECTURE.md).
 
+## Extensão Integrated Dynamics — piloto 1.21.1 (P07)
+
+A fase 2 acrescenta a quinta identidade sem alterar as quatro quinas ou a forma dos ícones. O piloto usa claro `#B0F2E7`, médio `#36B9B2` e escuro `#1E757B`, em ciano Menril. Apenas o estado vinculado a Integrated Dynamics tem a marca de dois pixels no aro superior: `(7,1)` claro e `(8,1)` médio. A origem da animação é `(7,1)`; tempos, easings, 25 quadros e duração de 1,08 s são preservados.
+
+![Nove upgrades com o quinto backend no piloto](upgrade_visuals_integrated_pilot.png)
+
+Os índices existentes permanecem 1–4; Integrated usa 5 no piloto. O canvas continua sendo selecionado por `link_frame`, independentemente do índice de rede. Existem faixas sem vínculo → Integrated, de/para todas as quatro redes e de revínculo à própria rede. O aceite visual em jogo continua separado da inspeção das imagens geradas.
+
+O exportador agora aponta para os caminhos `targets/<versão>/<loader>/src/main/resources/assets/`, com `--target 1.21.1` ou `--target 1.20.1` e `--assets <pasta>` para staging. Reutiliza sprites idênticos de `shared`, não apaga faixas existentes e só oferece Integrated no piloto. A exportação 26.1.2 e sua mudança de índice do canvas pertencem à fase 10.
+
+```powershell
+python design/upgrade-refresh/export_upgrades.py --target 1.21.1
+python tools/verify-upgrade-visuals.py --preview build/integrated-audit/phase2-visuals.png
+```
+
+O verificador confere os nove modelos, índices estáveis, quinas preservadas e primeiro/último quadro das 270 faixas. O gate do JAR confere os destinos e dimensões dos recursos empacotados. Evidências e limites estão no [registro da fase 2](../integrations/INTEGRATED_DYNAMICS_PHASE_2.md).
+
 Correção da hotbar no NeoForge 26.1.2 (P07/P12): atualizar o atlas de texturas não invalida a imagem pronta mantida por GuiItemAtlas. LinkedUpgradeGuiAnimationMixin marca ItemStackRenderState como animado somente durante a transição e somente para LinkedModelProperty. Isso faz o cache da GUI redesenhar o canvas a cada frame; ao terminar, o ícone estático volta a ser reutilizado. A correção anterior de upload, isoladamente, não resolveu a hotbar, conforme reprodução do usuário. Validação visual desta correção permanece pendente.

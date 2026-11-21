@@ -41,7 +41,7 @@ JEI é opcional no cliente e integra a grade Remote Crafting nos três targets: 
 
 JARs auditados no workspace: Core `1.5.1.2341`, Backpacks `3.26.3.2158`, AE2 `19.2.18`, RS `2.0.9`, Tom’s `2.4.2`. Mudanças de versão exigem nova conferência das assinaturas e dos pontos de Mixin.
 
-Integrated Dynamics segue seu [plano de integração](integrations/INTEGRATED_DYNAMICS.md), com piloto 1.21.1 e portes condicionados ao aceite. A [fase 0](integrations/INTEGRATED_DYNAMICS_PHASE_0.md) fixa Cyclops Core 1.30.0, Common Capabilities 2.11.6 e os quatro mods Integrated no manifesto próprio; a fase 0 não registrava o backend. A [fase 1](integrations/INTEGRATED_DYNAMICS_PHASE_1.md) acrescenta vínculo multipart por Omni, acesso revalidado e perfis/harness nativos no piloto. Recursos, fluidos e visual continuam para a fase 2; não declarar os upgrades operacionais. Preservar P02–P12 nas fases seguintes.
+Integrated Dynamics segue seu [plano de integração](integrations/INTEGRATED_DYNAMICS.md), com piloto 1.21.1 e portes condicionados ao aceite. A [fase 0](integrations/INTEGRATED_DYNAMICS_PHASE_0.md) fixa Cyclops Core 1.30.0, Common Capabilities 2.11.6 e os quatro mods Integrated no manifesto próprio; a fase 0 não registrava o backend. A [fase 1](integrations/INTEGRATED_DYNAMICS_PHASE_1.md) acrescenta vínculo multipart por Omni, acesso revalidado e perfis/harness nativos no piloto. A [fase 2](integrations/INTEGRATED_DYNAMICS_PHASE_2.md) implementa os contratos básicos de itens/fluidos, traduções e quinto estado visual no piloto. A validação operacional de cada upgrade e o aceite manual continuam nas fases correspondentes. Preservar P02–P12 nas fases seguintes.
 
 <a id="P02"></a>
 ### P02 — Item universal e vínculo
@@ -98,7 +98,7 @@ Padrão de receita 3×3 compartilhado pelos upgrades, com resultado de uma unida
 | Diamante | Upgrade Sophisticated da função | Diamante |
 | Pó de redstone | Vazio | Pó de redstone |
 
-Nos targets Forge 1.20.1, NeoForge 1.21.1 e NeoForge 26.1.2, os oito upgrades seguem a [linha visual dos upgrades remotos](design/UPGRADE_VISUALS.md), aprovada em 2026-10-31: o ícone original de cada upgrade é preservado; moldura de ardósia; um canto por rede (AE2, SCC, TSS, RS); tela verde sem vínculo; tela escura e ícone na cor da rede quando vinculado; animação de vínculo e de troca de rede no slot, na mão e no mundo. O estado visual vem do vínculo, então isso não cria itens nem tiers por rede. O Forge 1.20.1 usa os mesmos sprites, modelos e animação. Traduções PT-BR e EN-US devem cobrir nomes, configurações, estados e erros.
+Nos targets Forge 1.20.1, NeoForge 1.21.1 e NeoForge 26.1.2, os nove upgrades seguem a [linha visual dos upgrades remotos](design/UPGRADE_VISUALS.md), aprovada em 2026-10-31: o ícone original de cada upgrade é preservado; moldura de ardósia; um canto por rede (AE2, SCC, TSS, RS); tela verde sem vínculo; tela escura e ícone na cor da rede quando vinculado; animação de vínculo e de troca de rede no slot, na mão e no mundo. O estado visual vem do vínculo, então isso não cria itens nem tiers por rede. O Forge 1.20.1 usa os mesmos sprites, modelos e animação. No piloto Integrated 1.21.1, o quinto backend mantém as quatro quinas, usa ciano Menril no ícone e marca superior em `(7,1)`/`(8,1)`, origem da animação. Os demais targets aguardam a fase 10 da integração. Traduções PT-BR e EN-US devem cobrir nomes, configurações, estados e erros.
 
 <a id="P08"></a>
 ### P08 — Transferência e recuperação

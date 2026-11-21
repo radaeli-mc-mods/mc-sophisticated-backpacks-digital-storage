@@ -86,4 +86,4 @@ A entrega Pickup grava o marcador de operação em andamento antes de cada desti
 
 ## Integrated Dynamics — fundação 1.21.1
 
-P01–P04/P11/P12: a [fase 1 da integração](../integrations/INTEGRATED_DYNAMICS_PHASE_1.md) acrescenta vínculo universal por Omni e revalidação de acesso no piloto. O formato persistido e as reservas existentes permanecem preservados. Esta fundação ainda recusa operações de recursos; a função será validada na sua fase específica do [plano Integrated](../integrations/INTEGRATED_DYNAMICS.md), após as operações básicas da fase 2. Não encerra os gates deste plano individual.
+P01–P04/P11/P12: a [fase 1 da integração](../integrations/INTEGRATED_DYNAMICS_PHASE_1.md) acrescenta vínculo universal por Omni e revalidação de acesso no piloto. O formato persistido e as reservas existentes permanecem preservados. A [fase 2](../integrations/INTEGRATED_DYNAMICS_PHASE_2.md) implementa os contratos básicos de itens/fluidos e o quinto estado visual do piloto. A função continua sujeita à sua fase específica de validação no [plano Integrated](../integrations/INTEGRATED_DYNAMICS.md). Não encerra os gates deste plano individual.
