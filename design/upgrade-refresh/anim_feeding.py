@@ -3,7 +3,7 @@ from PIL import Image
 
 from gen_feeding import (CANDIDATES, CORNERS, NETWORKS, OUT, SCREENS, H, linked_final, slot)
 
-ORIGIN = {"ae2": (1, 1), "scc": (14, 1), "tss": (1, 14), "rs": (14, 14)}
+ORIGIN = {"ae2": (1, 1), "scc": (14, 1), "tss": (1, 14), "rs": (14, 14), "integrateddynamics": (7, 1)}
 TICK_MS = 50  # one Minecraft tick per frame
 
 

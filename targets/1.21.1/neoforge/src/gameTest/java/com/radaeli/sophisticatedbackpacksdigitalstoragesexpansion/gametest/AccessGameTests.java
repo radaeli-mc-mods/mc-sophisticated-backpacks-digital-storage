@@ -14,6 +14,7 @@ import com.radaeli.sophisticatedbackpacksdigitalstoragesexpansion.storage.*;
 @PrefixGameTestTemplate(false)
 public final class AccessGameTests {
     public AccessGameTests(IEventBus bus) {
+        if (ModList.get().isLoaded("integrateddynamics") && ModList.get().isLoaded("integratedtunnels")) IntegratedResourceFixture.register(bus);
         try {
             GlobalTestReporter.replaceWith(new JUnitLikeTestReporter(new java.io.File(System.getProperty("digitalstorage.testReport"))));
         } catch (Exception failure) { throw new IllegalStateException("Cannot initialize test reporter", failure); }
@@ -22,7 +23,11 @@ public final class AccessGameTests {
     private void register(RegisterGameTestsEvent event) {
         event.register(AccessGameTests.class);
         if (ModList.get().isLoaded("integrateddynamics") && ModList.get().isLoaded("integratedtunnels")) {
+            // Enable native energy before constructing networks so their observer can initialize
+            // normally. Changing it only during an assertion leaves the energy index cold.
+            org.cyclops.integrateddynamics.GeneralConfig.energyConsumptionMultiplier = 1;
             event.register(IntegratedAccessGameTests.class);
+            event.register(IntegratedResourceGameTests.class);
         }
     }
     @GameTest(template = "empty")

@@ -142,6 +142,8 @@ def sharedResources = tasks.register('prepareSharedForgeResources', Sync) {
         exclude('META-INF/neoforge.mods.toml', 'META-INF/accesstransformer.cfg', 'pack.mcmeta', "${mod_id}.mixins.json")
         // SCC has no Forge 1.20.1 release, so its backpack variant does not exist on this target.
         exclude('data/*/recipe/backpack_variant_scc.json')
+        // Integrated is a 1.21.1 pilot until phase 10; do not inherit its new visual assets.
+        exclude('**/*integrateddynamics*')
         eachFile { details ->
             if (details.path.contains('/tags/item/')) {
                 details.path = details.path.replace('/tags/item/', '/tags/items/')
@@ -151,6 +153,16 @@ def sharedResources = tasks.register('prepareSharedForgeResources', Sync) {
     }
     into(layout.buildDirectory.dir('generated/sharedResources'))
     doLast {
+        fileTree(destinationDir).matching { include('assets/**/models/item/remote_*_upgrade.json', 'assets/**/lang/*.json') }.each { resourceFile ->
+            def data = new groovy.json.JsonSlurper().parse(resourceFile)
+            boolean changed = false
+            if (data.overrides instanceof List) {
+                changed = data.overrides.removeAll { it.model?.endsWith('_linked_integrateddynamics') }
+            } else {
+                changed = data.keySet().removeAll { it.contains('.integrateddynamics') }
+            }
+            if (changed) resourceFile.text = groovy.json.JsonOutput.prettyPrint(groovy.json.JsonOutput.toJson(data)) + '\n'
+        }
         def recipes = fileTree(destinationDir).matching { include('data/**/recipes/*.json') }
         recipes.each { recipeFile ->
             def recipe = new groovy.json.JsonSlurper().parse(recipeFile)
