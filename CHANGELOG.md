@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.7.0-beta.2] - 2026-11-22
+
+### Added
+
+- Added initial Integrated Dynamics support for remote upgrades on NeoForge 26.1.2.
+
+### Fixed
+
+- Remote Crafting upgrade sometimes does not complete the Recipe.
+
 ## [0.7.0-beta.1] - 2026-11-21
 
 ### Added
