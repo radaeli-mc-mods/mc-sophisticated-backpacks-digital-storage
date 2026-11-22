@@ -1,0 +1,230 @@
+{
+  "theme": "digital",
+  "outputDir": "../../../docs/gallery/media-kit",
+  "sections": {
+    "logo": {
+      "layout": "hero",
+      "title": "Sophisticated Backpacks - Digital Storages Expansion",
+      "description": "Connect your backpack to digital storage networks. Carry less. Do more.",
+      "image": "../../../docs/gallery/logo_animated.webp",
+      "alt": "Backpack on a digital storage block",
+      "format": "webp"
+    },
+    "collection": {
+      "layout": "features",
+      "entries": [
+        {
+          "id": "deposit",
+          "title": "Remote Deposit",
+          "description": "Send matching backpack items to your linked storage network.",
+          "bullets": [
+            "Deposit with a button in the upgrade tab.",
+            "Filter which items leave your backpack."
+          ],
+          "image": "../assets/upgrades/remote_deposit_upgrade.png",
+          "alt": "Remote Deposit upgrade",
+          "pixelated": true
+        },
+        {
+          "id": "restock",
+          "title": "Remote Restock",
+          "description": "Bring supplies from your linked network into your backpack.",
+          "bullets": [
+            "Restock with a button in the upgrade tab.",
+            "Choose which supplies to retrieve."
+          ],
+          "image": "../assets/upgrades/remote_restock_upgrade.png",
+          "alt": "Remote Restock upgrade",
+          "pixelated": true
+        },
+        {
+          "id": "pickup",
+          "title": "Remote Pickup",
+          "description": "Send matching items to storage as you pick them up.",
+          "bullets": [
+            "Choose network or backpack priority.",
+            "Keep unwanted items out with filters."
+          ],
+          "image": "../assets/upgrades/remote_pickup_upgrade.png",
+          "alt": "Remote Pickup upgrade",
+          "pixelated": true
+        },
+        {
+          "id": "magnet",
+          "title": "Remote Magnet",
+          "description": "Gather nearby drops and send them to your preferred destination.",
+          "bullets": [
+            "Collect nearby matching item drops.",
+            "Choose network or backpack priority."
+          ],
+          "image": "../assets/upgrades/remote_magnet_upgrade.png",
+          "alt": "Remote Magnet upgrade",
+          "pixelated": true
+        }
+      ]
+    },
+    "supplies": {
+      "layout": "features",
+      "entries": [
+        {
+          "id": "refill",
+          "title": "Remote Refill",
+          "description": "Keep selected inventory slots stocked while you build or explore.",
+          "bullets": [
+            "Choose what to keep on hand.",
+            "Set your preferred supply source."
+          ],
+          "image": "../assets/upgrades/remote_refill_upgrade.png",
+          "alt": "Remote Refill upgrade",
+          "pixelated": true
+        },
+        {
+          "id": "feeding",
+          "title": "Remote Feeding",
+          "description": "Stay fed with food from your backpack or linked network.",
+          "bullets": [
+            "Filter which foods can be used.",
+            "Configure hunger and injury conditions."
+          ],
+          "image": "../assets/upgrades/remote_feeding_upgrade.png",
+          "alt": "Remote Feeding upgrade",
+          "pixelated": true
+        },
+        {
+          "id": "alchemy",
+          "title": "Remote Alchemy",
+          "description": "Use configured consumables automatically when you need them.",
+          "bullets": [
+            "Choose consumables and trigger conditions.",
+            "Set network or backpack priority."
+          ],
+          "image": "../assets/upgrades/remote_alchemy_upgrade.png",
+          "alt": "Remote Alchemy upgrade",
+          "pixelated": true
+        }
+      ]
+    },
+    "utilities": {
+      "layout": "features",
+      "entries": [
+        {
+          "id": "pump",
+          "title": "Remote Pump",
+          "description": "Move fluids between your linked network, backpack tank and the world.",
+          "bullets": [
+            "Filter fluids and configure transfer settings.",
+            "Tom’s Storage supports items only."
+          ],
+          "image": "../assets/upgrades/remote_pump_upgrade.png",
+          "alt": "Remote Pump upgrade",
+          "pixelated": true
+        },
+        {
+          "id": "crafting",
+          "title": "Remote Crafting",
+          "description": "Fill your crafting grid with ingredients from your backpack and network.",
+          "bullets": [
+            "Fetch missing ingredients for a chosen recipe.",
+            "Use backpack controls or JEI recipe transfer."
+          ],
+          "image": "../assets/upgrades/remote_crafting_upgrade.png",
+          "alt": "Remote Crafting upgrade",
+          "pixelated": true
+        }
+      ]
+    },
+    "linking": {
+      "layout": "alternating",
+      "title": "Link your upgrade",
+      "description": "Hold a Remote Upgrade and **Shift-right-click** a compatible endpoint to link it. Most other blocks on the same network can also be used for linking.",
+      "entries": [
+        {
+          "id": "ae2",
+          "title": "ME Wireless Access Point",
+          "description": "Applied Energistics 2",
+          "image": "../assets/blocks/ae2.png",
+          "alt": "ME Wireless Access Point"
+        },
+        {
+          "id": "rs",
+          "title": "Controller",
+          "description": "Refined Storage",
+          "image": "../assets/blocks/rs.png",
+          "alt": "Controller"
+        },
+        {
+          "id": "toms",
+          "title": "Storage Terminal",
+          "description": "Tom’s Simple Storage",
+          "image": "../assets/blocks/toms.png",
+          "alt": "Storage Terminal"
+        },
+        {
+          "id": "scc",
+          "title": "Network Antenna",
+          "description": "Super Cool Calculator",
+          "image": "../assets/blocks/scc.png",
+          "alt": "Network Antenna"
+        },
+        {
+          "id": "id",
+          "title": "Omni-Directional Connector",
+          "description": "Integrated Dynamics",
+          "image": "../assets/blocks/id.png",
+          "alt": "Omni-Directional Connector"
+        }
+      ],
+      "note": "Availability depends on your Minecraft version and loader. Remote access follows your network’s range and permissions.",
+      "outroImage": "../assets/upgrade_link_states.png",
+      "outroAlt": "Upgrade unlinked and linked to AE2, Refined Storage, Tom’s Storage, SCC and Integrated Dynamics",
+      "outroCaption": "Once linked, your upgrade takes on a new look to match its storage network."
+    }
+  },
+  "blockAssets": [
+    {
+      "id": "ae2",
+      "jar": "../../../libs/appliedenergistics2-19.2.18.jar",
+      "model": "ae2:block/wireless_access_point_on",
+      "output": "../assets/blocks/ae2.png",
+      "minecraft": "1.21.1",
+      "state": "active",
+      "parts": [
+        "ae2:block/wireless_access_point_chassis",
+        "ae2:block/wireless_access_point_status_has_channel"
+      ],
+      "rotation": [90, 0, 0]
+    },
+    {
+      "id": "rs",
+      "jar": "../../../libs/refinedstorage-neoforge-2.0.9.jar",
+      "model": "refinedstorage:block/controller/blue",
+      "output": "../assets/blocks/rs.png",
+      "minecraft": "1.21.1",
+      "state": "on, blue"
+    },
+    {
+      "id": "toms",
+      "jar": "../../../libs/toms_storage-1.21-2.4.2.jar",
+      "model": "toms_storage:block/storage_terminal",
+      "output": "../assets/blocks/toms.png",
+      "minecraft": "1.21.1",
+      "state": "default"
+    },
+    {
+      "id": "scc",
+      "jar": "../../../libs/scc-1.5.3.jar",
+      "model": "scc:block/network_antenna",
+      "output": "../assets/blocks/scc.png",
+      "minecraft": "1.21.1",
+      "state": "default"
+    },
+    {
+      "id": "id",
+      "jar": "../../../libs/1.21.1/integrated/integrateddynamics-1.21.1-neoforge-1.38.2.jar",
+      "model": "integrateddynamics:block/part_connector_omni_directional_active",
+      "output": "../assets/blocks/id.png",
+      "minecraft": "1.21.1",
+      "state": "active"
+    }
+  ]
+}
