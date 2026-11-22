@@ -1,6 +1,6 @@
-<p align="center" style="text-align: center;"><img src="https://raw.githubusercontent.com/radaelilucca/mc-sophisticated-backpacks-digital-storage/main/docs/gallery/logo-scc.png" alt="Sophisticated Backpacks - Digital Storages Expansion" width="200"></p>
+<p align="center" style="text-align: center;"><img src="https://media.forgecdn.net/attachments/2199/904/variants-png.png" alt="Sophisticated Backpacks - Digital Storages Expansion" width="200"></p>
 
-<p align="center" style="text-align: center;">Connect your Sophisticated Backpack to <b>Applied Energistics 2, Refined Storage, Tom's Simple Storage, and Super Cool Calculator</b></p>
+<p align="center" style="text-align: center;">Connect your Sophisticated Backpack to <b>Applied Energistics 2, Refined Storage, Tom's Simple Storage, Super Cool Calculator and Integrated Dynamics (beta)!</b></p>
 
 <p align="center" style="background-color: #F4ECD0; text-align: center;"><img src="https://raw.githubusercontent.com/radaelilucca/mc-sophisticated-backpacks-digital-storage/main/docs/gallery/section-titles/what_it_is.png" alt="WHAT IT IS?" width="267"></p>
 
@@ -29,14 +29,16 @@ Each upgrade links to one network endpoint and follows that network's access and
 <p align="center" style="background-color: #F4ECD0; text-align: center;"><img src="https://raw.githubusercontent.com/radaelilucca/mc-sophisticated-backpacks-digital-storage/main/docs/gallery/section-titles/how-do-i-use-it.png" alt="HOW DO I USE IT?" width="371"></p>
 
 1. Hold a Remote Upgrade and **Shift-right-click a compatible network block** to link it. Use an **ME Wireless Access Point** for Applied Energistics 2, a **Controller** for Refined Storage, a **Storage Terminal** for Tom's Simple Storage, a **Network Antenna** for Super Cool Calculator, or an **Omni-Directional Connector** for Integrated Dynamics.
-2. Watch the upgrade change: its screen turns dark and its icon takes the color of the network (purple for AE2, blue for Refined Storage, oak brown for Tom's Simple Storage, gold for SCC, Menril cyan for Integrated Dynamics), and a short animation plays when you link or switch networks. The four corners always show which networks are supported.
+2. Watch the upgrade change: its screen turns dark and its icon takes the color of the network (purple for AE2, blue for Refined Storage, oak brown for Tom's Simple Storage, gold for SCC, Menril cyan for Integrated Dynamics), and a short animation plays when you link or switch networks.
 3. Place the linked upgrade in a backpack upgrade slot and open its tab to configure filters, priorities, or transfer settings.
 4. Craft Remote Upgrades with **3 diamonds**, **2 Ender Pearls**, **2 redstone dust**, and the matching advanced Sophisticated Backpacks upgrade. For **Remote Crafting**, use the regular **Crafting Upgrade**.
 5. To change networks, link the upgrade to another compatible block. To remove its link while keeping its settings, place the upgrade by itself in a crafting grid.
 
-<p align="center" style="text-align: center;"><img src="https://raw.githubusercontent.com/radaelilucca/mc-sophisticated-backpacks-digital-storage/main/docs/gallery/upgrade_link_states.png" alt="Remote Feeding Upgrade unlinked, then linked to Applied Energistics 2, Refined Storage, Tom's Simple Storage, and Super Cool Calculator" width="420"></p>
+<p align="center" style="text-align: center;"><img src="https://raw.githubusercontent.com/radaelilucca/mc-sophisticated-backpacks-digital-storage/main/docs/gallery/upgrade_link_states.png" alt="Remote Feeding Upgrade unlinked, then linked to Applied Energistics 2, Refined Storage, Tom's Simple Storage, Super Cool Calculator, and Integrated Dynamics" width="504"></p>
 
-> **Heads up:** Remote access follows your network's range and access rules, including its wireless setup. **Remote Pump** supports fluids with Applied Energistics 2, Refined Storage, and Super Cool Calculator. Tom's Simple Storage is item-only.
+**Using Integrated Dynamics (beta):** Install **Integrated Tunnels**, connect item or fluid interfaces to your storage, and add an **Omni-Directional Connector** to the network. Link your upgrade to the Omni; plain cables cannot be linked. You do not need to carry a Portable Storage Terminal. All nine upgrades are supported, including **Remote Pump** for fluids. **Remote Crafting** fetches existing ingredients; it does not request autocrafting through Integrated Crafting.
+
+> **Heads up:** Remote access follows your network's range and access rules, including its wireless setup. **Remote Pump** supports fluids with Applied Energistics 2, Refined Storage, Super Cool Calculator, and Integrated Dynamics with Integrated Tunnels. Tom's Simple Storage is item-only.
 
 These upgrades do not create wireless access or bypass your storage network's permissions and range.
 
