@@ -1,0 +1,56 @@
+[
+  {
+    "id": "ae2",
+    "jar": "../../../libs/appliedenergistics2-19.2.18.jar",
+    "model": "ae2:block/wireless_access_point_on",
+    "output": "../assets/blocks/ae2.png",
+    "minecraft": "1.21.1",
+    "state": "active",
+    "parts": [
+      "ae2:block/wireless_access_point_chassis",
+      "ae2:block/wireless_access_point_status_has_channel"
+    ],
+    "rotation": [
+      90,
+      0,
+      0
+    ],
+    "sha256": "df15a07f86ca1ca93aa66373f9d5d84dd3d4586631fceb38f4fbc85dad591e39"
+  },
+  {
+    "id": "rs",
+    "jar": "../../../libs/refinedstorage-neoforge-2.0.9.jar",
+    "model": "refinedstorage:block/controller/blue",
+    "output": "../assets/blocks/rs.png",
+    "minecraft": "1.21.1",
+    "state": "on, blue",
+    "sha256": "a1947e315ee8e4f1d4c552aecc14cb977272bee1895340558f222fa5596fe9f8"
+  },
+  {
+    "id": "toms",
+    "jar": "../../../libs/toms_storage-1.21-2.4.2.jar",
+    "model": "toms_storage:block/storage_terminal",
+    "output": "../assets/blocks/toms.png",
+    "minecraft": "1.21.1",
+    "state": "default",
+    "sha256": "a703e28391b914298223a515238c8729007606f2f967a83b65b8d5cb39e0789d"
+  },
+  {
+    "id": "scc",
+    "jar": "../../../libs/scc-1.5.3.jar",
+    "model": "scc:block/network_antenna",
+    "output": "../assets/blocks/scc.png",
+    "minecraft": "1.21.1",
+    "state": "default",
+    "sha256": "e81ed8d3fdab7ce9bc35efc58036b63dcb6baefd07613156599dd638f8e84d3c"
+  },
+  {
+    "id": "id",
+    "jar": "../../../libs/1.21.1/integrated/integrateddynamics-1.21.1-neoforge-1.38.2.jar",
+    "model": "integrateddynamics:block/part_connector_omni_directional_active",
+    "output": "../assets/blocks/id.png",
+    "minecraft": "1.21.1",
+    "state": "active",
+    "sha256": "7dee30453f1e8972962108175cf46c09c7531ab273279888bf2162198d241198"
+  }
+]

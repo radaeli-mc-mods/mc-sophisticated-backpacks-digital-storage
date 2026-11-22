@@ -1,0 +1,22 @@
+{
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "render": "node cli.mjs render --manifest manifests/addon.json --all",
+    "verify": "node verify.mjs",
+    "format:check": "prettier --check *.mjs manifests/*.json themes/digital/*"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "@fontsource/shantell-sans": "5.3.0",
+    "fflate": "0.8.3",
+    "playwright": "1.58.2",
+    "sharp": "0.35.5",
+    "three": "0.180.0"
+  },
+  "devDependencies": {
+    "prettier": "3.6.2"
+  }
+}
