@@ -264,10 +264,13 @@ public final class UpgradeNetworkGameTests {
                 target.insert(new ItemStack(Items.OAK_PLANKS, 4), player);
                 local.insertItem(new ItemStack(Items.OAK_PLANKS, 2), false);
                 var container = (RemoteCraftingUpgradeContainer) menu.getUpgradeContainers().get(0);
+                // An already-open native grid caches its crafting input after each slot edit.
+                // Completing that partial grid remotely must refresh the result immediately.
+                for (int slot : new int[] {0, 1, 3}) container.getSlots().get(slot).set(new ItemStack(Items.OAK_PLANKS));
                 CompoundTag packet = new CompoundTag(); packet.putInt("remoteCraftingMenu", menu.containerId); packet.putString("remoteCraftingRecipe", "minecraft:crafting_table");
                 container.handlePacket(packet);
                 int ingredients = 0; for (int slot = 0; slot < 9; slot++) ingredients += container.getCraftMatrix().getItem(slot).getCount();
-                helper.assertTrue(ingredients == 4 && count(target, player, Items.OAK_PLANKS) == (backpackFirst ? 2 : 0), "Crafting did not preserve fetched ingredients");
+                helper.assertTrue(ingredients == 4 && count(target, player, Items.OAK_PLANKS) == (backpackFirst ? 4 : 3), "Crafting did not preserve fetched ingredients");
                 container.setRefillCraftingGrid(false);
                 takeCraftingResult(helper, player, menu, container, Items.CRAFTING_TABLE);
 
@@ -276,11 +279,13 @@ public final class UpgradeNetworkGameTests {
                 target.insert(new ItemStack(Items.PAPER, 2), player);
                 target.insert(new ItemStack(Items.LEATHER), player);
                 packet.putString("remoteCraftingRecipe", "minecraft:book");
+                packet.putInt("remoteCraftingTransferMode", 0); // JEI SINGLE
                 container.handlePacket(packet);
                 helper.assertTrue(container.getSlots().stream().filter(slot -> slot instanceof net.minecraft.world.inventory.ResultSlot)
                         .allMatch(slot -> slot.getItem().isEmpty()), "Partial recipe produced an output");
                 }).thenIdle(1).thenExecute(() -> {
                 target.insert(new ItemStack(Items.PAPER), player);
+                ((net.minecraft.world.inventory.CraftingContainer) container.getCraftMatrix()).getItems();
                 container.handlePacket(packet);
                 takeCraftingResult(helper, player, menu, container, Items.BOOK);
 
@@ -291,6 +296,7 @@ public final class UpgradeNetworkGameTests {
                 target.insert(new ItemStack(Items.EGG), player);
                 target.insert(new ItemStack(Items.WHEAT, 3), player);
                 packet.putString("remoteCraftingRecipe", "minecraft:cake");
+                packet.putInt("remoteCraftingTransferMode", 1); // JEI MAX
                 container.handlePacket(packet);
                 takeCraftingResult(helper, player, menu, container, Items.CAKE);
                 int buckets = player.getInventory().countItem(Items.BUCKET);

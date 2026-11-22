@@ -66,6 +66,7 @@ public final class RemoteCraftingGameTests {
                 .byKey(ResourceLocation.tryParse("minecraft:wooden_pickaxe")).orElseThrow();
         var inventory = fixture.storage().getInventoryHandler();
         fixture.grid().setItem(4, new ItemStack(Items.STICK, 4));
+        fixture.grid().getItems(); // Prime the input of an already displayed partial grid.
         inventory.setStackInSlot(0, new ItemStack(Items.OAK_PLANKS, 2));
 
         helper.assertTrue(fixture.fill(recipe) == 2, "Two slots must still need ingredients");
@@ -107,7 +108,13 @@ public final class RemoteCraftingGameTests {
         var player = FakePlayerFactory.getMinecraft(helper.getLevel());
         var storage = new BackpackWrapper(new ItemStack(net.p3pp3rf1y.sophisticatedbackpacks.init.ModItems.BACKPACK.get()));
         var wrapper = new RemoteCraftingUpgradeWrapper(storage, new ItemStack(ModItems.REMOTE_CRAFTING_UPGRADE.get()), ignored -> {});
-        return new Fixture(storage, wrapper, new CraftingItemHandler(wrapper::getInventory, ignored -> {}),
+        return new Fixture(storage, wrapper, new CraftingItemHandler(wrapper::getInventory, changed -> {
+            var matrix = (CraftingItemHandler) changed;
+            for (int slot = 0; slot < 9; slot++) {
+                helper.assertTrue(ItemStack.matches(matrix.getItem(slot), matrix.getItems().get(slot)),
+                        "Native recipe callback observed an outdated crafting input at slot " + slot);
+            }
+        }),
                 new UpgradeOperationContext(player, storage, SourceLocation.carriedBy(player)));
     }
 

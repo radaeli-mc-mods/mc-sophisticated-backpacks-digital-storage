@@ -50,6 +50,9 @@ final class RemoteCraftingFill {
 
             @Override
             public void setItem(int slot, ItemStack stack) {
+                // Sophisticated recalculates inside setItem, before clearing its input cache.
+                // Discard the previously displayed grid before that native callback runs.
+                grid.setChanged();
                 grid.setItem(slot, stack);
             }
 
