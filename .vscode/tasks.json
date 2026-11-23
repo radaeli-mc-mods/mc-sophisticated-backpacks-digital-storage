@@ -2,6 +2,25 @@
   "version": "2.0.0",
   "tasks": [
     {
+      "label": "Digital Storages Expansion: Regenerate Media Kit",
+      "type": "process",
+      "command": "node",
+      "args": [
+        "${workspaceFolder}/tools/media-kit/cli.mjs",
+        "render",
+        "--all"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "clear": true
+      }
+    },
+    {
       "label": "Digital Storages Expansion: Build All",
       "type": "process",
       "command": "powershell.exe",

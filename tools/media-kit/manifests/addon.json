@@ -226,5 +226,6 @@
       "minecraft": "1.21.1",
       "state": "active"
     }
-  ]
+  ],
+  "provenanceFile": "../assets/blocks/provenance.json"
 }
