@@ -4,7 +4,11 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { spawnSync } from "node:child_process";
 import assert from "node:assert/strict";
-import { chromium } from "playwright";
+import { createRequire } from "node:module";
+import { kitRoot } from "./shared.mjs";
+const { chromium } = createRequire(path.join(kitRoot, "package.json"))(
+  "playwright",
+);
 const root = path.dirname(fileURLToPath(import.meta.url));
 process.chdir(root);
 const cache = path.join(root, ".cache/verification");
@@ -68,27 +72,35 @@ run([
 ]);
 const theme = path.join(cache, "theme");
 await fs.mkdir(theme, { recursive: true });
-const t = JSON.parse(await fs.readFile("themes/digital/theme.json"));
+const t = JSON.parse(
+  await fs.readFile(path.join(kitRoot, "themes/digital/theme.json")),
+);
 t.tokens.background = "#302035";
 t.tokens.padding = "80px";
 await fs.writeFile(path.join(theme, "theme.json"), JSON.stringify(t));
-await fs.copyFile("themes/digital/theme.css", path.join(theme, "theme.css"));
+await fs.copyFile(
+  path.join(kitRoot, "themes/digital/theme.css"),
+  path.join(theme, "theme.css"),
+);
 run(["--section", "logo", "--theme", theme, ...output]);
-const font =
-  "node_modules/@fontsource/shantell-sans/files/shantell-sans-latin-400-normal.woff2";
+const font = path.join(
+  kitRoot,
+  "node_modules/@fontsource/shantell-sans/files/shantell-sans-latin-400-normal.woff2",
+);
 await fs.rename(font, font + ".verification");
 try {
   run(["--section", "logo", ...output], 1);
 } finally {
   await fs.rename(font + ".verification", font);
 }
+run(["--all", ...output]);
 const browser = await chromium.launch();
 try {
   const page = await browser.newPage({
     viewport: { width: 800, height: 1000 },
   });
   await page.setContent(
-    await fs.readFile("../../docs/gallery/media-kit/preview.html", "utf8"),
+    await fs.readFile(path.join(cache, "preview.html"), "utf8"),
   );
   await page.evaluate(() => document.fonts.ready);
   assert.equal(
@@ -114,9 +126,7 @@ try {
     "Shantell Sans must load",
   );
   for (const id of ["logo", "collection", "supplies", "utilities", "linking"]) {
-    const png = await fs.readFile(
-      "../../docs/gallery/media-kit/" + id + ".png",
-    );
+    const png = await fs.readFile(path.join(cache, id + ".png"));
     await page.setContent(
       `<style>body{margin:0}img{display:block;width:800px}</style><img src="data:image/png;base64,${png.toString("base64")}">`,
     );
