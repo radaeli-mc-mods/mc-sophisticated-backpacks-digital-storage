@@ -61,3 +61,19 @@ Logs e arquivos temporários da investigação ficam em `forge/build/verificatio
 ### Preparação do patch 0.4.1
 
 A versão canônica foi atualizada para 0.4.1 e o changelog registra a correção de inicialização no Forge 1.20.1. `gradlew.bat build` passou nos dois loaders, incluindo os testes automatizados existentes, 10 GameTests Forge e as sete regressões do verificador de produção. Os JARs finais declaram `0.4.1+1.20.1` no Forge e `0.4.1+1.21.1` no NeoForge. A documentação 0.4.1 foi sincronizada em inglês e português e passou em `pnpm run check` e `pnpm run build`. Os testes manuais continuam com o usuário; a preparação não declara os gates de gameplay concluídos.
+## Regressão Integrated por target — F05 (2026-11-25)
+
+P01/P08/P12: Forge aplica `backendProfile` ao runtime de cliente, servidor e GameTest. O padrão de testes é `none`; `integrated`, `full` e `all` são explícitos. Servidor e GameTests usam diretórios por perfil, sem reutilizar o diretório do cliente. O source set `gameTest` contém o mod de fixtures e não participa do JAR de produção. Os 16 testes preservados continuam obrigatórios; o gate XML exige também os cenários nativos de cada perfil, unicidade e zero falhas/skips. CI tem matriz Forge equivalente à dos NeoForge.
+
+Em cada target, execute o wrapper a partir de `targets/<versão>`:
+
+```powershell
+# Forge 1.20.1
+.\gradlew.bat :forge:check -PbackendProfile=full --console=plain
+# NeoForge 1.21.1 e 26.1.2
+.\gradlew.bat :neoforge:check -PbackendProfile=full --console=plain
+```
+
+As regressões F01–F04 usam falhas controladas nos três runtimes e cenários com canais/interceptadores Integrated reais: coleta com progresso local, custódia do Deposit, preenchimento do Pump com checkpoint e Restock de 256 itens. A serialização da reserva conserva a quarentena. Os cenários essenciais de serviço agora fazem parte também do harness 1.21.1 e Forge; isso não declara uma cópia integral da matriz dos nove upgrades do 26.1.2.
+
+Verificação F05: perfil full aprovado com 28 GameTests Forge, 12 no 1.21.1 e 32 no 26.1.2. Forge none passou em check com os 17 cenários esperados, verificações de recursos e JAR reobfuscado. Exceções deliberadamente injetadas são esperadas nos logs dos cenários de conservação.

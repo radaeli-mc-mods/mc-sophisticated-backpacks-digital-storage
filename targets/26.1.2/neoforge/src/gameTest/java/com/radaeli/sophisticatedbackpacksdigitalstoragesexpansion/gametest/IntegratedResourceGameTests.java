@@ -217,4 +217,86 @@ public final class IntegratedResourceGameTests {
             h.succeed();
         });
     }
+
+
+    public static void serviceconservation(GameTestHelper h) {
+        var f = fixture(h);
+        f.run(() -> {
+            IIngredientChannelInsertPreConsumer<ItemStack> failure = new IIngredientChannelInsertPreConsumer<>() {
+                public Result<ItemStack> insert(int channel, ItemStack remaining, ItemStack unclaimed, net.neoforged.neoforge.transfer.transaction.TransactionContext tx) {
+
+                    throw new IllegalStateException("Injected native delivery failure");
+                }
+            };
+            var network = f.nativeItems();
+            network.registerInsertPreConsumer(failure);
+            try {
+                var upgrade = new ItemStack(Items.PAPER);
+                var journal = new ItemDeliveryJournal(upgrade, h.getLevel().registryAccess(), () -> {});
+                var local = new net.neoforged.neoforge.items.ItemStackHandler(1) {
+                    @Override public int getSlotLimit(int slot) { return 16; }
+                };
+                var target = f.target();
+                var remainder = com.radaeli.sophisticatedbackpacksdigitalstoragesexpansion.upgrade.DestinationItemFilter.routeDelivery(
+                        com.radaeli.sophisticatedbackpacksdigitalstoragesexpansion.upgrade.SourcePriority.BACKPACK_FIRST,
+                        new ItemStack(Items.STONE, 64), offer -> target.insert(offer, f.player),
+                        offer -> local.insertItem(0, offer, false), journal);
+                h.assertTrue(remainder.isEmpty() && local.getStackInSlot(0).getCount() == 16
+                        && journal.pending().getCount() == 48 && journal.uncertain(), "Collection lost known progress");
+                var encoded = ItemStack.CODEC.encodeStart(net.minecraft.resources.RegistryOps.create(
+                        net.minecraft.nbt.NbtOps.INSTANCE, h.getLevel().registryAccess()), upgrade).getOrThrow();
+                var restored = ItemStack.CODEC.parse(net.minecraft.resources.RegistryOps.create(
+                        net.minecraft.nbt.NbtOps.INSTANCE, h.getLevel().registryAccess()), encoded).getOrThrow();
+                var reloaded = new ItemDeliveryJournal(restored, h.getLevel().registryAccess(), () -> {});
+                h.assertTrue(reloaded.uncertain() && reloaded.pending().getCount() == 48, "Reload lost collection custody");
+                var source = new net.neoforged.neoforge.items.ItemStackHandler(1);
+                source.setStackInSlot(0, new ItemStack(Items.STONE, 32));
+                var depositJournal = new ItemDeliveryJournal(new ItemStack(Items.PAPER), h.getLevel().registryAccess(), () -> {});
+                ItemTransferService.deposit(depositJournal, source, new ItemInsertion() {
+                    public int simulateInsert(ItemStack stack) { return stack.getCount(); }
+                    public ItemStack insert(ItemStack stack) { return target.insert(stack, f.player); }
+                }, stack -> true,
+                        stack -> { throw new AssertionError("Unknown delivery must not be refunded"); });
+                h.assertTrue(source.getStackInSlot(0).isEmpty() && depositJournal.uncertain()
+                        && depositJournal.pending().getCount() == 32, "Deposit lost extracted custody");
+            } finally { network.unregisterInsertPreConsumer(failure); }
+            var fluidNetwork = f.nativeFluids();
+            IIngredientChannelInsertPreConsumer<FluidStack> fluidFailure = new IIngredientChannelInsertPreConsumer<>() {
+                public Result<FluidStack> insert(int channel, FluidStack remaining, FluidStack unclaimed,
+                        net.neoforged.neoforge.transfer.transaction.TransactionContext tx) {
+                    throw new IllegalStateException("Injected native fluid delivery failure");
+                }
+            };
+            fluidNetwork.registerInsertPreConsumer(fluidFailure);
+            try {
+                var upgrade = new ItemStack(Items.PAPER);
+                var local = new net.neoforged.neoforge.fluids.capability.templates.FluidTank(400);
+                var remote = new PumpFluidHandlerFacade(f.fluidTarget(), f.player, PumpFluidHandlerFacade.Direction.HANDLER_TO_NETWORK);
+                var result = FluidDelivery.fill(new PumpStorageRouter(remote, local, false), new FluidStack(Fluids.WATER, 1000),
+                        remaining -> {
+                            if (remaining.isEmpty()) com.radaeli.sophisticatedbackpacksdigitalstoragesexpansion.upgrade.PumpReservation.clear(upgrade);
+                            else com.radaeli.sophisticatedbackpacksdigitalstoragesexpansion.upgrade.PumpReservation.reserve(upgrade, remaining, true, h.getLevel().registryAccess());
+                        }, () -> com.radaeli.sophisticatedbackpacksdigitalstoragesexpansion.upgrade.PumpReservation.setState(upgrade, com.radaeli.sophisticatedbackpacksdigitalstoragesexpansion.upgrade.PumpReservation.State.IN_FLIGHT));
+                h.assertTrue(result.uncertain() && local.getFluidAmount() == 400
+                        && com.radaeli.sophisticatedbackpacksdigitalstoragesexpansion.upgrade.PumpReservation.fluid(upgrade.copy(), h.getLevel().registryAccess()).getAmount() == 600,
+                        "Pump did not checkpoint its native fill before failing fallback");
+            } finally { fluidNetwork.unregisterInsertPreConsumer(fluidFailure); }
+
+            h.succeed();
+        });
+    }
+
+    public static void restockbatches(GameTestHelper h) {
+        var f = fixture(h, store -> { for (int slot = 0; slot < 4; slot++) store.items.setStackInSlot(slot, new ItemStack(Items.STONE, 64)); });
+        f.run(() -> {
+            var backpack = new net.neoforged.neoforge.items.ItemStackHandler(4);
+            var target = f.target();
+            var result = RestockTransferService.transfer(backpack, target, f.player, target.getAvailableItemAmounts(f.player),
+                    stack -> true, () -> target.canAccess(f.player, SourceLocation.carriedBy(f.player), StorageOperation.EXTRACT),
+                    stack -> { throw new AssertionError("Unexpected restock remainder"); },
+                    new ItemDeliveryJournal(new ItemStack(Items.PAPER), h.getLevel().registryAccess(), () -> {}));
+            h.assertTrue(result.moved() == 256 && amount(f.items) == 0, "Native Restock stopped after one stack");
+            h.succeed();
+        });
+    }
 }
