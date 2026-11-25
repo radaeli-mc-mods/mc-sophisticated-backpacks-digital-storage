@@ -49,6 +49,14 @@ public abstract class LinkedStorageUpgradeWrapper<W extends IUpgradeWrapper, T e
         save();
     }
 
+    public final com.radaeli.sophisticatedbackpacksdigitalstoragesexpansion.storage.ItemDeliveryJournal deliveryJournal(net.minecraft.world.level.Level level) {
+        return new com.radaeli.sophisticatedbackpacksdigitalstoragesexpansion.storage.ItemDeliveryJournal(upgrade, level.registryAccess(), this::save);
+    }
+
+    public final boolean hasPendingDelivery() {
+        return com.radaeli.sophisticatedbackpacksdigitalstoragesexpansion.storage.ItemDeliveryJournal.hasPending(upgrade);
+    }
+
     public final IStorageWrapper getStorageWrapper() {
         return storageWrapper;
     }

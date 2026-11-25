@@ -19,7 +19,7 @@ public final class PickupService {
     private PickupService() {}
 
     public static ItemStack pickup(RemotePickupUpgradeWrapper wrapper, Player player, ItemStack offered, boolean simulate) {
-        if (!(player instanceof ServerPlayer serverPlayer) || offered.isEmpty() || !wrapper.isEnabled()
+        if (!(player instanceof ServerPlayer serverPlayer) || offered.isEmpty() || !wrapper.isEnabled() || wrapper.hasPendingDelivery()
                 || !wrapper.getStorageWrapper().getUpgradeHandler().getSlotWrappers().containsValue(wrapper)) {
             return offered;
         }
@@ -28,6 +28,10 @@ public final class PickupService {
         StorageTarget remote = connection.target().orElse(null);
         net.p3pp3rf1y.sophisticatedcore.inventory.ITrackedContentsItemHandler local =
                 wrapper.getStorageWrapper().getInventoryForUpgradeProcessing();
+        if (!simulate) return DestinationItemFilter.routeDelivery(wrapper.getSourcePriority(), offered,
+                stack -> insertRemote(wrapper, serverPlayer, remote, stack, simulate),
+                stack -> DestinationItemFilter.local(wrapper.getFilterLogic(), stack)
+                        ? local.insertItem(stack, simulate) : stack, wrapper.deliveryJournal(player.level()));
         return DestinationItemFilter.route(wrapper.getSourcePriority(), offered,
                 stack -> insertRemote(wrapper, serverPlayer, remote, stack, simulate),
                 stack -> DestinationItemFilter.local(wrapper.getFilterLogic(), stack)

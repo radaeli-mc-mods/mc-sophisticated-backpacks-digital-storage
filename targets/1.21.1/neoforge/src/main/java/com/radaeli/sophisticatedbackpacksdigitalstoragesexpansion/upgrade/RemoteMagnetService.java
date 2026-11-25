@@ -34,7 +34,7 @@ final class RemoteMagnetService {
     }
 
     static boolean tick(RemoteMagnetUpgradeWrapper wrapper, Entity sourceEntity, Level level, BlockPos origin) {
-        if (level.isClientSide || !wrapper.isEnabled() || !isInstalled(wrapper)) {
+        if (level.isClientSide || !wrapper.isEnabled() || wrapper.hasPendingDelivery() || !isInstalled(wrapper)) {
             return false;
         }
         ServerPlayer player = interactingPlayer(sourceEntity, level, origin);
@@ -61,6 +61,7 @@ final class RemoteMagnetService {
         boolean movedAny = false;
         boolean machineContext = sourceEntity == null;
         for (ItemEntity entity : candidates) {
+            if (wrapper.hasPendingDelivery()) break;
             if (!isStillEligible(entity, machineContext)) {
                 continue;
             }
@@ -98,6 +99,9 @@ final class RemoteMagnetService {
         if (offered.isEmpty()) {
             return ItemStack.EMPTY;
         }
+        if (!simulate) return DestinationItemFilter.routeDelivery(wrapper.getSourcePriority(), offered,
+                stack -> insertRemote(wrapper, player, remote, stack, simulate),
+                stack -> insertBackpack(wrapper, backpack, stack, simulate), wrapper.deliveryJournal(player.level()));
         return DestinationItemFilter.route(wrapper.getSourcePriority(), offered,
                 stack -> insertRemote(wrapper, player, remote, stack, simulate),
                 stack -> insertBackpack(wrapper, backpack, stack, simulate));

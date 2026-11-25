@@ -17,6 +17,10 @@ public final class ForgeStorageGameTests {
 
     @GameTest(template = "empty")
     public static void depositFilter(GameTestHelper helper) {
+        var delivery = new ItemDeliveryTest();
+        delivery.knownPartialDeliveryIsCheckpointedBeforeEitherFailingDestination();
+        delivery.mutationThenExceptionNeverRefundsOrInvokesTheFallback();
+        delivery.knownRemainderReturnsToTheDropAndSettlesCustody();
         DepositFilterTest tests = new DepositFilterTest();
         tests.allowAndBlockModesUseNativeSophisticatedFilters();
         tests.inventoryModeMatchesDestinationContentsInsteadOfTheManualList();

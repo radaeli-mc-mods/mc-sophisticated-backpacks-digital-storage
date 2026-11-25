@@ -13,7 +13,7 @@ import com.radaeli.sophisticatedbackpacksdigitalstoragesexpansion.storage.Storag
 public interface ManuallyLinkedUpgrade {
     /** Upgrades with pending reservations can postpone a change of endpoint. */
     default boolean canChangeBinding(ItemStack stack) {
-        return true;
+        return !com.radaeli.sophisticatedbackpacksdigitalstoragesexpansion.storage.ItemDeliveryJournal.hasPending(stack);
     }
 
     static Component linkStatus(ItemStack stack) {
@@ -26,7 +26,8 @@ public interface ManuallyLinkedUpgrade {
             TooltipFlag flag, Component status) {
         description.forEach(line -> tooltip.add(line.copy().withStyle(ChatFormatting.GRAY)));
         var endpoint = EndpointBinding.read(stack);
-        tooltip.add(status);
+        tooltip.add(com.radaeli.sophisticatedbackpacksdigitalstoragesexpansion.storage.ItemDeliveryJournal.hasPending(stack)
+                ? status.copy().append(" ").append(Component.translatable("gui.sophisticated_backpacks_digital_storages_expansion.delivery_pending")) : status);
         if (endpoint.isPresent()) {
             tooltip.add(Component.translatable("item.sophisticated_backpacks_digital_storages_expansion.linked_upgrade.unlink_hint")
                     .withStyle(ChatFormatting.DARK_GRAY));

@@ -20,7 +20,7 @@ public final class PickupService {
     public static int pickupTransactional(RemotePickupUpgradeWrapper wrapper, ServerPlayer player,
             net.neoforged.neoforge.transfer.item.ItemResource resource, int amount,
             net.neoforged.neoforge.transfer.transaction.TransactionContext transaction) {
-        if (!player.isAlive() || player.isSpectator() || !wrapper.isEnabled()
+        if (!player.isAlive() || player.isSpectator() || !wrapper.isEnabled() || wrapper.hasPendingDelivery()
                 || !wrapper.getStorageWrapper().getUpgradeHandler().getSlotWrappers().containsValue(wrapper)
                 || wrapper.buffer(player).hasPending()) return 0;
         var local = wrapper.getStorageWrapper().getInventoryForUpgradeProcessing();
@@ -95,6 +95,10 @@ public final class PickupService {
         StorageTarget remote = connection.target().orElse(null);
         com.radaeli.sophisticatedbackpacksdigitalstoragesexpansion.storage.LocalItemAccess local =
                 com.radaeli.sophisticatedbackpacksdigitalstoragesexpansion.storage.LocalItemAccess.of(wrapper.getStorageWrapper().getInventoryForUpgradeProcessing());
+        if (!simulate) return DestinationItemFilter.routeDelivery(wrapper.getSourcePriority(), offered,
+                stack -> insertRemote(wrapper, serverPlayer, remote, stack, simulate),
+                stack -> DestinationItemFilter.local(wrapper.getFilterLogic(), stack)
+                        ? local.insertItem(stack, simulate) : stack, wrapper.deliveryJournal(player.level()));
         return DestinationItemFilter.route(wrapper.getSourcePriority(), offered,
                 stack -> insertRemote(wrapper, serverPlayer, remote, stack, simulate),
                 stack -> DestinationItemFilter.local(wrapper.getFilterLogic(), stack)
