@@ -53,7 +53,10 @@ public final class IntegratedDynamicsLinkDiscovery {
                 || NetworkHelpers.getNetwork(world, position.getBlockPos(), null).orElse(null) != network) return false;
         try {
             if (!(host.get().getPartState(element.getSide()) instanceof PartTypeConnectorOmniDirectional.State state)
-                    || !state.isEnabled() || !state.hasConnectorId() || !state.isAddedToGroup()) return false;
+                    || !state.isEnabled() || !state.hasConnectorId()) return false;
+            // The native loaded group is authority; deserialization resets addedToGroup.
+            if (!PartTypeConnectorOmniDirectional.LOADED_GROUPS.getPositions(state.getGroupId()).contains(
+                    org.cyclops.integrateddynamics.api.part.PartPos.of(world, position.getBlockPos(), element.getSide()))) return false;
             // Native listeners include the energy policy. canUpdate only simulates energy extraction.
             for (var listener : network.getFullNetworkListeners()) if (!listener.canUpdate(element)) return false;
             return network.isValid(element);

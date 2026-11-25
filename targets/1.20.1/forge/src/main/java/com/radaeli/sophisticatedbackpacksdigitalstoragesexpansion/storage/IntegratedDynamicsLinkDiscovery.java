@@ -77,9 +77,12 @@ public final class IntegratedDynamicsLinkDiscovery {
         }
         try {
             if (!(host.get().getPartState(element.getSide()) instanceof PartTypeConnectorOmniDirectional.State state)
-                    || !state.isEnabled() || !state.hasConnectorId() || !state.isAddedToGroup()) {
+                    || !state.isEnabled() || !state.hasConnectorId()) {
                 return false;
             }
+            // The native loaded group is authority; deserialization resets addedToGroup.
+            if (!PartTypeConnectorOmniDirectional.LOADED_GROUPS.getPositions(state.getGroupId()).contains(
+                    org.cyclops.integrateddynamics.api.part.PartPos.of(world, position.getBlockPos(), element.getSide()))) return false;
             // Integrated Dynamics listeners include the energy policy; canUpdate simulates its energy check.
             for (var listener : network.getFullNetworkListeners()) {
                 if (!listener.canUpdate(element)) {
