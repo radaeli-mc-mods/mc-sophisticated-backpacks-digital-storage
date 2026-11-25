@@ -19,7 +19,8 @@ import com.radaeli.sophisticatedbackpacksdigitalstoragesexpansion.SophisticatedB
 public enum BackpackVariant {
     AE2("ae2", "ae2", "ae2:fluix_crystal", 0x6B46A8, 0x2B1F45),
     RS("rs", "refinedstorage", "refinedstorage:raw_advanced_processor", 0x3D7FC4, 0x16304F),
-    TOMS("toms", "toms_storage", "toms_storage:ts.inventory_connector", 0xA6763F, 0x3B2813);
+    TOMS("toms", "toms_storage", "toms_storage:ts.inventory_connector", 0xA6763F, 0x3B2813),
+    ID("id", "integrateddynamics", "integrateddynamics:crystalized_menril_chunk", 0x2FB8CC, 0x0F3F48);
     // SCC has no Forge 1.20.1 release, so it has no variant on this target.
 
     private final String id;
