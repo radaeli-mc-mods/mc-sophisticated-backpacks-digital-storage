@@ -20,7 +20,7 @@ public final class RemotePickupUpgradeItem extends LinkedStorageUpgradeItem<Remo
     }
 
     @Override public boolean canChangeBinding(net.minecraft.world.item.ItemStack stack) {
-        return !PickupReservation.hasPending(stack);
+        return super.canChangeBinding(stack) && !PickupReservation.hasPending(stack);
     }
 
     @Override protected Component getLinkStatus(net.minecraft.world.item.ItemStack stack) {
