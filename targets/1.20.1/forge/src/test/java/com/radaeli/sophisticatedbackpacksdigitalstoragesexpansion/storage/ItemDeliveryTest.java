@@ -10,6 +10,15 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class ItemDeliveryTest extends MinecraftStorageTest {
+    @Test public void everyUniversalUpgradeBlocksBindingWhileDeliveryCustodyExists() {
+        for (var item : com.radaeli.sophisticatedbackpacksdigitalstoragesexpansion.ModItems.ITEMS.getEntries()) {
+            var upgrade = new ItemStack(item.get());
+            if (!(upgrade.getItem() instanceof ManuallyLinkedUpgrade linked)) continue;
+            journal(upgrade).checkpoint(new ItemStack(Items.STONE));
+            journal(upgrade).beginDelivery("binding_guard");
+            assertFalse(linked.canChangeBinding(upgrade), item.getId().toString());
+        }
+    }
     @Test public void failingCheckpointAfterLocalDeliveryStillReturnsControlWithCustody() {
         var upgrade = new ItemStack(Items.PAPER);
         var saves = new AtomicInteger();

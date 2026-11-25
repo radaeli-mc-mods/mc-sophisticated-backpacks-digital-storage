@@ -30,7 +30,7 @@ public final class RemotePumpUpgradeItem extends LinkedStorageUpgradeItem<Remote
 
     @Override
     public boolean canChangeBinding(ItemStack stack) {
-        return !PumpReservation.hasPending(stack);
+        return super.canChangeBinding(stack) && !PumpReservation.hasPending(stack);
     }
 
     @Override

@@ -23,6 +23,7 @@ public final class ForgeStorageGameTests {
         delivery.knownRemainderReturnsToTheDropAndSettlesCustody();
         delivery.largeCustodyCountsSurviveNativeUpgradeSerialization();
         delivery.failingCheckpointAfterLocalDeliveryStillReturnsControlWithCustody();
+        delivery.everyUniversalUpgradeBlocksBindingWhileDeliveryCustodyExists();
         DepositFilterTest tests = new DepositFilterTest();
         tests.allowAndBlockModesUseNativeSophisticatedFilters();
         tests.inventoryModeMatchesDestinationContentsInsteadOfTheManualList();
