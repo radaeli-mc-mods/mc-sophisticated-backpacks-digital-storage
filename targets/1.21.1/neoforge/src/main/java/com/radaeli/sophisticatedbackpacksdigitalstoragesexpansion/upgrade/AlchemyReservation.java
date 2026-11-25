@@ -60,13 +60,13 @@ public final class AlchemyReservation {
         }
     }
 
-    public static ItemStack getStack(ItemStack upgrade, HolderLookup.Provider registries) {
-        CompoundTag root = root(upgrade);
-        if (root == null || !root.contains(STACK, Tag.TAG_COMPOUND)) {
-            return ItemStack.EMPTY;
-        }
-        return ItemStack.CODEC.parse(RegistryOps.create(NbtOps.INSTANCE, registries), root.get(STACK))
-                .result().orElse(ItemStack.EMPTY);
+    public static ItemStack getStack(ItemStack upgrade, net.minecraft.core.HolderLookup.Provider registries) {
+        CompoundTag data = root(upgrade);
+        if (data == null || !data.contains(STACK)) return ItemStack.EMPTY;
+        ItemStack identity = ItemStack.CODEC.parse(RegistryOps.create(NbtOps.INSTANCE, registries), data.get(STACK)).result().orElse(ItemStack.EMPTY);
+        int amount = data.contains("amount") ? data.getInt("amount") : identity.getCount();
+        if (!identity.isEmpty() && amount <= 0) throw new IllegalStateException("Invalid persisted consumption quantity");
+        return identity.isEmpty() ? ItemStack.EMPTY : identity.copyWithCount(amount);
     }
 
     public static boolean isRemote(ItemStack upgrade) {
@@ -75,13 +75,14 @@ public final class AlchemyReservation {
     }
 
     public static boolean reserve(ItemStack upgrade, ItemStack stack, boolean remote, HolderLookup.Provider registries) {
-        var encoded = ItemStack.CODEC.encodeStart(RegistryOps.create(NbtOps.INSTANCE, registries), stack.copy()).result();
+        var encoded = ItemStack.CODEC.encodeStart(RegistryOps.create(NbtOps.INSTANCE, registries), stack.copyWithCount(1)).result();
         if (encoded.isEmpty()) {
             return false;
         }
         CustomData.update(DataComponents.CUSTOM_DATA, upgrade, data -> {
             CompoundTag reservation = new CompoundTag();
             reservation.putString(STATE, State.RESERVED.name());
+            reservation.putInt("amount", stack.getCount());
             reservation.putBoolean(REMOTE, remote);
             reservation.put(STACK, (Tag) encoded.get());
             data.put(ROOT, reservation);
@@ -97,10 +98,12 @@ public final class AlchemyReservation {
             }
             if (stack.isEmpty()) {
                 reservation.remove(STACK);
+                reservation.remove("amount");
             } else {
-                ItemStack.CODEC.encodeStart(RegistryOps.create(NbtOps.INSTANCE, registries), stack.copy())
+                ItemStack.CODEC.encodeStart(RegistryOps.create(NbtOps.INSTANCE, registries), stack.copyWithCount(1))
                         .result().ifPresent(encoded -> reservation.put(STACK, (Tag) encoded));
             }
+            if (!stack.isEmpty()) reservation.putInt("amount", stack.getCount());
             data.put(ROOT, reservation);
         });
     }

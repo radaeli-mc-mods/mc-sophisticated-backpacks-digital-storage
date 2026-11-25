@@ -38,17 +38,21 @@ public final class ItemDeliveryJournal implements DeliveryJournal<ItemStack> {
     public ItemStack pending() {
         var tag = root();
         if (!tag.contains("stack")) return ItemStack.EMPTY;
-        return ItemStack.CODEC.parse(RegistryOps.create(NbtOps.INSTANCE, registries), tag.get("stack")).getOrThrow();
+        ItemStack identity = ItemStack.CODEC.parse(RegistryOps.create(NbtOps.INSTANCE, registries), tag.get("stack")).getOrThrow();
+        int amount = tag.getIntOr("amount", identity.getCount());
+        if (amount <= 0) throw new IllegalStateException("Invalid persisted item custody quantity");
+        return identity.copyWithCount(amount);
     }
     @Override public void checkpoint(ItemStack remainder) {
-        var encoded = remainder.isEmpty() ? null : ItemStack.CODEC.encodeStart(RegistryOps.create(NbtOps.INSTANCE, registries), remainder).getOrThrow();
+        var encoded = remainder.isEmpty() ? null : ItemStack.CODEC.encodeStart(RegistryOps.create(NbtOps.INSTANCE, registries), remainder.copyWithCount(1)).getOrThrow();
         update(tag -> {
             tag.remove("uncertain"); tag.remove("stage");
-            if (encoded == null) tag.remove("stack"); else tag.put("stack", encoded);
+            if (encoded == null) { tag.remove("stack"); tag.remove("amount"); }
+            else { tag.put("stack", encoded); tag.putInt("amount", remainder.getCount()); }
         });
     }
     @Override public void beginDelivery(String stage) {
         update(tag -> { tag.putBoolean("uncertain", true); tag.putString("stage", stage); });
     }
-    public void clear() { update(tag -> { tag.remove("stack"); tag.remove("uncertain"); tag.remove("stage"); }); }
+    public void clear() { update(tag -> { tag.remove("stack"); tag.remove("amount"); tag.remove("uncertain"); tag.remove("stage"); }); }
 }

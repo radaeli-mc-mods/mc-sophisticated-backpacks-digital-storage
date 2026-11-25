@@ -37,6 +37,17 @@ public class ConsumptionRecoveryTest {
             assertEquals(1, reloaded.pending().get().getCount());
         }
     }
+    @Test public void largeReturnedCountsAreIndependentOfNativeStackCountEncoding() {
+        for (boolean alchemy : new boolean[]{false, true}) {
+            var upgrade = new ItemStack(Items.PAPER);
+            var reservation = reservation(upgrade, alchemy, true);
+            reservation.journal().checkpoint(new ItemStack(Items.GLASS_BOTTLE, 16_384));
+            reservation.journal().beginDelivery("large_container_return");
+            var restored = reservation(upgrade.copy(), alchemy, false);
+            assertEquals(16_384, restored.pending().get().getCount());
+            assertTrue(restored.uncertain().getAsBoolean());
+        }
+    }
     @Test public void knownCompleteReturnClearsOnlyTheCorrespondingReservation() {
         for (boolean alchemy : new boolean[]{false, true}) {
             var upgrade = new ItemStack(Items.PAPER);

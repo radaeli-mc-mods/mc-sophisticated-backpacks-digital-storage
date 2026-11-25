@@ -49,8 +49,11 @@ final class FeedingReservation {
 
     static ItemStack stack(ItemStack upgrade, net.minecraft.core.HolderLookup.Provider registries) {
         CompoundTag data = getRoot(upgrade);
-        if (data == null || !data.contains(STACK, Tag.TAG_COMPOUND)) return ItemStack.EMPTY;
-        return ItemStack.of(data.getCompound(STACK));
+        if (data == null || !data.contains(STACK)) return ItemStack.EMPTY;
+        ItemStack identity = ItemStack.of(data.getCompound(STACK));
+        int amount = data.contains("amount") ? data.getInt("amount") : identity.getCount();
+        if (!identity.isEmpty() && amount <= 0) throw new IllegalStateException("Invalid persisted consumption quantity");
+        return identity.isEmpty() ? ItemStack.EMPTY : identity.copyWithCount(amount);
     }
 
     static boolean remote(ItemStack upgrade) {
@@ -62,8 +65,9 @@ final class FeedingReservation {
         if (stack.isEmpty()) return false;
         CompoundTag reservation = new CompoundTag();
         reservation.putString(STATE, State.RESERVED.name());
+            reservation.putInt("amount", stack.getCount());
         reservation.putBoolean(REMOTE, remote);
-        reservation.put(STACK, stack.save(new CompoundTag()));
+        reservation.put(STACK, stack.copyWithCount(1).save(new CompoundTag()));
         ForgeUpgradeNbt.write(upgrade, ROOT, reservation);
         return true;
     }
@@ -71,8 +75,9 @@ final class FeedingReservation {
     static void updateStack(ItemStack upgrade, ItemStack stack, net.minecraft.core.HolderLookup.Provider registries) {
         CompoundTag reservation = getRoot(upgrade);
         if (reservation == null) return;
-        if (stack.isEmpty()) reservation.remove(STACK);
-        else reservation.put(STACK, stack.save(new CompoundTag()));
+        if (stack.isEmpty()) { reservation.remove(STACK); reservation.remove("amount"); }
+        else reservation.put(STACK, stack.copyWithCount(1).save(new CompoundTag()));
+        if (!stack.isEmpty()) reservation.putInt("amount", stack.getCount());
         ForgeUpgradeNbt.write(upgrade, ROOT, reservation);
     }
 

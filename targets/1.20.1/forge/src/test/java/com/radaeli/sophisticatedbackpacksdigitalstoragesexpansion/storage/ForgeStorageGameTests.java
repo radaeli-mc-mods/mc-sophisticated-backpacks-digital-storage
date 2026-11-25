@@ -21,6 +21,7 @@ public final class ForgeStorageGameTests {
         delivery.knownPartialDeliveryIsCheckpointedBeforeEitherFailingDestination();
         delivery.mutationThenExceptionNeverRefundsOrInvokesTheFallback();
         delivery.knownRemainderReturnsToTheDropAndSettlesCustody();
+        delivery.largeCustodyCountsSurviveNativeUpgradeSerialization();
         DepositFilterTest tests = new DepositFilterTest();
         tests.allowAndBlockModesUseNativeSophisticatedFilters();
         tests.inventoryModeMatchesDestinationContentsInsteadOfTheManualList();
@@ -80,6 +81,7 @@ public final class ForgeStorageGameTests {
         var consumption = new com.radaeli.sophisticatedbackpacksdigitalstoragesexpansion.upgrade.ConsumptionRecoveryTest();
         consumption.eachConsumptionReservationCheckpointsPartialReturnsAndSurvivesReloadWithoutRetry();
         consumption.knownCompleteReturnClearsOnlyTheCorrespondingReservation();
+        consumption.largeReturnedCountsAreIndependentOfNativeStackCountEncoding();
         tests.inputSplitsOneBucketBetweenNetworkAndBackpackInPriorityOrder();
         tests.outputCombinesMatchingFluidFromBothSourcesWithoutRequiringLocalTank();
         tests.backpackFirstAndNetworkUnavailableUseOnlyTheRequiredFallbackAmount();

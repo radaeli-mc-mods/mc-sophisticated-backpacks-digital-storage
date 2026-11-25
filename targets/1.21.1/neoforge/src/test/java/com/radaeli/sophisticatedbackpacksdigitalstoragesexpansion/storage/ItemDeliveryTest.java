@@ -10,6 +10,18 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class ItemDeliveryTest extends MinecraftStorageTest {
+    @Test public void largeCustodyCountsSurviveNativeUpgradeSerialization() {
+        var upgrade = new ItemStack(Items.PAPER);
+        var pending = new ItemStack(Items.STONE, 16_384);
+        journal(upgrade).checkpoint(pending);
+        journal(upgrade).beginDelivery("large_stack");
+        var restored = ItemStack.CODEC.parse(net.minecraft.resources.RegistryOps.create(net.minecraft.nbt.NbtOps.INSTANCE,
+                net.minecraft.core.RegistryAccess.fromRegistryOfRegistries(net.minecraft.core.registries.BuiltInRegistries.REGISTRY)),
+                ItemStack.CODEC.encodeStart(net.minecraft.resources.RegistryOps.create(net.minecraft.nbt.NbtOps.INSTANCE,
+                net.minecraft.core.RegistryAccess.fromRegistryOfRegistries(net.minecraft.core.registries.BuiltInRegistries.REGISTRY)), upgrade).getOrThrow()).getOrThrow();
+        assertEquals(16_384, journal(restored).pending().getCount());
+        assertTrue(journal(restored).uncertain());
+    }
     @Test public void knownPartialDeliveryIsCheckpointedBeforeEitherFailingDestination() {
         for (SourcePriority priority : SourcePriority.values()) {
             var upgrade = new ItemStack(Items.PAPER);
