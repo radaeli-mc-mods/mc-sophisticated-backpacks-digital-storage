@@ -33,6 +33,9 @@ public final class ItemDeliveryJournal implements DeliveryJournal<ItemStack> {
     public static boolean hasPending(ItemStack upgrade) {
         return upgrade.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag().contains(KEY);
     }
+    @Override public String description() {
+        return DeliveryDiagnostics.describe(upgrade, root().getString("stage"));
+    }
     public boolean hasPending() { return hasPending(upgrade); }
     public boolean uncertain() { return root().getBoolean("uncertain"); }
     public ItemStack pending() {

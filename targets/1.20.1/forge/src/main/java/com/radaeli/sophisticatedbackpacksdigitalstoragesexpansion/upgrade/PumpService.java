@@ -239,7 +239,7 @@ final class PumpService {
         return PumpTransferService.transfer(source, destination, maximum, minimum,
                 candidate -> matches(wrapper, candidate) && PumpReservation.canEncode(candidate, level.registryAccess()),
                 pending -> persist(wrapper, pending,
-                        wrapper.isInput() ? storage.hasRemote() : storage.usedRemoteExtraction(), level), wrapper.isInput(), () -> wrapper.setPendingState(PumpReservation.State.IN_FLIGHT));
+                        wrapper.isInput() ? storage.hasRemote() : storage.usedRemoteExtraction(), level), wrapper.isInput(), () -> wrapper.setPendingState(PumpReservation.State.IN_FLIGHT), com.radaeli.sophisticatedbackpacksdigitalstoragesexpansion.storage.DeliveryDiagnostics.endpoint(wrapper.getUpgradeStack()));
     }
 
     private static void persist(RemotePumpUpgradeWrapper wrapper, FluidStack pending, boolean remoteOrigin, Level level) {
@@ -273,7 +273,7 @@ final class PumpService {
         boolean remoteOrigin = wrapper.pendingFluidHasRemoteOrigin();
         var result = com.radaeli.sophisticatedbackpacksdigitalstoragesexpansion.storage.FluidDelivery.fill(new PumpStorageRouter(remote, local, true), pending,
                 remainder -> persist(wrapper, remainder, remoteOrigin, level),
-                () -> wrapper.setPendingState(PumpReservation.State.IN_FLIGHT));
+                () -> wrapper.setPendingState(PumpReservation.State.IN_FLIGHT), com.radaeli.sophisticatedbackpacksdigitalstoragesexpansion.storage.DeliveryDiagnostics.endpoint(wrapper.getUpgradeStack()));
         if (!result.uncertain() && wrapper.hasPendingReservation()) wrapper.setPendingState(PumpReservation.State.RECOVERING);
     }
 

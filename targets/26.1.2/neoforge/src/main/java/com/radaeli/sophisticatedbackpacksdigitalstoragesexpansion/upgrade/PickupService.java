@@ -58,21 +58,25 @@ public final class PickupService {
         if (!buffer.hasPending() || !player.isAlive() || player.isSpectator()
                 || !wrapper.getStorageWrapper().getUpgradeHandler().getSlotWrappers().containsValue(wrapper)) return;
         ItemStack pending = buffer.pending();
+        String deliveryStage = "resolve";
         try {
             var remote = StorageAdapterRegistry.connect(player, wrapper.getEndpoint(), SourceLocation.carriedBy(player),
                     StorageOperation.INSERT).target().orElse(null);
             // Persist the in-flight phase before entering an immediate destination. A restored
             // upgrade must not retry an operation whose outcome was never recorded.
+            deliveryStage = "remote";
             wrapper.markUncertainPickup();
             ItemStack remaining = insertRemote(wrapper, player, remote, pending, false);
             buffer.replace(remaining);
             if (!remaining.isEmpty() && DestinationItemFilter.local(wrapper.getFilterLogic(), remaining)) {
+                deliveryStage = "backpack";
                 wrapper.markUncertainPickup();
                 remaining = com.radaeli.sophisticatedbackpacksdigitalstoragesexpansion.storage.LocalItemAccess
                         .of(wrapper.getStorageWrapper().getInventoryForUpgradeProcessing()).insertItem(remaining, false);
                 buffer.replace(remaining);
             }
             if (!remaining.isEmpty()) {
+                deliveryStage = "player";
                 wrapper.markUncertainPickup();
                 player.getInventory().placeItemBackInInventory(remaining.copy());
                 buffer.replace(ItemStack.EMPTY);
@@ -81,7 +85,7 @@ public final class PickupService {
             // Do not throw out of a root-commit callback: the native caller still needs to update
             // the source entity. Preserve the last checkpoint and quarantine an unknown outcome.
             wrapper.markUncertainPickup();
-            com.mojang.logging.LogUtils.getLogger().error("Pickup delivery returned an uncertain result; reservation retained without retry", exception);
+            com.mojang.logging.LogUtils.getLogger().error("Pickup delivery returned an uncertain result; {}; reservation retained without retry", com.radaeli.sophisticatedbackpacksdigitalstoragesexpansion.storage.DeliveryDiagnostics.describe(wrapper.getUpgradeStack(), deliveryStage), exception);
         }
     }
 

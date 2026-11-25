@@ -19,15 +19,21 @@ public final class FluidDelivery {
     }
     public static CheckpointedDelivery.Result<FluidStack> fill(IFluidHandler destination, FluidStack offered,
             Consumer<FluidStack> persist, Runnable inFlight) {
+        return fill(destination, offered, persist, inFlight, "backend=unspecified, endpoint=unspecified");
+    }
+    public static CheckpointedDelivery.Result<FluidStack> fill(IFluidHandler destination, FluidStack offered,
+            Consumer<FluidStack> persist, Runnable inFlight, String context) {
         var journal = new DeliveryJournal<FluidStack>() {
+            private String deliveryStage = "fill";
+            @Override public String description() { return context + ", stage=" + deliveryStage; }
             @Override public void checkpoint(FluidStack value) { persist.accept(value); }
-            @Override public void beginDelivery(String stage) { inFlight.run(); }
+            @Override public void beginDelivery(String stage) { deliveryStage = stage; inFlight.run(); }
         };
         var steps = destination instanceof PumpStorageRouter router ? router.deliverySteps()
                 : List.of(step("external", destination));
         var result = CheckpointedDelivery.deliver(offered, steps, FluidStack::isEmpty, FluidStack::copy, journal);
         if (result.failure() != null) com.mojang.logging.LogUtils.getLogger().error(
-                "Pump fill failed; uncertain={}, last checkpoint retained without retry", result.uncertain(), result.failure());
+                "Pump fill failed; {}, uncertain={}; last checkpoint retained without retry", journal.description(), result.uncertain(), result.failure());
         return result;
     }
 }
