@@ -56,7 +56,7 @@ final class AlchemyService {
                 continue;
             }
             List<UpgradeItemSources.SourceItem> candidates = UpgradeItemSources.find(wrapper, player,
-                    wrapper.getSourcePriority(), stack -> wrapper.getFilterLogic().stackMatchesFilter(stack, filter));
+                    wrapper.getSourcePriority(), stack -> wrapper.getFilterLogic().stackMatchesFilter(stack, filter), java.util.Optional.of(filter.getItem()), 1);
             for (UpgradeItemSources.SourceItem candidate : candidates) {
                 AlchemyItemDefinition definition = findDefinition(wrapper, player, filter, candidate.stack());
                 if (definition == null) {

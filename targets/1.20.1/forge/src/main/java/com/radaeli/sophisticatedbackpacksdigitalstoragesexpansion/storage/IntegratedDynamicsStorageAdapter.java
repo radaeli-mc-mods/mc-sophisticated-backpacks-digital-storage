@@ -78,7 +78,8 @@ public final class IntegratedDynamicsStorageAdapter implements StorageAdapter {
             return queryItems(player, stack -> true, Optional.empty(), Integer.MAX_VALUE);
         }
 
-        private List<StoredItemAmount> queryItems(ServerPlayer player, Predicate<ItemStack> matches,
+        @Override
+        public List<StoredItemAmount> queryItems(ServerPlayer player, Predicate<ItemStack> matches,
                 Optional<Item> item, int needed) {
             if (needed <= 0) {
                 return List.of();
@@ -91,7 +92,11 @@ public final class IntegratedDynamicsStorageAdapter implements StorageAdapter {
             var identities = item.map(type -> nativeChannel.iterator(new ItemStack(type), ItemMatch.ITEM))
                     .orElseGet(nativeChannel::iterator);
             var amounts = new IngredientCollectionPrototypeMap<>(IngredientComponent.ITEMSTACK);
-            identities.forEachRemaining(amounts::add);
+            // Match before aggregating: irrelevant variants never enter the quantity map.
+            while (identities.hasNext()) {
+                var identity = identities.next();
+                if (!identity.isEmpty() && matches.test(identity.copyWithCount(1))) amounts.add(identity);
+            }
 
             List<StoredItemAmount> result = new ArrayList<>();
             var prototypes = amounts.prototypeIterator();
@@ -99,7 +104,7 @@ public final class IntegratedDynamicsStorageAdapter implements StorageAdapter {
                 var entry = prototypes.next();
                 ItemStack identity = entry.getKey();
                 long amount = entry.getValue();
-                if (!identity.isEmpty() && amount > 0 && matches.test(identity.copyWithCount(1))) {
+                if (!identity.isEmpty() && amount > 0) {
                     result.add(new StoredItemAmount(identity, amount));
                 }
             }

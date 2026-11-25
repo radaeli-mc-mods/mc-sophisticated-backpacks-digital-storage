@@ -38,38 +38,37 @@ final class UpgradeItemSources {
 
     static List<SourceItem> find(LinkedUpgradeInventory wrapper, ServerPlayer player, SourceLocation location,
             SourcePriority priority, Predicate<ItemStack> eligible, Optional<net.minecraft.world.item.Item> knownItem, int needed) {
-        List<SourceItem> network = new ArrayList<>();
-        try (StorageTransferGuard guard = StorageTransferGuard.blockExternalExtraction(wrapper.getStorageWrapper())) {
-            resolveExtractTarget(wrapper, player, location).ifPresent(target -> {
-                for (StoredItemAmount amount : target.queryItems(player, eligible, knownItem, needed)) {
-                    ItemStack exemplar = amount.exemplar();
-                    if (!exemplar.isEmpty() && amount.amount() > 0 && eligible.test(exemplar)) {
-                        network.add(new SourceItem(exemplar.copyWithCount(1), amount.amount(), target));
+        if (needed <= 0) return List.of();
+        java.util.function.Supplier<List<SourceItem>> network = () -> {
+            List<SourceItem> result = new ArrayList<>();
+            try (StorageTransferGuard guard = StorageTransferGuard.blockExternalExtraction(wrapper.getStorageWrapper())) {
+                resolveExtractTarget(wrapper, player, location).ifPresent(target -> {
+                    for (StoredItemAmount amount : target.queryItems(player, eligible, knownItem, needed)) {
+                        if (!amount.exemplar().isEmpty() && amount.amount() > 0) result.add(new SourceItem(amount.exemplar(), amount.amount(), target));
                     }
-                }
-            });
-        }
-        List<SourceItem> backpack = new ArrayList<>();
-        ITrackedContentsItemHandler inventory = wrapper.getStorageWrapper().getInventoryForUpgradeProcessing();
-        for (int slot = 0; slot < inventory.getSlots(); slot++) {
-            ItemStack stack = inventory.getStackInSlot(slot);
-            if (!stack.isEmpty() && eligible.test(stack)) {
-                backpack.add(new SourceItem(stack.copyWithCount(1), stack.getCount(), null));
+                });
             }
-        }
-        Comparator<SourceItem> stable = Comparator.comparing((SourceItem item) -> BuiltInRegistries.ITEM.getKey(item.stack().getItem()).toString())
+            result.sort(stableOrder());
+            return result;
+        };
+        java.util.function.Supplier<List<SourceItem>> backpack = () -> {
+            List<SourceItem> result = new ArrayList<>();
+            ITrackedContentsItemHandler inventory = wrapper.getStorageWrapper().getInventoryForUpgradeProcessing();
+            for (int slot = 0; slot < inventory.getSlots(); slot++) {
+                ItemStack stack = inventory.getStackInSlot(slot);
+                if (!stack.isEmpty() && eligible.test(stack)) result.add(new SourceItem(stack.copyWithCount(1), stack.getCount(), null));
+            }
+            result.sort(stableOrder());
+            return result;
+        };
+        return priority == SourcePriority.NETWORK_FIRST
+                ? new com.radaeli.sophisticatedbackpacksdigitalstoragesexpansion.transfer.LazySourceList<>(network, backpack)
+                : new com.radaeli.sophisticatedbackpacksdigitalstoragesexpansion.transfer.LazySourceList<>(backpack, network);
+    }
+
+    private static Comparator<SourceItem> stableOrder() {
+        return Comparator.comparing((SourceItem item) -> BuiltInRegistries.ITEM.getKey(item.stack().getItem()).toString())
                 .thenComparingInt(item -> item.stack().hashCode());
-        network.sort(stable);
-        backpack.sort(stable);
-        List<SourceItem> result = new ArrayList<>(network.size() + backpack.size());
-        if (priority == SourcePriority.NETWORK_FIRST) {
-            result.addAll(network);
-            result.addAll(backpack);
-        } else {
-            result.addAll(backpack);
-            result.addAll(network);
-        }
-        return result;
     }
 
     static ItemStack extract(PriorityLinkedStorageUpgradeWrapper<?, ?> wrapper, ServerPlayer player,

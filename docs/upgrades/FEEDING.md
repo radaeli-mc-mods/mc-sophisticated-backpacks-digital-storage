@@ -82,3 +82,7 @@ P01–P04/P07–P12: a [fase 1 da integração](../integrations/INTEGRATED_DYNAM
 ## Integrated Dynamics — porte 26.1.2
 
 P01–P12: o [port 26.1.2](../integrations/INTEGRATED_DYNAMICS_26_1_2.md) acrescenta o backend transacional aos serviços existentes desta função. Preserva Omni, filtros, prioridade aplicável, reservas e recuperação. Os GameTests nativos desta função fazem parte dos perfis integrated/terminals/full/all; comandos, evidências e limites ficam no registro. Nesta tarefa o usuário dispensou testes de interação com Java; nenhuma aprovação manual foi inferida.
+
+## Consultas direcionadas e fontes adiadas — F06, 2026-11-25
+
+P03/P08/P11: os três targets expõem consulta seletiva por tipo. Integrated filtra variantes antes de agregá-las, preservando todas as identidades elegíveis e suas contagens long completas, mesmo com needed=1. Presença continua com saída antecipada. As fontes dos upgrades são snapshots locais à operação e a secundária só é consultada quando a iteração chega a ela; candidato visível sem extração mantém o fallback. Crafting pode materializar ambas quando precisa comparar alternativas. Refill restringe por tipo somente no modo ITEM. Nenhuma rede ou autorização é cacheada no wrapper.
