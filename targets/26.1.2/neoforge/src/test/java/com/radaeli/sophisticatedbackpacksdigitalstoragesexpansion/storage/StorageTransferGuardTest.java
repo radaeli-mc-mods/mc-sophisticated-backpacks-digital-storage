@@ -41,7 +41,7 @@ class StorageTransferGuardTest extends MinecraftStorageTest {
             }
         };
         try (var ignored = StorageTransferGuard.blockExternalInsertion(fixture.storage)) {
-            var result = ItemTransferService.deposit(LocalItemAccess.of(source), sameNetwork, stack -> true, stack -> fail("Unexpected remainder"));
+            var result = ItemTransferService.deposit(new ItemDeliveryJournal(new ItemStack(net.minecraft.world.item.Items.PAPER), net.minecraft.core.RegistryAccess.fromRegistryOfRegistries(net.minecraft.core.registries.BuiltInRegistries.REGISTRY), () -> {}), LocalItemAccess.of(source), sameNetwork, stack -> true, stack -> fail("Unexpected remainder"));
             assertFalse(result.movedAnything());
             assertEquals(8, source.getStackInSlot(0).getCount());
         }

@@ -13,8 +13,9 @@ public final class ItemTransferService {
     private ItemTransferService() {
     }
 
-    public static TransferResult deposit(IItemHandler source, ItemInsertion destination,
+    public static TransferResult deposit(ItemDeliveryJournal journal, IItemHandler source, ItemInsertion destination,
             Predicate<ItemStack> filter, Consumer<ItemStack> recoverRemainder) {
+        if (journal.hasPending()) return new TransferResult(0, 0);
         int movedStacks = 0;
         long movedItems = 0;
         List<ItemStack> initialContents = new ArrayList<>(source.getSlots());
@@ -43,32 +44,35 @@ public final class ItemTransferService {
                 continue;
             }
 
-            ItemStack remainder = destination.insert(extracted.copy());
+            var delivery = ItemDelivery.deliver(extracted,
+                    List.of(ItemDelivery.step("deposit.remote", destination::insert)), journal);
+            if (delivery.uncertain()) break;
+            ItemStack remainder = delivery.remainder();
             int inserted = extracted.getCount() - remainder.getCount();
             if (inserted > 0) {
                 movedStacks++;
                 movedItems += inserted;
             }
-            restoreRemainder(source, slot, remainder, recoverRemainder);
+            var recovered = restoreRemainder(journal, source, slot, remainder, recoverRemainder);
+            if (recovered.uncertain()) break;
+            journal.clear();
+            if (delivery.failure() != null || recovered.failure() != null) break;
         }
         return new TransferResult(movedStacks, movedItems);
     }
 
-    private static void restoreRemainder(IItemHandler source, int originalSlot, ItemStack remainder,
+    private static com.radaeli.sophisticatedbackpacksdigitalstoragesexpansion.transfer.CheckpointedDelivery.Result<ItemStack> restoreRemainder(
+            ItemDeliveryJournal journal, IItemHandler source, int originalSlot, ItemStack remainder,
             Consumer<ItemStack> recoverRemainder) {
-        if (remainder.isEmpty()) {
-            return;
+        List<com.radaeli.sophisticatedbackpacksdigitalstoragesexpansion.transfer.CheckpointedDelivery.Step<ItemStack>> steps = new ArrayList<>();
+        steps.add(ItemDelivery.step("deposit.original_slot", stack -> source.insertItem(originalSlot, stack, false)));
+        for (int slot = 0; slot < source.getSlots(); slot++) {
+            if (slot == originalSlot) continue;
+            int currentSlot = slot;
+            steps.add(ItemDelivery.step("deposit.source_slot_" + slot, stack -> source.insertItem(currentSlot, stack, false)));
         }
-        ItemStack left = source.insertItem(originalSlot, remainder, false);
-        // An extraction hook may have changed the original slot. Try the remaining source slots first.
-        for (int slot = 0; slot < source.getSlots() && !left.isEmpty(); slot++) {
-            if (slot != originalSlot) {
-                left = source.insertItem(slot, left, false);
-            }
-        }
-        if (!left.isEmpty()) {
-            recoverRemainder.accept(left);
-        }
+        steps.add(ItemDelivery.step("deposit.player", stack -> { recoverRemainder.accept(stack); return ItemStack.EMPTY; }));
+        return ItemDelivery.deliver(remainder, steps, journal);
     }
 
     public record TransferResult(int movedStacks, long movedItems) {

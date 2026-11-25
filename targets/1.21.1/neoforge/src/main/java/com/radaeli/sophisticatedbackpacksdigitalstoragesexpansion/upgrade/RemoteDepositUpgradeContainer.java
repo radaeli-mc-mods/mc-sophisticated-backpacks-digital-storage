@@ -31,7 +31,7 @@ public final class RemoteDepositUpgradeContainer
     @Override
     protected void handleAction(String action, UpgradeOperationContext context) {
         if (DEPOSIT.equals(action)) {
-            DepositService.deposit(context, upgradeWrapper.getEndpoint(), upgradeWrapper.getFilterLogic());
+            DepositService.deposit(context, upgradeWrapper);
         }
     }
 
