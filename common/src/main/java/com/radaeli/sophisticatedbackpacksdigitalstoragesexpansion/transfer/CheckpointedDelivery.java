@@ -17,19 +17,44 @@ public final class CheckpointedDelivery {
         journal.checkpoint(copy.apply(remaining));
         for (Step<T> step : steps) {
             if (empty.test(remaining)) break;
-            journal.beginDelivery(step.stage());
+            try {
+                journal.beginDelivery(step.stage());
+            } catch (RuntimeException failure) {
+                return quarantine(journal, remaining, step.stage(), failure);
+            }
             T next;
             try {
                 next = step.deliver().apply(copy.apply(remaining));
             } catch (UncommittedTransferException failure) {
-                journal.checkpoint(copy.apply(remaining));
+                try {
+                    journal.checkpoint(copy.apply(remaining));
+                } catch (RuntimeException checkpointFailure) {
+                    if (checkpointFailure != failure) failure.addSuppressed(checkpointFailure);
+                    return quarantine(journal, remaining, step.stage(), failure);
+                }
                 return new Result<>(remaining, false, failure);
             } catch (RuntimeException failure) {
                 return new Result<>(remaining, true, failure);
             }
             remaining = copy.apply(next);
-            journal.checkpoint(copy.apply(remaining));
+            try {
+                journal.checkpoint(copy.apply(remaining));
+            } catch (RuntimeException failure) {
+                return quarantine(journal, remaining, step.stage(), failure);
+            }
         }
         return new Result<>(remaining, false, null);
+    }
+
+    private static <T> Result<T> quarantine(DeliveryJournal<T> journal, T remaining, String stage,
+            RuntimeException failure) {
+        // A failed save after an immediate delivery must not escape the native source update.
+        // Re-mark in-flight in memory even when the save callback itself keeps failing.
+        try {
+            journal.beginDelivery(stage + ".checkpoint");
+        } catch (RuntimeException markerFailure) {
+            if (markerFailure != failure) failure.addSuppressed(markerFailure);
+        }
+        return new Result<>(remaining, true, failure);
     }
 }

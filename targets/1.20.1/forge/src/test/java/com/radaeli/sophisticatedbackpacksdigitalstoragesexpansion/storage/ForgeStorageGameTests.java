@@ -22,6 +22,7 @@ public final class ForgeStorageGameTests {
         delivery.mutationThenExceptionNeverRefundsOrInvokesTheFallback();
         delivery.knownRemainderReturnsToTheDropAndSettlesCustody();
         delivery.largeCustodyCountsSurviveNativeUpgradeSerialization();
+        delivery.failingCheckpointAfterLocalDeliveryStillReturnsControlWithCustody();
         DepositFilterTest tests = new DepositFilterTest();
         tests.allowAndBlockModesUseNativeSophisticatedFilters();
         tests.inventoryModeMatchesDestinationContentsInsteadOfTheManualList();

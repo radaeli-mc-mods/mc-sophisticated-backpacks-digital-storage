@@ -107,12 +107,14 @@ Simulação não altera itens, entidades, fluidos ou reservas. Quantidades simul
 
 Planejar capacidade antes da extração. Recuperar sobras na origem quando possível, depois na mochila e, com jogador válido, pelo mecanismo nativo de recuperação do inventário do jogador. Não refazer uma oferta que já foi aceita. Uma exceção após commit parcial não autoriza rollback cego da oferta inteira.
 
+Custódia distingue resultado conhecido, falha comprovadamente sem commit e resultado incerto. Registrar a sobra após cada destino e marcar a chamada em andamento antes de executá-la. Falha do checkpoint após uma entrega também entra em quarentena e devolve controle à atualização da origem; não autoriza repetir a oferta anterior. Identidade e quantidade são persistidas separadamente quando o formato nativo da stack não representa a quantidade real.
+
 <a id="P09"></a>
 ### P09 — Reservas persistidas
 
 Operações prolongadas e de fluidos mantêm somente recursos realmente extraídos em uma reserva persistida no item do upgrade. Reserva não é inventário de rede, slot de filtro nem recurso disponível para outra função.
 
-Resolver pendências antes de iniciar outra operação. Remoção, desconexão e reinício não apagam recursos. Exibir pendência em tooltip/GUI e retomar recuperação ao reinstalar. Bloquear troca de vínculo e desvínculo enquanto houver reserva pendente; recuperar não exige acesso indevido à rede antiga. Remover o item continua permitido e transporta a reserva junto.
+Resolver pendências antes de iniciar outra operação. Remoção, desconexão e reinício não apagam recursos. Exibir pendência em tooltip/GUI e retomar recuperação conhecida ao reinstalar. Resultado incerto permanece em quarentena, sem reenvio, refund ou consumo automático. Bloquear troca de vínculo e desvínculo enquanto houver reserva pendente; recuperar não exige acesso indevido à rede antiga. Remover o item continua permitido e transporta a reserva junto.
 
 Para consumo, persistir a unidade reservada e seu estado antes de iniciar o uso. Após reinício, recuperar uma aplicação interrompida em vez de reaplicar efeitos automaticamente. O mecanismo protege interrupções normais de ciclo de vida; não promete transação atômica contra encerramento abrupto do processo entre a modificação de dois storages.
 

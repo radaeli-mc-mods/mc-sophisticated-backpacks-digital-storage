@@ -10,6 +10,19 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class ItemDeliveryTest extends MinecraftStorageTest {
+    @Test public void failingCheckpointAfterLocalDeliveryStillReturnsControlWithCustody() {
+        var upgrade = new ItemStack(Items.PAPER);
+        var saves = new AtomicInteger();
+        var journal = new ItemDeliveryJournal(upgrade, null,
+                () -> { if (saves.incrementAndGet() == 3) throw new IllegalStateException("injected checkpoint save failure"); });
+        var accepted = new AtomicInteger();
+        ItemStack remainder = DestinationItemFilter.routeDelivery(SourcePriority.BACKPACK_FIRST,
+                new ItemStack(Items.STONE, 64), offer -> { fail("must stop before fallback"); return offer; },
+                offer -> { accepted.addAndGet(16); return offer.copyWithCount(48); }, journal);
+        assertTrue(remainder.isEmpty());
+        assertEquals(64, accepted.get() + journal.pending().getCount());
+        assertTrue(journal(upgrade.copy()).uncertain());
+    }
     @Test public void largeCustodyCountsSurviveNativeUpgradeSerialization() {
         var upgrade = new ItemStack(Items.PAPER);
         var pending = new ItemStack(Items.STONE, 16_384);
