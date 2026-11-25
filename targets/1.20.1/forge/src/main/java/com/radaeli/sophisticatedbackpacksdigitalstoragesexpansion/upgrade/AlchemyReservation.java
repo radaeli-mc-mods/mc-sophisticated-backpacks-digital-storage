@@ -56,12 +56,13 @@ public final class AlchemyReservation {
         }
     }
 
-    public static ItemStack getStack(ItemStack upgrade, HolderLookup.Provider registries) {
-        CompoundTag root = root(upgrade);
-        if (root == null || !root.contains(STACK, Tag.TAG_COMPOUND)) {
-            return ItemStack.EMPTY;
-        }
-        return ItemStack.of(root.getCompound(STACK));
+    public static ItemStack getStack(ItemStack upgrade, net.minecraft.core.HolderLookup.Provider registries) {
+        CompoundTag data = root(upgrade);
+        if (data == null || !data.contains(STACK)) return ItemStack.EMPTY;
+        ItemStack identity = ItemStack.of(data.getCompound(STACK));
+        int amount = data.contains("amount") ? data.getInt("amount") : identity.getCount();
+        if (!identity.isEmpty() && amount <= 0) throw new IllegalStateException("Invalid persisted consumption quantity");
+        return identity.isEmpty() ? ItemStack.EMPTY : identity.copyWithCount(amount);
     }
 
     public static boolean isRemote(ItemStack upgrade) {
@@ -75,8 +76,9 @@ public final class AlchemyReservation {
         }
         CompoundTag reservation = new CompoundTag();
         reservation.putString(STATE, State.RESERVED.name());
+            reservation.putInt("amount", stack.getCount());
         reservation.putBoolean(REMOTE, remote);
-        reservation.put(STACK, stack.save(new CompoundTag()));
+        reservation.put(STACK, stack.copyWithCount(1).save(new CompoundTag()));
         ForgeUpgradeNbt.write(upgrade, ROOT, reservation);
         return true;
     }
@@ -84,8 +86,9 @@ public final class AlchemyReservation {
     public static void updateStack(ItemStack upgrade, ItemStack stack, HolderLookup.Provider registries) {
         CompoundTag reservation = root(upgrade);
         if (reservation == null) return;
-        if (stack.isEmpty()) reservation.remove(STACK);
-        else reservation.put(STACK, stack.save(new CompoundTag()));
+        if (stack.isEmpty()) { reservation.remove(STACK); reservation.remove("amount"); }
+        else reservation.put(STACK, stack.copyWithCount(1).save(new CompoundTag()));
+        if (!stack.isEmpty()) reservation.putInt("amount", stack.getCount());
         ForgeUpgradeNbt.write(upgrade, ROOT, reservation);
     }
 

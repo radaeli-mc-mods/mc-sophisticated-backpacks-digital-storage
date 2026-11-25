@@ -52,11 +52,13 @@ final class FeedingReservation {
         }
     }
 
-    static ItemStack stack(ItemStack upgrade, HolderLookup.Provider registries) {
+    static ItemStack stack(ItemStack upgrade, net.minecraft.core.HolderLookup.Provider registries) {
         CompoundTag data = getRoot(upgrade);
-        if (data == null || !com.radaeli.sophisticatedbackpacksdigitalstoragesexpansion.storage.NbtChecks.has(data, STACK, net.minecraft.nbt.Tag.TAG_COMPOUND)) return ItemStack.EMPTY;
-        return ItemStack.CODEC.parse(RegistryOps.create(NbtOps.INSTANCE, registries), data.get(STACK))
-                .result().orElse(ItemStack.EMPTY);
+        if (data == null || !data.contains(STACK)) return ItemStack.EMPTY;
+        ItemStack identity = ItemStack.CODEC.parse(RegistryOps.create(NbtOps.INSTANCE, registries), data.get(STACK)).result().orElse(ItemStack.EMPTY);
+        int amount = data.getIntOr("amount", identity.getCount());
+        if (!identity.isEmpty() && amount <= 0) throw new IllegalStateException("Invalid persisted consumption quantity");
+        return identity.isEmpty() ? ItemStack.EMPTY : identity.copyWithCount(amount);
     }
 
     static boolean remote(ItemStack upgrade) {
@@ -65,11 +67,12 @@ final class FeedingReservation {
     }
 
     static boolean reserve(ItemStack upgrade, ItemStack stack, boolean remote, HolderLookup.Provider registries) {
-        var encoded = ItemStack.CODEC.encodeStart(RegistryOps.create(NbtOps.INSTANCE, registries), stack.copy()).result();
+        var encoded = ItemStack.CODEC.encodeStart(RegistryOps.create(NbtOps.INSTANCE, registries), stack.copyWithCount(1)).result();
         if (encoded.isEmpty()) return false;
         CustomData.update(DataComponents.CUSTOM_DATA, upgrade, data -> {
             CompoundTag reservation = new CompoundTag();
             reservation.putString(STATE, State.RESERVED.name());
+            reservation.putInt("amount", stack.getCount());
             reservation.putBoolean(REMOTE, remote);
             reservation.put(STACK, (Tag) encoded.get());
             data.put(ROOT, reservation);
@@ -83,10 +86,12 @@ final class FeedingReservation {
             if (reservation.isEmpty()) return;
             if (stack.isEmpty()) {
                 reservation.remove(STACK);
+                reservation.remove("amount");
             } else {
-                ItemStack.CODEC.encodeStart(RegistryOps.create(NbtOps.INSTANCE, registries), stack.copy())
+                ItemStack.CODEC.encodeStart(RegistryOps.create(NbtOps.INSTANCE, registries), stack.copyWithCount(1))
                         .result().ifPresent(encoded -> reservation.put(STACK, (Tag) encoded));
             }
+            if (!stack.isEmpty()) reservation.putInt("amount", stack.getCount());
             data.put(ROOT, reservation);
         });
     }
