@@ -238,7 +238,7 @@ Cada variante é um valor do enum `BackpackVariant` (`variant/`), que guarda o p
 | `scc` | `scc` | `scc:storage_connector` | `#E0A71E` | `#5A3A06` |
 | `id` | `integrateddynamics` | `integrateddynamics:crystalized_menril_chunk` | `#2FB8CC` | `#0F3F48` |
 
-A variante `id` (menril cristalizado ciano, `design/backpack-promo/paint_id.py`) está registrada no 1.21.1 e no 26.1.2, como cosmético separado do backend; Forge 1.20.1 exclui sua receita. No 26.1.2, reutiliza as três texturas compartilhadas e a mesma paleta, com ingrediente como string na receita condicional a `integrateddynamics`; o catálogo criativo e o JEI a incluem pelo enum, quando o mod está carregado.
+A variante `id` (menril cristalizado ciano, `design/backpack-promo/paint_id.py`) está registrada nos três targets, como cosmético separado do backend. Reutiliza as três texturas compartilhadas e a mesma paleta, com receita condicional a `integrateddynamics`; o catálogo criativo e o JEI a incluem pelo enum, quando o mod está carregado. No 26.1.2, o ingrediente é uma string; no Forge 1.20.1, o build converte a receita do 1.21.1 para `recipes/` e `conditions` do Forge.
 
 As cores são reservadas por variante e só servem de identidade e de aparência de contingência. Sem o mod, a mochila mantém o conteúdo e volta ao visual tingido padrão.
 
@@ -254,7 +254,7 @@ Item (inventário, mão, chão, vestida) lê a variante do `ItemStack` em `Backp
 
 O Forge 1.20.1 reaproveita as texturas e a lógica de identidade, com estas diferenças:
 
-- **Variantes:** só AE2, RS e Tom's. O SCC não tem versão Forge 1.20.1, então sua variante e receita não existem nesse target (o `prepareSharedForgeResources` a exclui e o `verifyForgeResources` falha se ela for empacotada).
+- **Variantes:** AE2, RS, Tom's e Integrated Dynamics. O SCC não tem versão Forge 1.20.1, então sua variante e receita não existem nesse target (o `prepareSharedForgeResources` a exclui e o `verifyForgeResources` falha se ela for empacotada). O verificador exige a receita `id`, sua condição de presença do Integrated Dynamics e o marcador de menril cristalizado.
 - **Receita:** `BackpackVariantRecipe` usa a API 1.20.1 (`CustomRecipe(id, categoria)`, `CraftingContainer`, serializer com `fromJson`/`fromNetwork`/`toNetwork`) e grava as cores por `BackpackItem.setColors`, o mesmo método que o `setColors` do wrapper do Sophisticated chama. Nesta versão as cores ficam como RGB sem alpha em `clothColor`/`borderColor` na tag do item.
 - **Recursos:** as receitas vêm do diretório do 1.21.1 e são convertidas no build. Além de `recipe` → `recipes` e `result.id` → `result.item`, a chave `neoforge:conditions` vira `conditions` (a chave de condição do Forge 1.20.1; `forge:conditions` é ignorada e faz a receita tentar carregar sem o mod), e o ingrediente do Tom's passa a `toms_storage:ts.inventory_connector`, o ID dessa versão.
 - **Renderização:** os mesmos dois mixins client, porque o Sophisticated 1.20.1 usa o mesmo `BackpackDynamicModel` do 1.21.1. O método `resolve` do `ItemOverrides` aparece como `m_173464_` no JAR do Sophisticated em produção; o mixin aceita os dois nomes (`require = 1`).

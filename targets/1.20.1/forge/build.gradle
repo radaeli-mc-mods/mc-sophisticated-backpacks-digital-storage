@@ -201,7 +201,6 @@ def sharedResources = tasks.register('prepareSharedForgeResources', Sync) {
         exclude('META-INF/neoforge.mods.toml', 'META-INF/accesstransformer.cfg', 'pack.mcmeta', "${mod_id}.mixins.json")
         // SCC has no Forge 1.20.1 release, so its backpack variant does not exist on this target.
         exclude('data/*/recipe/backpack_variant_scc.json')
-        exclude('data/*/recipe/backpack_variant_id.json')
         eachFile { details ->
             if (details.path.contains('/tags/item/')) {
                 details.path = details.path.replace('/tags/item/', '/tags/items/')
@@ -211,8 +210,7 @@ def sharedResources = tasks.register('prepareSharedForgeResources', Sync) {
     }
     into(layout.buildDirectory.dir('generated/sharedResources'))
     doLast {
-        // Keep the Integrated Dynamics model overrides and translations on Forge now that
-        // the backend is ported; 1.20.1 still excludes only its separate backpack recipe.
+        // Keep the Integrated Dynamics model overrides, translations and backpack recipe on Forge.
         def recipes = fileTree(destinationDir).matching { include('data/**/recipes/*.json') }
         recipes.each { recipeFile ->
             def recipe = new groovy.json.JsonSlurper().parse(recipeFile)
@@ -338,7 +336,7 @@ tasks.register('verifyForgeResources') {
         if (!new File(recipeDir, 'unlink_upgrade.json').isFile()) {
             throw new GradleException('Missing Forge unlink recipe')
         }
-        ['ae2': 'ae2', 'rs': 'refinedstorage', 'toms': 'toms_storage'].each { variant, modId ->
+        ['ae2': 'ae2', 'rs': 'refinedstorage', 'toms': 'toms_storage', 'id': 'integrateddynamics'].each { variant, modId ->
             def variantFile = new File(recipeDir, "backpack_variant_${variant}.json")
             if (!variantFile.isFile()) {
                 throw new GradleException("Missing Forge backpack variant recipe: ${variantFile}")
@@ -347,6 +345,9 @@ tasks.register('verifyForgeResources') {
             def condition = recipe['conditions']?.getAt(0)
             if (variant == 'toms' && recipe.ingredient?.item != 'toms_storage:ts.inventory_connector') {
                 throw new GradleException("Tom's variant must use the 1.20 item ID ts.inventory_connector")
+            }
+            if (variant == 'id' && recipe.ingredient?.item != 'integrateddynamics:crystalized_menril_chunk') {
+                throw new GradleException('Integrated Dynamics variant must use crystalized_menril_chunk')
             }
             if (recipe.containsKey('neoforge:conditions') || condition?.type != 'forge:mod_loaded' || condition?.modid != modId) {
                 throw new GradleException("Backpack variant ${variant} must be conditional on ${modId} with Forge `conditions`")
