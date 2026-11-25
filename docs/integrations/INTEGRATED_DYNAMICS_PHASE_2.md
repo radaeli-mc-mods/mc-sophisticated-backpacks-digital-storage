@@ -1,5 +1,8 @@
 # Integrated Dynamics — fase 2: operações básicas e apresentação
 
+> Registro histórico da implementação. Em 2026-11-25, o usuário informou validação em jogo nos três loaders e betas sem feedback negativo. As pendências gerais de aceite abaixo descrevem aquela fase; não invalidam esse aceite nem comprovam cada cenário individual. Estado atual, commits e novas regressões: [relatório consolidado](../relatorio-integrated-dynamics.md).
+
+
 Implementação do [plano aprovado](INTEGRATED_DYNAMICS.md) em 2026-11-20, sobre `c2f5c1c`, versão de desenvolvimento `0.6.0`. Piloto: Minecraft 1.21.1, NeoForge 21.1.238, Java 21. Aplicam-se P01–P04, P07/P08/P10/P11 e os gates P12. Implementação, automação e aceite manual são estados distintos.
 
 ## Contratos implementados

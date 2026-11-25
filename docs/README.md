@@ -5,6 +5,7 @@
 Player guides: [Linking upgrades](player/linking.md), [Filters and source priority](player/filters.md), and the [Upgrade catalog](player/upgrades.md). For the English and Brazilian Portuguese guides, see the [documentation](https://mods.radaeli.dev/en/mods/sophisticated-backpack-is-addon/).
 
 - [PRD do MVP](PRD.md) — requisitos, conectividade e critérios de aceitação para depósitos de mochila em sistemas de storage digital.
+- [Auditoria e correções Integrated Dynamics](relatorio-integrated-dynamics.md) — achados, commits, regressões e limites; documento interno.
 - [Arquitetura implementada](ARCHITECTURE.md) — responsabilidades compartilhadas, contratos, proteções e estado atual da integração.
 - [Planos dos upgrades universais](UPGRADES.md) — premissas aprovadas, contratos, sequência e critérios de validação dos nove upgrades.
 - [Porte NeoForge 26.1.2](PORT_26_1_2.md) — decisões aprovadas, contratos transacionais e matriz automatizada.
@@ -30,6 +31,6 @@ Player guides: [Linking upgrades](player/linking.md), [Filters and source priori
 - [Integrated Dynamics — evidências da fase 1](integrations/INTEGRATED_DYNAMICS_PHASE_1.md) — perfis, acesso, descoberta multipart, vínculo e persistência no piloto 1.21.1.
 
 - [Integrated Dynamics — operações e apresentação da fase 2](integrations/INTEGRATED_DYNAMICS_PHASE_2.md) — contratos nativos de itens/fluidos, quinto estado visual e evidências do piloto.
-- [Integrated Dynamics — porte Forge da fase 10](integrations/INTEGRATED_DYNAMICS_PHASE_10.md) — adaptadores 1.20.1, dependências fixadas, compilação e validação manual ainda pendente.
+- [Integrated Dynamics — porte Forge da fase 10](integrations/INTEGRATED_DYNAMICS_PHASE_10.md) — adaptadores 1.20.1, dependências fixadas, compilação e evidência histórica, complementadas pela auditoria atual.
 
 - [Integrated Dynamics — port NeoForge 26.1.2](integrations/INTEGRATED_DYNAMICS_26_1_2.md)
