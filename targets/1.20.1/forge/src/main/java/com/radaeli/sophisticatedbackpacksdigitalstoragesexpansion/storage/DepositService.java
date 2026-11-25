@@ -13,7 +13,10 @@ public final class DepositService {
     private DepositService() {
     }
 
-    public static void deposit(UpgradeOperationContext context, Optional<StorageEndpoint> endpoint, DepositFilterLogic filters) {
+    public static void deposit(UpgradeOperationContext context, com.radaeli.sophisticatedbackpacksdigitalstoragesexpansion.upgrade.RemoteDepositUpgradeWrapper wrapper) {
+        if (wrapper.hasPendingDelivery()) return;
+        var endpoint = wrapper.getEndpoint();
+        var filters = wrapper.getFilterLogic();
         StorageConnection connection = StorageAdapterRegistry.connect(context.player(), endpoint, context.source());
         if (connection.target().isEmpty()) {
             context.player().displayClientMessage(Component.translatable(connection.status().messageKey()), true);
@@ -28,7 +31,7 @@ public final class DepositService {
                 filters.setInventory(target.getAvailableItems(context.player()));
             }
 
-            result = ItemTransferService.deposit(context.storage().getInventoryForUpgradeProcessing(),
+            result = ItemTransferService.deposit(wrapper.deliveryJournal(context.player().level()), context.storage().getInventoryForUpgradeProcessing(),
                     target.insertionFor(context.player()), filters::matchesFilter,
                     context.player().getInventory()::placeItemBackInInventory);
         }

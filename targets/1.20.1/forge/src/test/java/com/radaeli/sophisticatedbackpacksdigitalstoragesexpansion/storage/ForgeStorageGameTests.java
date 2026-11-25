@@ -52,6 +52,8 @@ public final class ForgeStorageGameTests {
     public static void itemTransfers(GameTestHelper helper) {
         ItemTransferServiceTest tests = new ItemTransferServiceTest();
         tests.movesOnlyMatchingStacksAndReportsActualCounts();
+        tests.failingInsertRetainsCustodyAndNeverRetriesAnUnknownCommit();
+        tests.provenAbortRestoresTheExtractedOfferWithoutQuarantine();
         tests.restoresDifferenceBetweenSimulatedAndActualAcceptance();
         tests.zeroActualAcceptanceRestoresEverythingAndReportsNoMovement();
         for (int simulated : new int[]{0, -1, Integer.MIN_VALUE}) tests.nonPositiveSimulationNeverExtracts(simulated);

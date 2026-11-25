@@ -330,3 +330,7 @@ P05/P08/P09/P10: Magnet nos três targets e Pickup imediato registram a custódi
 ## Checkpoints de preenchimento — F02, 2026-11-25
 
 P05/P08/P09/P10: nos três targets, preenchimento e recuperação persistem a sobra após cada destino e marcam IN_FLIGHT antes de cada chamada imediata. Uma exceção deixa somente a última sobra conhecida em quarentena; ticks seguintes não a reenviam, inclusive após reconstrução do wrapper. A transferência retorna ao chamador para que o recipiente já drenado seja atualizado. RESERVED/RECOVERING existentes e o limite de 1.000 mB continuam válidos. A quarentena não autoriza restituição integral.
+
+## Custódia do depósito — F03, 2026-11-25
+
+P08/P09/P10: Deposit persiste a oferta realmente extraída antes da inserção nos três targets. Registra cada sobra conhecida, inclusive na restauração por slot e no fallback do jogador. Falha comprovadamente sem commit permite recuperação síncrona; resultado desconhecido conserva a última oferta em quarentena, interrompe o pedido e bloqueia novas transferências/troca/desvínculo. A operação normal continua sem reserva duradoura; a exceção aprovada pela auditoria F03 mantém somente os dados necessários à resolução, sem refund integral de commits desconhecidos.

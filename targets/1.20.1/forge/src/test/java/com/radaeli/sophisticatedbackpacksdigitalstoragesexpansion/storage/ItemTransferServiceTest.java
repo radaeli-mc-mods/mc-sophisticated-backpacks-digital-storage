@@ -16,11 +16,56 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class ItemTransferServiceTest extends MinecraftStorageTest {
     @Test
+    public void failingInsertRetainsCustodyAndNeverRetriesAnUnknownCommit() {
+        for (int committed : new int[]{0, 5}) {
+            var source = source(32);
+            var upgrade = new ItemStack(Items.PAPER);
+            var journal = new ItemDeliveryJournal(upgrade, null, () -> {});
+            var calls = new java.util.concurrent.atomic.AtomicInteger();
+            var received = new java.util.concurrent.atomic.AtomicInteger();
+            ItemInsertion target = new ItemInsertion() {
+                public int simulateInsert(ItemStack stack) { return stack.getCount(); }
+                public ItemStack insert(ItemStack stack) {
+                    calls.incrementAndGet();
+                    received.addAndGet(committed);
+                    assertEquals(32, journal.pending().getCount());
+                    assertTrue(journal.uncertain());
+                    throw new IllegalStateException("injected after " + committed + " accepted");
+                }
+            };
+            assertFalse(ItemTransferService.deposit(journal, source, target, stack -> true, this::unexpectedRecovery).movedAnything());
+            assertTrue(source.getStackInSlot(0).isEmpty());
+            assertTrue(journal.uncertain());
+            assertEquals(32, journal.pending().getCount());
+            ItemTransferService.deposit(journal, source, target, stack -> true, this::unexpectedRecovery);
+            assertEquals(1, calls.get());
+            assertEquals(committed, received.get());
+            assertTrue(ItemDeliveryJournal.hasPending(upgrade.copy()));
+        }
+    }
+
+    @Test
+    public void provenAbortRestoresTheExtractedOfferWithoutQuarantine() {
+        var source = source(32);
+        var upgrade = new ItemStack(Items.PAPER);
+        var journal = new ItemDeliveryJournal(upgrade, null, () -> {});
+        ItemInsertion target = new ItemInsertion() {
+            public int simulateInsert(ItemStack stack) { return stack.getCount(); }
+            public ItemStack insert(ItemStack stack) {
+                throw new com.radaeli.sophisticatedbackpacksdigitalstoragesexpansion.transfer.UncommittedTransferException("proven no commit", null);
+            }
+        };
+        ItemTransferService.deposit(journal, source, target, stack -> true, this::unexpectedRecovery);
+        assertEquals(32, source.getStackInSlot(0).getCount());
+        assertFalse(journal.hasPending());
+    }
+
+    @Test
     void movesOnlyMatchingStacksAndReportsActualCounts() {
         ItemStackHandler source = new ItemStackHandler(3);
         source.setStackInSlot(0, new ItemStack(Items.STONE, 8));
         source.setStackInSlot(1, new ItemStack(Items.DIRT, 7));
-        var result = ItemTransferService.deposit(source, destination(64, 64), stack -> stack.is(Items.STONE), this::unexpectedRecovery);
+        var result = ItemTransferService.deposit(new ItemDeliveryJournal(new ItemStack(net.minecraft.world.item.Items.PAPER), null, () -> {}), source, destination(64, 64), stack -> stack.is(Items.STONE), this::unexpectedRecovery);
         assertEquals(1, result.movedStacks());
         assertEquals(8, result.movedItems());
         assertTrue(source.getStackInSlot(0).isEmpty());
@@ -30,7 +75,7 @@ class ItemTransferServiceTest extends MinecraftStorageTest {
     @Test
     void restoresDifferenceBetweenSimulatedAndActualAcceptance() {
         ItemStackHandler source = source(12);
-        var result = ItemTransferService.deposit(source, destination(12, 3), stack -> true, this::unexpectedRecovery);
+        var result = ItemTransferService.deposit(new ItemDeliveryJournal(new ItemStack(net.minecraft.world.item.Items.PAPER), null, () -> {}), source, destination(12, 3), stack -> true, this::unexpectedRecovery);
         assertEquals(3, result.movedItems());
         assertEquals(1, result.movedStacks());
         assertEquals(9, source.getStackInSlot(0).getCount());
@@ -39,7 +84,7 @@ class ItemTransferServiceTest extends MinecraftStorageTest {
     @Test
     void zeroActualAcceptanceRestoresEverythingAndReportsNoMovement() {
         ItemStackHandler source = source(12);
-        var result = ItemTransferService.deposit(source, destination(12, 0), stack -> true, this::unexpectedRecovery);
+        var result = ItemTransferService.deposit(new ItemDeliveryJournal(new ItemStack(net.minecraft.world.item.Items.PAPER), null, () -> {}), source, destination(12, 0), stack -> true, this::unexpectedRecovery);
         assertEquals(12, source.getStackInSlot(0).getCount());
         assertFalse(result.movedAnything());
         assertEquals(0, result.movedStacks());
@@ -53,14 +98,14 @@ class ItemTransferServiceTest extends MinecraftStorageTest {
             public int simulateInsert(ItemStack stack) { return simulated; }
             public ItemStack insert(ItemStack stack) { throw new AssertionError("Insertion must not run"); }
         };
-        assertFalse(ItemTransferService.deposit(source, target, stack -> true, this::unexpectedRecovery).movedAnything());
+        assertFalse(ItemTransferService.deposit(new ItemDeliveryJournal(new ItemStack(net.minecraft.world.item.Items.PAPER), null, () -> {}), source, target, stack -> true, this::unexpectedRecovery).movedAnything());
         assertEquals(8, source.getStackInSlot(0).getCount());
     }
 
     @Test
     void simulationCannotOfferMoreThanTheSourceContains() {
         ItemStackHandler source = source(8);
-        var result = ItemTransferService.deposit(source, destination(Integer.MAX_VALUE, Integer.MAX_VALUE),
+        var result = ItemTransferService.deposit(new ItemDeliveryJournal(new ItemStack(net.minecraft.world.item.Items.PAPER), null, () -> {}), source, destination(Integer.MAX_VALUE, Integer.MAX_VALUE),
                 stack -> true, this::unexpectedRecovery);
         assertEquals(8, result.movedItems());
     }
@@ -74,7 +119,7 @@ class ItemTransferServiceTest extends MinecraftStorageTest {
             }
         };
         source.setStackInSlot(0, new ItemStack(Items.STONE, 8));
-        var result = ItemTransferService.deposit(source, destination(64, 64), stack -> true, this::unexpectedRecovery);
+        var result = ItemTransferService.deposit(new ItemDeliveryJournal(new ItemStack(net.minecraft.world.item.Items.PAPER), null, () -> {}), source, destination(64, 64), stack -> true, this::unexpectedRecovery);
         assertEquals(3, result.movedItems());
         assertEquals(5, source.getStackInSlot(0).getCount());
     }
@@ -90,14 +135,14 @@ class ItemTransferServiceTest extends MinecraftStorageTest {
             public int simulateInsert(ItemStack stack) { return 8; }
             public ItemStack insert(ItemStack stack) { throw new AssertionError("Nothing was extracted"); }
         };
-        assertFalse(ItemTransferService.deposit(source, target, stack -> true, this::unexpectedRecovery).movedAnything());
+        assertFalse(ItemTransferService.deposit(new ItemDeliveryJournal(new ItemStack(net.minecraft.world.item.Items.PAPER), null, () -> {}), source, target, stack -> true, this::unexpectedRecovery).movedAnything());
         assertEquals(8, source.getStackInSlot(0).getCount());
     }
 
     @Test
     void restoresIntoAnotherSourceSlotBeforeUsingRecovery() {
         ItemStackHandler source = changedSource(2);
-        ItemTransferService.deposit(source, destination(64, 0), stack -> stack.is(Items.STONE), this::unexpectedRecovery);
+        ItemTransferService.deposit(new ItemDeliveryJournal(new ItemStack(net.minecraft.world.item.Items.PAPER), null, () -> {}), source, destination(64, 0), stack -> stack.is(Items.STONE), this::unexpectedRecovery);
         assertTrue(source.getStackInSlot(0).is(Items.DIRT));
         assertTrue(source.getStackInSlot(1).is(Items.STONE));
         assertEquals(8, source.getStackInSlot(1).getCount());
@@ -107,7 +152,7 @@ class ItemTransferServiceTest extends MinecraftStorageTest {
     void recoveryReceivesEveryItemThatNoLongerFitsInSource() {
         ItemStackHandler source = changedSource(1);
         List<ItemStack> recovered = new ArrayList<>();
-        var result = ItemTransferService.deposit(source, destination(64, 0), stack -> true, recovered::add);
+        var result = ItemTransferService.deposit(new ItemDeliveryJournal(new ItemStack(net.minecraft.world.item.Items.PAPER), null, () -> {}), source, destination(64, 0), stack -> true, recovered::add);
         assertFalse(result.movedAnything());
         assertEquals(1, recovered.size());
         assertTrue(recovered.get(0).is(Items.STONE));
@@ -119,7 +164,7 @@ class ItemTransferServiceTest extends MinecraftStorageTest {
         ItemStackHandler source = source(8);
         Component name = Component.literal("Named stone");
         source.getStackInSlot(0).setHoverName(name);
-        ItemTransferService.deposit(source, destination(8, 3), stack -> true, this::unexpectedRecovery);
+        ItemTransferService.deposit(new ItemDeliveryJournal(new ItemStack(net.minecraft.world.item.Items.PAPER), null, () -> {}), source, destination(8, 3), stack -> true, this::unexpectedRecovery);
         assertEquals(name, source.getStackInSlot(0).getHoverName());
         assertEquals(5, source.getStackInSlot(0).getCount());
     }
@@ -131,7 +176,7 @@ class ItemTransferServiceTest extends MinecraftStorageTest {
             public int simulateInsert(ItemStack stack) { stack.setCount(1); return 4; }
             public ItemStack insert(ItemStack stack) { stack.setCount(2); return stack; }
         };
-        var result = ItemTransferService.deposit(source, target, stack -> true, this::unexpectedRecovery);
+        var result = ItemTransferService.deposit(new ItemDeliveryJournal(new ItemStack(net.minecraft.world.item.Items.PAPER), null, () -> {}), source, target, stack -> true, this::unexpectedRecovery);
         assertEquals(2, result.movedItems());
         assertEquals(6, source.getStackInSlot(0).getCount());
     }

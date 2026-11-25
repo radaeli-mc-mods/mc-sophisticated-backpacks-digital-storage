@@ -86,3 +86,9 @@ P01–P04/P07–P12: a [fase 1 da integração](../integrations/INTEGRATED_DYNAM
 ## Integrated Dynamics — porte 26.1.2
 
 P01–P12: o [port 26.1.2](../integrations/INTEGRATED_DYNAMICS_26_1_2.md) acrescenta o backend transacional aos serviços existentes desta função. Preserva Omni, filtros, prioridade aplicável, reservas e recuperação. Os GameTests nativos desta função fazem parte dos perfis integrated/terminals/full/all; comandos, evidências e limites ficam no registro. Nesta tarefa o usuário dispensou testes de interação com Java; nenhuma aprovação manual foi inferida.
+
+## Custódia do depósito — F03, 2026-11-25
+
+P08/P09/P10: Deposit persiste a oferta realmente extraída antes da inserção nos três targets. Registra cada sobra conhecida, inclusive na restauração por slot e no fallback do jogador. Falha comprovadamente sem commit permite recuperação síncrona; resultado desconhecido conserva a última oferta em quarentena, interrompe o pedido e bloqueia novas transferências/troca/desvínculo. A operação normal continua sem reserva duradoura; a exceção aprovada pela auditoria F03 mantém somente os dados necessários à resolução, sem refund integral de commits desconhecidos.
+
+Verificação F03: os testes de transferência e guards passaram nos dois NeoForge; os 16 GameTests Forge passaram. Foram injetadas falhas antes/depois de aceitação parcial e falha explicitamente sem commit; asserções cobrem custódia, restauração segura, cópia do item e ausência de repetição.
