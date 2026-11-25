@@ -175,7 +175,7 @@ def validateNativeReport = { File report ->
     if (!(upgrade in ['deposit', 'restock', 'access_contract'])) required += backend + '_' + upgrade + '_backpack_first'
    }
   }
-  if ('integrateddynamics' in backends) required += ['topology', 'binding', 'unavailable', 'items', 'channelsandlongcounts', 'nativefilters', 'fluidsandcachedguard', 'nativeinterceptors', 'cachedbackpackguard', 'serviceconservation', 'restockbatches', 'selectivequeries', 'positionfailurecleanup'].collect { 'integrated_' + it }
+  if ('integrateddynamics' in backends) required += ['topology', 'binding', 'unavailable', 'items', 'channelsandlongcounts', 'nativefilters', 'fluidsandcachedguard', 'nativeinterceptors', 'cachedbackpackguard', 'serviceconservation', 'restockbatches', 'selectivequeries', 'positionfailurecleanup', 'feedingcontainerfallback'].collect { 'integrated_' + it }
  }
  if (names.toSet() != required.collect { 'digitalstorage_tests:' + it }.toSet()) throw new GradleException('Missing required GameTest scenarios: ' + required + '; got ' + names)
  return names.size()

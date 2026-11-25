@@ -70,15 +70,18 @@ final class FeedingService {
 
     private static boolean consume(RemoteFeedingUpgradeWrapper wrapper, ServerPlayer player,
             UpgradeItemSources.SourceItem source, ItemStack food) {
-        FeedingReservation.setState(wrapper.getUpgradeStack(), FeedingReservation.State.USING);
+        FeedingReservation.setState(wrapper.getUpgradeStack(), FeedingReservation.State.IN_FLIGHT);
         wrapper.saveReservationChange();
 
         ItemStack originalHand = player.getMainHandItem().copy();
         ItemStack usedStack = food.copy();
+        boolean handRestored = false;
         player.setItemInHand(InteractionHand.MAIN_HAND, usedStack);
         try {
             InteractionResult useResult = usedStack.use(player.level(), player, InteractionHand.MAIN_HAND);
             if (!useResult.consumesAction()) {
+                player.setItemInHand(InteractionHand.MAIN_HAND, originalHand);
+                handRestored = true;
                 FeedingReservation.setState(wrapper.getUpgradeStack(), FeedingReservation.State.RECOVERING);
                 wrapper.saveReservationChange();
                 recoverPending(wrapper, player);
@@ -87,6 +90,8 @@ final class FeedingService {
             ItemStack finished = usedStack.copy().finishUsingItem(player.level(), player);
             ItemStack returned = EventHooks.onItemUseFinish(player, usedStack,
                     usedStack.getUseDuration(player), finished);
+            player.setItemInHand(InteractionHand.MAIN_HAND, originalHand);
+            handRestored = true;
             FeedingReservation.updateStack(wrapper.getUpgradeStack(), returned, player.registryAccess());
             FeedingReservation.setState(wrapper.getUpgradeStack(), returned.isEmpty()
                     ? FeedingReservation.State.RECOVERING : FeedingReservation.State.RECOVERING);
@@ -95,19 +100,18 @@ final class FeedingService {
                 FeedingReservation.clear(wrapper.getUpgradeStack());
                 wrapper.saveReservationChange();
             } else {
-                ItemStack remaining = UpgradeItemSources.returnToLinkedNetwork(wrapper, player, returned);
-                if (!remaining.isEmpty()) {
-                    remaining = com.radaeli.sophisticatedbackpacksdigitalstoragesexpansion.storage.LocalItemAccess.of(wrapper.getStorageWrapper().getInventoryForUpgradeProcessing()).insertItem(remaining, false);
-                }
-                if (!remaining.isEmpty()) {
-                    player.getInventory().placeItemBackInInventory(remaining);
-                }
-                FeedingReservation.clear(wrapper.getUpgradeStack());
-                wrapper.saveReservationChange();
+                ConsumptionRecovery.returnPending(wrapper, player, returned, true,
+                    FeedingReservation.journal(wrapper.getUpgradeStack(), player.level().registryAccess(), wrapper::saveReservationChange),
+                    () -> FeedingReservation.state(wrapper.getUpgradeStack()) == FeedingReservation.State.IN_FLIGHT, () -> { FeedingReservation.clear(wrapper.getUpgradeStack()); wrapper.saveReservationChange(); });
             }
             return true;
+        } catch (RuntimeException failure) {
+            FeedingReservation.setState(wrapper.getUpgradeStack(), FeedingReservation.State.IN_FLIGHT);
+            wrapper.saveReservationChange();
+            com.mojang.logging.LogUtils.getLogger().error("Feeding hook failed; endpoint={}, stage=consume, reservation quarantined", wrapper.getEndpoint(), failure);
+            return false;
         } finally {
-            player.setItemInHand(InteractionHand.MAIN_HAND, originalHand);
+            if (!handRestored) player.setItemInHand(InteractionHand.MAIN_HAND, originalHand);
         }
     }
 
@@ -129,22 +133,11 @@ final class FeedingService {
     }
 
     private static void recoverPending(RemoteFeedingUpgradeWrapper wrapper, ServerPlayer player) {
-        ItemStack pending = FeedingReservation.stack(wrapper.getUpgradeStack(), player.registryAccess());
-        if (pending.isEmpty()) {
-            FeedingReservation.clear(wrapper.getUpgradeStack());
-            wrapper.saveReservationChange();
-            return;
-        }
-        FeedingReservation.setState(wrapper.getUpgradeStack(), FeedingReservation.State.RECOVERING);
-        wrapper.saveReservationChange();
-        ItemStack remaining = FeedingReservation.remote(wrapper.getUpgradeStack())
-                ? UpgradeItemSources.returnToLinkedNetwork(wrapper, player, pending)
-                : com.radaeli.sophisticatedbackpacksdigitalstoragesexpansion.storage.LocalItemAccess.of(wrapper.getStorageWrapper().getInventoryForUpgradeProcessing()).insertItem(pending, false);
-        if (!remaining.isEmpty()) {
-            UpgradeItemSources.recover(wrapper, player, remaining);
-        }
-        FeedingReservation.clear(wrapper.getUpgradeStack());
-        wrapper.saveReservationChange();
+        if (FeedingReservation.state(wrapper.getUpgradeStack()) == FeedingReservation.State.IN_FLIGHT) return;
+        ItemStack pending = FeedingReservation.stack(wrapper.getUpgradeStack(), player.level().registryAccess());
+        ConsumptionRecovery.returnPending(wrapper, player, pending, FeedingReservation.remote(wrapper.getUpgradeStack()),
+                    FeedingReservation.journal(wrapper.getUpgradeStack(), player.level().registryAccess(), wrapper::saveReservationChange),
+                    () -> FeedingReservation.state(wrapper.getUpgradeStack()) == FeedingReservation.State.IN_FLIGHT, () -> { FeedingReservation.clear(wrapper.getUpgradeStack()); wrapper.saveReservationChange(); });
     }
 
     private static boolean isInstalled(RemoteFeedingUpgradeWrapper wrapper) {

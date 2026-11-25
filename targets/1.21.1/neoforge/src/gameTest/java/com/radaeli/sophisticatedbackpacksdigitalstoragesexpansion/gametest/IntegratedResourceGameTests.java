@@ -356,4 +356,38 @@ public final class IntegratedResourceGameTests {
             h.succeed();
         });
     }
+
+    @GameTest(template = "empty", templateNamespace = "digitalstorage_tests", timeoutTicks = 300)
+    public static void feedingcontainerfallback(GameTestHelper h) {
+        var f = fixture(h, store -> store.items.setStackInSlot(0, new ItemStack(Items.BEETROOT_SOUP)));
+        f.run(() -> {
+            var bagStack = new ItemStack(net.p3pp3rf1y.sophisticatedbackpacks.init.ModItems.NETHERITE_BACKPACK.get());
+            var bag = net.p3pp3rf1y.sophisticatedbackpacks.backpack.wrapper.BackpackWrapper.fromStack(bagStack);
+            bag.onInit(h.getLevel());
+            var upgrade = new ItemStack(com.radaeli.sophisticatedbackpacksdigitalstoragesexpansion.ModItems.REMOTE_FEEDING_UPGRADE.get());
+            EndpointBinding.write(upgrade, f.endpoint());
+            bag.getUpgradeHandler().setStackInSlot(0, upgrade);
+            var inventory = bag.getInventoryHandler();
+            for (int slot = 0; slot < inventory.getSlots(); slot++) {
+                inventory.setStackInSlot(slot, new ItemStack(Items.STONE, 64));
+            }
+            for (int slot = 0; slot < 36; slot++) f.player.getInventory().setItem(slot, new ItemStack(Items.STONE, 64));
+            f.player.getInventory().setItem(1, bagStack);
+            f.player.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND, new ItemStack(Items.BOWL, 63));
+            var network = f.nativeItems();
+            var denyContainers = new PositionedAddonsNetworkIngredientsFilter<ItemStack>(stack -> !stack.is(Items.BOWL), true, false, true);
+            network.setPositionedStorageFilter(PartPos.of(h.getLevel(), f.itemPos.below(), Direction.UP), denyContainers);
+            network.setPositionedStorageFilter(PartPos.of(h.getLevel(), f.otherPos.below(), Direction.UP), denyContainers);
+            var wrapper = (com.radaeli.sophisticatedbackpacksdigitalstoragesexpansion.upgrade.RemoteFeedingUpgradeWrapper) bag.getUpgradeHandler().getSlotWrappers().get(0);
+            wrapper.getFilterLogic().setAllowList(true);
+            wrapper.getFilterLogic().getFilterHandler().setStackInSlot(0, new ItemStack(Items.BEETROOT_SOUP));
+            f.player.getFoodData().setFoodLevel(1);
+            wrapper.tick(f.player, h.getLevel(), f.player.blockPosition());
+            h.assertTrue(f.player.getFoodData().getFoodLevel() > 1, "Remote soup was not consumed");
+            h.assertTrue(f.player.getMainHandItem().is(Items.BOWL) && f.player.getMainHandItem().getCount() == 64,
+                    "Restoring the temporary Feeding hand overwrote its returned container");
+            h.assertTrue(!wrapper.hasPendingReservation(), "Known container return did not settle");
+            h.succeed();
+        });
+    }
 }

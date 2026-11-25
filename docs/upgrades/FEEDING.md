@@ -86,3 +86,9 @@ P01–P12: o [port 26.1.2](../integrations/INTEGRATED_DYNAMICS_26_1_2.md) acresc
 ## Consultas direcionadas e fontes adiadas — F06, 2026-11-25
 
 P03/P08/P11: os três targets expõem consulta seletiva por tipo. Integrated filtra variantes antes de agregá-las, preservando todas as identidades elegíveis e suas contagens long completas, mesmo com needed=1. Presença continua com saída antecipada. As fontes dos upgrades são snapshots locais à operação e a secundária só é consultada quando a iteração chega a ela; candidato visível sem extração mantém o fallback. Crafting pode materializar ambas quando precisa comparar alternativas. Refill restringe por tipo somente no modo ITEM. Nenhuma rede ou autorização é cacheada no wrapper.
+
+## Retorno de consumíveis — R03, 2026-11-25
+
+P05/P08/P09/P10: Feeding/Alchemy registram a sobra de cada retorno remoto, slot local e recuperação do jogador. IN_FLIGHT pausa resultados desconhecidos após falha ou recarga, preservando os formatos e estados anteriores. Hooks de início/fim também marcam a fase antes da chamada: uma exceção não permite devolver automaticamente alimento já possivelmente consumido nem repetir efeitos. Alchemy retorna a USING somente após um início conhecido, mantendo a recuperação normal de um uso interrompido; recipientes são recursos separados do consumível original. Conclusões normais limpam somente sua reserva. A tooltip indica a quarentena.
+
+O retorno do recipiente ocorre depois de restaurar a mão original, que não é sobrescrita novamente ao sair. A reprodução com sopa remota, mochila/inventário cheios e 63 tigelas na mão falhava antes; agora deixa 64 tigelas e quita a reserva nos três targets.

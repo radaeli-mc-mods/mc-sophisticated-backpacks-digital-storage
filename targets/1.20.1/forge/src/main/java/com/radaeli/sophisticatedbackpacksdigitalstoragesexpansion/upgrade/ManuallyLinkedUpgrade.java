@@ -27,6 +27,9 @@ public interface ManuallyLinkedUpgrade {
         description.forEach(line -> tooltip.add(line.copy().withStyle(ChatFormatting.GRAY)));
         var endpoint = EndpointBinding.read(stack);
         tooltip.add(com.radaeli.sophisticatedbackpacksdigitalstoragesexpansion.storage.ItemDeliveryJournal.hasPending(stack)
+                || FeedingReservation.state(stack) == FeedingReservation.State.IN_FLIGHT
+                || AlchemyReservation.state(stack).orElse(null) == AlchemyReservation.State.IN_FLIGHT
+                || PumpReservation.state(stack).orElse(null) == PumpReservation.State.IN_FLIGHT
                 ? status.copy().append(" ").append(Component.translatable("gui.sophisticated_backpacks_digital_storages_expansion.delivery_pending")) : status);
         if (endpoint.isPresent()) {
             tooltip.add(Component.translatable("item.sophisticated_backpacks_digital_storages_expansion.linked_upgrade.unlink_hint")

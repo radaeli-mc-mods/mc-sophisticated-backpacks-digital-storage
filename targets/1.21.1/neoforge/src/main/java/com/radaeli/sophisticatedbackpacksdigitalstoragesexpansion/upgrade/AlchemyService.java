@@ -79,12 +79,13 @@ final class AlchemyService {
                     wrapper.setServiceCooldown(level, CHECK_COOLDOWN_TICKS);
                     return;
                 }
-                AlchemyReservation.setState(wrapper.getUpgradeStack(), AlchemyReservation.State.USING);
+                AlchemyReservation.setState(wrapper.getUpgradeStack(), AlchemyReservation.State.IN_FLIGHT);
                 wrapper.saveReservationChange();
 
                 try {
                     int duration = definition.startUsing().applyAsInt(reserved, player);
                     AlchemyReservation.updateStack(wrapper.getUpgradeStack(), reserved, player.registryAccess());
+                    AlchemyReservation.setState(wrapper.getUpgradeStack(), AlchemyReservation.State.USING);
                     wrapper.saveReservationChange();
                     if (duration <= 0) {
                         finish(wrapper, player, definition, reserved);
@@ -94,10 +95,9 @@ final class AlchemyService {
                     }
                 } catch (RuntimeException exception) {
                     ACTIVE.remove(storage);
-                    AlchemyReservation.setState(wrapper.getUpgradeStack(), AlchemyReservation.State.RECOVERING);
+                    AlchemyReservation.setState(wrapper.getUpgradeStack(), AlchemyReservation.State.IN_FLIGHT);
                     wrapper.saveReservationChange();
-                    recoverPending(wrapper, player);
-                    throw exception;
+                    com.mojang.logging.LogUtils.getLogger().error("Alchemy hook failed; endpoint={}, stage=start, reservation quarantined", wrapper.getEndpoint(), exception);
                 }
                 return;
             }
@@ -157,24 +157,21 @@ final class AlchemyService {
             recoverPending(wrapper, player);
             return;
         }
-        ItemStack returned = definition.finishUsing().apply(reserved.copy(), player);
-        AlchemyReservation.updateStack(wrapper.getUpgradeStack(), returned, player.registryAccess());
-        AlchemyReservation.setState(wrapper.getUpgradeStack(), AlchemyReservation.State.RECOVERING);
+        AlchemyReservation.setState(wrapper.getUpgradeStack(), AlchemyReservation.State.IN_FLIGHT);
         wrapper.saveReservationChange();
-        if (returned.isEmpty()) {
-            AlchemyReservation.clear(wrapper.getUpgradeStack());
+        try {
+            ItemStack returned = definition.finishUsing().apply(reserved.copy(), player);
+            AlchemyReservation.updateStack(wrapper.getUpgradeStack(), returned, player.level().registryAccess());
+            AlchemyReservation.setState(wrapper.getUpgradeStack(), AlchemyReservation.State.RECOVERING);
             wrapper.saveReservationChange();
-            return;
+            ConsumptionRecovery.returnPending(wrapper, player, returned, true,
+                    AlchemyReservation.journal(wrapper.getUpgradeStack(), player.level().registryAccess(), wrapper::saveReservationChange),
+                    () -> AlchemyReservation.state(wrapper.getUpgradeStack()).orElse(null) == AlchemyReservation.State.IN_FLIGHT, () -> { AlchemyReservation.clear(wrapper.getUpgradeStack()); wrapper.saveReservationChange(); });
+        } catch (RuntimeException failure) {
+            AlchemyReservation.setState(wrapper.getUpgradeStack(), AlchemyReservation.State.IN_FLIGHT);
+            wrapper.saveReservationChange();
+            com.mojang.logging.LogUtils.getLogger().error("Alchemy hook failed; endpoint={}, stage=finish, reservation quarantined", wrapper.getEndpoint(), failure);
         }
-        ItemStack remaining = UpgradeItemSources.returnToLinkedNetwork(wrapper, player, returned);
-        if (!remaining.isEmpty()) {
-            remaining = wrapper.getStorageWrapper().getInventoryForUpgradeProcessing().insertItem(remaining, false);
-        }
-        if (!remaining.isEmpty()) {
-            player.getInventory().placeItemBackInInventory(remaining);
-        }
-        AlchemyReservation.clear(wrapper.getUpgradeStack());
-        wrapper.saveReservationChange();
     }
 
     private static void triggerUseSound(Level level, LivingEntity wearer, ItemStack stack) {
@@ -189,22 +186,11 @@ final class AlchemyService {
     }
 
     private static void recoverPending(RemoteAlchemyUpgradeWrapper wrapper, ServerPlayer player) {
-        ItemStack pending = AlchemyReservation.getStack(wrapper.getUpgradeStack(), player.registryAccess());
-        if (pending.isEmpty()) {
-            AlchemyReservation.clear(wrapper.getUpgradeStack());
-            wrapper.saveReservationChange();
-            return;
-        }
-        AlchemyReservation.setState(wrapper.getUpgradeStack(), AlchemyReservation.State.RECOVERING);
-        wrapper.saveReservationChange();
-        ItemStack remaining = AlchemyReservation.isRemote(wrapper.getUpgradeStack())
-                ? UpgradeItemSources.returnToLinkedNetwork(wrapper, player, pending)
-                : wrapper.getStorageWrapper().getInventoryForUpgradeProcessing().insertItem(pending, false);
-        if (!remaining.isEmpty()) {
-            UpgradeItemSources.recover(wrapper, player, remaining);
-        }
-        AlchemyReservation.clear(wrapper.getUpgradeStack());
-        wrapper.saveReservationChange();
+        if (AlchemyReservation.state(wrapper.getUpgradeStack()).orElse(null) == AlchemyReservation.State.IN_FLIGHT) return;
+        ItemStack pending = AlchemyReservation.getStack(wrapper.getUpgradeStack(), player.level().registryAccess());
+        ConsumptionRecovery.returnPending(wrapper, player, pending, AlchemyReservation.isRemote(wrapper.getUpgradeStack()),
+                    AlchemyReservation.journal(wrapper.getUpgradeStack(), player.level().registryAccess(), wrapper::saveReservationChange),
+                    () -> AlchemyReservation.state(wrapper.getUpgradeStack()).orElse(null) == AlchemyReservation.State.IN_FLIGHT, () -> { AlchemyReservation.clear(wrapper.getUpgradeStack()); wrapper.saveReservationChange(); });
     }
 
     private static boolean isInstalled(RemoteAlchemyUpgradeWrapper wrapper) {
