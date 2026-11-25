@@ -14,8 +14,11 @@ import org.cyclops.cyclopscore.ingredient.collection.IngredientCollectionPrototy
 
 /** P03/P08/P11: native fluid identities and mB, without bucket/item conversion. */
 public final class IntegratedDynamicsFluidStorageAdapter implements FluidStorageAdapter {
+    @Override
     public String backendId() { return "integrateddynamics"; }
+    @Override
     public Optional<FluidStorageTarget> resolve(ServerLevel level, StorageEndpoint endpoint) { return resolve(level, endpoint, null); }
+    @Override
     public Optional<FluidStorageTarget> resolve(ServerLevel level, StorageEndpoint endpoint, SourceLocation source) {
         if (!backendId().equals(endpoint.backendId()) || !level.dimension().equals(endpoint.dimension()) || !level.isLoaded(endpoint.pos())) return Optional.empty();
         return Optional.of(new Target(endpoint, source));
@@ -27,7 +30,9 @@ public final class IntegratedDynamicsFluidStorageAdapter implements FluidStorage
         private Optional<INetworkIngredientsChannel<FluidStack, Integer>> channel(ServerPlayer player) {
             return network(player, source).map(network -> network.getChannel(IPositionedAddonsNetwork.WILDCARD_CHANNEL));
         }
+        @Override
         public boolean isReachable(ServerPlayer player, SourceLocation origin, FluidStorageAccess access) { return network(player, origin).isPresent(); }
+        @Override
         public List<FluidStorageAmount> getAvailableFluids(ServerPlayer player) {
             try (var positionScope = IntegratedPositionScope.open()) {
                 var resolved = network(player, source);
@@ -51,7 +56,9 @@ public final class IntegratedDynamicsFluidStorageAdapter implements FluidStorage
                 return channel(player).map(channel -> channel.insert(stack.copy(), simulate)).orElseGet(stack::copy);
             }
         }
+        @Override
         public long simulateInsert(FluidStack stack, ServerPlayer player) { return (long) stack.getAmount() - insert(stack, player, true).getAmount(); }
+        @Override
         public FluidStack insert(FluidStack stack, ServerPlayer player) { return insert(stack, player, false); }
         private FluidStack extract(FluidStorageKey key, long amount, ServerPlayer player, boolean simulate) {
             try (var positionScope = IntegratedPositionScope.open()) {
@@ -63,7 +70,9 @@ public final class IntegratedDynamicsFluidStorageAdapter implements FluidStorage
                 }).orElse(FluidStack.EMPTY);
             }
         }
+        @Override
         public long simulateExtract(FluidStorageKey key, long amount, ServerPlayer player) { return extract(key, amount, player, true).getAmount(); }
+        @Override
         public FluidStack extract(FluidStorageKey key, long amount, ServerPlayer player) { return extract(key, amount, player, false); }
     }
 }
