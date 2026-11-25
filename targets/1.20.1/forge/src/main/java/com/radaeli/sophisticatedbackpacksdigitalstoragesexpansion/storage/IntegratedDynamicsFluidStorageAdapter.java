@@ -49,24 +49,26 @@ public final class IntegratedDynamicsFluidStorageAdapter implements FluidStorage
 
         @Override
         public List<FluidStorageAmount> getAvailableFluids(ServerPlayer player) {
-            Optional<IPositionedAddonsNetworkIngredients<FluidStack, Integer>> resolved = network(player);
-            if (resolved.isEmpty()) {
-                return List.of();
-            }
-            var amounts = new IngredientCollectionPrototypeMap<>(IngredientComponent.FLUIDSTACK);
-            IntegratedDynamicsAccessPolicy.liveChannel(resolved.get()).iterator().forEachRemaining(amounts::add);
-
-            List<FluidStorageAmount> result = new ArrayList<>();
-            var prototypes = amounts.prototypeIterator();
-            while (prototypes.hasNext()) {
-                var entry = prototypes.next();
-                FluidStack identity = entry.getKey();
-                long amount = entry.getValue();
-                if (!identity.isEmpty() && amount > 0) {
-                    result.add(new FluidStorageAmount(FluidStorageKey.of(identity), amount));
+            try (var positionScope = IntegratedPositionScope.open()) {
+                Optional<IPositionedAddonsNetworkIngredients<FluidStack, Integer>> resolved = network(player);
+                if (resolved.isEmpty()) {
+                    return List.of();
                 }
+                var amounts = new IngredientCollectionPrototypeMap<>(IngredientComponent.FLUIDSTACK);
+                IntegratedDynamicsAccessPolicy.liveChannel(resolved.get()).iterator().forEachRemaining(amounts::add);
+
+                List<FluidStorageAmount> result = new ArrayList<>();
+                var prototypes = amounts.prototypeIterator();
+                while (prototypes.hasNext()) {
+                    var entry = prototypes.next();
+                    FluidStack identity = entry.getKey();
+                    long amount = entry.getValue();
+                    if (!identity.isEmpty() && amount > 0) {
+                        result.add(new FluidStorageAmount(FluidStorageKey.of(identity), amount));
+                    }
+                }
+                return List.copyOf(result);
             }
-            return List.copyOf(result);
         }
 
         @Override
@@ -80,10 +82,12 @@ public final class IntegratedDynamicsFluidStorageAdapter implements FluidStorage
         }
 
         private FluidStack insert(FluidStack stack, ServerPlayer player, boolean simulate) {
-            if (stack.isEmpty()) {
-                return FluidStack.EMPTY;
+            try (var positionScope = IntegratedPositionScope.open()) {
+                if (stack.isEmpty()) {
+                    return FluidStack.EMPTY;
+                }
+                return channel(player).map(value -> value.insert(stack.copy(), simulate)).orElseGet(stack::copy);
             }
-            return channel(player).map(value -> value.insert(stack.copy(), simulate)).orElseGet(stack::copy);
         }
 
         @Override
@@ -97,13 +101,15 @@ public final class IntegratedDynamicsFluidStorageAdapter implements FluidStorage
         }
 
         private FluidStack extract(FluidStorageKey key, long amountMb, ServerPlayer player, boolean simulate) {
-            if (amountMb <= 0) {
-                return FluidStack.EMPTY;
+            try (var positionScope = IntegratedPositionScope.open()) {
+                if (amountMb <= 0) {
+                    return FluidStack.EMPTY;
+                }
+                FluidStack request = key.toStack((int) Math.min(Integer.MAX_VALUE, amountMb));
+                return network(player).map(value -> IntegratedDynamicsAccessPolicy.liveChannel(value).extract(request,
+                        IngredientComponent.FLUIDSTACK.getMatcher().getExactMatchNoQuantityCondition(), simulate))
+                        .orElse(FluidStack.EMPTY);
             }
-            FluidStack request = key.toStack((int) Math.min(Integer.MAX_VALUE, amountMb));
-            return network(player).map(value -> IntegratedDynamicsAccessPolicy.liveChannel(value).extract(request,
-                    IngredientComponent.FLUIDSTACK.getMatcher().getExactMatchNoQuantityCondition(), simulate))
-                    .orElse(FluidStack.EMPTY);
         }
     }
 }

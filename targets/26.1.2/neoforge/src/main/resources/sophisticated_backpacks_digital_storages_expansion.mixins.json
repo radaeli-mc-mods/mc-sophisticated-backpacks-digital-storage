@@ -5,6 +5,7 @@
   "compatibilityLevel": "JAVA_21",
   "mixins": [
     "PickupContextMixin",
+    "IntegratedChannelPositionMixin",
     "MagnetUpgradeWrapperAccessor",
     "ItemEntityPickupDelayAccessor",
     "BackpackFluidCapabilityMixin",

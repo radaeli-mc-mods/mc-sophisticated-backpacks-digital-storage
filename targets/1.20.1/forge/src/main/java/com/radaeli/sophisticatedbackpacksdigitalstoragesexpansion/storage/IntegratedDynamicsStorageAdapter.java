@@ -81,52 +81,56 @@ public final class IntegratedDynamicsStorageAdapter implements StorageAdapter {
         @Override
         public List<StoredItemAmount> queryItems(ServerPlayer player, Predicate<ItemStack> matches,
                 Optional<Item> item, int needed) {
-            if (needed <= 0) {
-                return List.of();
-            }
-            Optional<IPositionedAddonsNetworkIngredients<ItemStack, Integer>> resolved = network(player);
-            if (resolved.isEmpty()) {
-                return List.of();
-            }
-            var nativeChannel = IntegratedDynamicsAccessPolicy.liveChannel(resolved.get());
-            var identities = item.map(type -> nativeChannel.iterator(new ItemStack(type), ItemMatch.ITEM))
-                    .orElseGet(nativeChannel::iterator);
-            var amounts = new IngredientCollectionPrototypeMap<>(IngredientComponent.ITEMSTACK);
-            // Match before aggregating: irrelevant variants never enter the quantity map.
-            while (identities.hasNext()) {
-                var identity = identities.next();
-                if (!identity.isEmpty() && matches.test(identity.copyWithCount(1))) amounts.add(identity);
-            }
-
-            List<StoredItemAmount> result = new ArrayList<>();
-            var prototypes = amounts.prototypeIterator();
-            while (prototypes.hasNext()) {
-                var entry = prototypes.next();
-                ItemStack identity = entry.getKey();
-                long amount = entry.getValue();
-                if (!identity.isEmpty() && amount > 0) {
-                    result.add(new StoredItemAmount(identity, amount));
+            try (var positionScope = IntegratedPositionScope.open()) {
+                if (needed <= 0) {
+                    return List.of();
                 }
+                Optional<IPositionedAddonsNetworkIngredients<ItemStack, Integer>> resolved = network(player);
+                if (resolved.isEmpty()) {
+                    return List.of();
+                }
+                var nativeChannel = IntegratedDynamicsAccessPolicy.liveChannel(resolved.get());
+                var identities = item.map(type -> nativeChannel.iterator(new ItemStack(type), ItemMatch.ITEM))
+                        .orElseGet(nativeChannel::iterator);
+                var amounts = new IngredientCollectionPrototypeMap<>(IngredientComponent.ITEMSTACK);
+                // Match before aggregating: irrelevant variants never enter the quantity map.
+                while (identities.hasNext()) {
+                    var identity = identities.next();
+                    if (!identity.isEmpty() && matches.test(identity.copyWithCount(1))) amounts.add(identity);
+                }
+
+                List<StoredItemAmount> result = new ArrayList<>();
+                var prototypes = amounts.prototypeIterator();
+                while (prototypes.hasNext()) {
+                    var entry = prototypes.next();
+                    ItemStack identity = entry.getKey();
+                    long amount = entry.getValue();
+                    if (!identity.isEmpty() && amount > 0) {
+                        result.add(new StoredItemAmount(identity, amount));
+                    }
+                }
+                return List.copyOf(result);
             }
-            return List.copyOf(result);
         }
 
         @Override
         public boolean hasStoredMatching(ServerPlayer player, Predicate<ItemStack> matches, Optional<Item> item) {
-            Optional<IPositionedAddonsNetworkIngredients<ItemStack, Integer>> resolved = network(player);
-            if (resolved.isEmpty()) {
+            try (var positionScope = IntegratedPositionScope.open()) {
+                Optional<IPositionedAddonsNetworkIngredients<ItemStack, Integer>> resolved = network(player);
+                if (resolved.isEmpty()) {
+                    return false;
+                }
+                var nativeChannel = IntegratedDynamicsAccessPolicy.liveChannel(resolved.get());
+                var identities = item.map(type -> nativeChannel.iterator(new ItemStack(type), ItemMatch.ITEM))
+                        .orElseGet(nativeChannel::iterator);
+                while (identities.hasNext()) {
+                    ItemStack identity = identities.next();
+                    if (!identity.isEmpty() && matches.test(identity.copyWithCount(1))) {
+                        return true;
+                    }
+                }
                 return false;
             }
-            var nativeChannel = IntegratedDynamicsAccessPolicy.liveChannel(resolved.get());
-            var identities = item.map(type -> nativeChannel.iterator(new ItemStack(type), ItemMatch.ITEM))
-                    .orElseGet(nativeChannel::iterator);
-            while (identities.hasNext()) {
-                ItemStack identity = identities.next();
-                if (!identity.isEmpty() && matches.test(identity.copyWithCount(1))) {
-                    return true;
-                }
-            }
-            return false;
         }
 
         @Override
@@ -144,10 +148,12 @@ public final class IntegratedDynamicsStorageAdapter implements StorageAdapter {
         }
 
         private ItemStack insert(ItemStack stack, ServerPlayer player, boolean simulate) {
-            if (stack.isEmpty()) {
-                return ItemStack.EMPTY;
+            try (var positionScope = IntegratedPositionScope.open()) {
+                if (stack.isEmpty()) {
+                    return ItemStack.EMPTY;
+                }
+                return channel(player).map(value -> value.insert(stack.copy(), simulate)).orElseGet(stack::copy);
             }
-            return channel(player).map(value -> value.insert(stack.copy(), simulate)).orElseGet(stack::copy);
         }
 
         @Override
@@ -161,13 +167,15 @@ public final class IntegratedDynamicsStorageAdapter implements StorageAdapter {
         }
 
         private ItemStack extract(ItemStack identity, int amount, ServerPlayer player, boolean simulate) {
-            if (identity.isEmpty() || amount <= 0) {
-                return ItemStack.EMPTY;
+            try (var positionScope = IntegratedPositionScope.open()) {
+                if (identity.isEmpty() || amount <= 0) {
+                    return ItemStack.EMPTY;
+                }
+                ItemStack request = identity.copyWithCount(Math.min(amount, identity.getMaxStackSize()));
+                return network(player).map(value -> IntegratedDynamicsAccessPolicy.liveChannel(value).extract(request,
+                        IngredientComponent.ITEMSTACK.getMatcher().getExactMatchNoQuantityCondition(), simulate))
+                        .orElse(ItemStack.EMPTY);
             }
-            ItemStack request = identity.copyWithCount(Math.min(amount, identity.getMaxStackSize()));
-            return network(player).map(value -> IntegratedDynamicsAccessPolicy.liveChannel(value).extract(request,
-                    IngredientComponent.ITEMSTACK.getMatcher().getExactMatchNoQuantityCondition(), simulate))
-                    .orElse(ItemStack.EMPTY);
         }
     }
 }

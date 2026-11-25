@@ -6,6 +6,7 @@
   "refmap": "sophisticated_backpacks_digital_storages_expansion.refmap.json",
   "mixins": [
     "PickupContextMixin",
+    "IntegratedChannelPositionMixin",
     "MagnetUpgradeWrapperAccessor",
     "ItemEntityPickupDelayAccessor",
     "BackpackFluidCapabilityMixin",
