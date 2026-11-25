@@ -146,4 +146,32 @@ public final class IntegratedAccessGameTests {
             h.succeed();
         });
     }
+
+    @GameTest(template = "empty", templateNamespace = "digitalstorage_tests", timeoutTicks = 300)
+    public static void omnimembership(GameTestHelper h) {
+        var pos = network(h, 1);
+        var player = player(h);
+        whenReady(h, pos, player, () -> {
+            var endpoint = new StorageEndpoint("integrateddynamics", h.getLevel().dimension(), pos);
+            var host = PartHelpers.getPartContainerChecked(h.getLevel(), pos, null);
+            var saved = host.serializeNBT();
+            host.deserializeNBT(saved);
+            try {
+                var state = (PartTypeConnectorOmniDirectional.State) host.getPartState(Direction.UP);
+                h.assertTrue(!state.isAddedToGroup(), "Fixture did not reproduce native transient membership reset");
+                h.assertTrue(StorageAdapterRegistry.connectForBinding(player, endpoint, SourceLocation.carriedBy(player)).target().isPresent(),
+                        "Deserialized loaded Omni was refused because of its transient flag");
+                int group = state.getGroupId();
+                state.setGroupId(PartTypeConnectorOmniDirectional.generateGroupId());
+                h.assertTrue(StorageAdapterRegistry.connectForBinding(player, endpoint, SourceLocation.carriedBy(player)).target().isEmpty(),
+                        "An Omni outside its exact loaded group was authorized");
+                state.setGroupId(group);
+                state.setEnabled(false);
+                h.assertTrue(StorageAdapterRegistry.connectForBinding(player, endpoint, SourceLocation.carriedBy(player)).target().isEmpty(),
+                        "Disabled deserialized Omni was authorized");
+                state.setEnabled(true);
+            } catch (org.cyclops.integrateddynamics.api.PartStateException failure) { throw new IllegalStateException(failure); }
+            h.succeed();
+        });
+    }
 }
