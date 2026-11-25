@@ -64,14 +64,16 @@ public final class UpgradeNetworkGameTests {
             }
         }
         if (expectedBackends().contains("integrateddynamics")) {
-            Map<String, Consumer<GameTestHelper>> integrated = Map.of(
-                "topology", IntegratedAccessGameTests::topology, "binding", IntegratedAccessGameTests::binding,
-                "unavailable", IntegratedAccessGameTests::unavailable, "items", IntegratedResourceGameTests::items,
-                "channelsandlongcounts", IntegratedResourceGameTests::channelsandlongcounts,
-                "nativefilters", IntegratedResourceGameTests::nativefilters,
-                "fluidsandcachedguard", IntegratedResourceGameTests::fluidsandcachedguard,
-                "nativeinterceptors", IntegratedResourceGameTests::nativeinterceptors,
-                "cachedbackpackguard", IntegratedResourceGameTests::cachedbackpackguard);
+            Map<String, Consumer<GameTestHelper>> integrated = Map.ofEntries(
+                Map.entry("topology", IntegratedAccessGameTests::topology), Map.entry("binding", IntegratedAccessGameTests::binding),
+                Map.entry("unavailable", IntegratedAccessGameTests::unavailable), Map.entry("items", IntegratedResourceGameTests::items),
+                Map.entry("channelsandlongcounts", IntegratedResourceGameTests::channelsandlongcounts),
+                Map.entry("nativefilters", IntegratedResourceGameTests::nativefilters),
+                Map.entry("fluidsandcachedguard", IntegratedResourceGameTests::fluidsandcachedguard),
+                Map.entry("nativeinterceptors", IntegratedResourceGameTests::nativeinterceptors),
+                Map.entry("serviceconservation", IntegratedResourceGameTests::serviceconservation),
+                Map.entry("restockbatches", IntegratedResourceGameTests::restockbatches),
+                Map.entry("cachedbackpackguard", IntegratedResourceGameTests::cachedbackpackguard));
             integrated.forEach((name, function) -> tests.put("integrated_"+name, FUNCTIONS.register("integrated_"+name, () -> function)));
         }
         FUNCTIONS.register(bus);

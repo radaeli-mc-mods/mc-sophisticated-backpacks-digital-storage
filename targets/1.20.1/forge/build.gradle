@@ -19,8 +19,10 @@ java {
     withSourcesJar()
 }
 
+sourceSets { gameTest { compileClasspath += sourceSets.main.output + sourceSets.main.compileClasspath; runtimeClasspath += sourceSets.main.output + sourceSets.main.runtimeClasspath } }
+
 def runClientRequested = gradle.startParameter.taskNames.any { it.endsWith(':runClient') || it == 'runClient' }
-def defaultBackendProfile = runClientRequested ? 'legacy-integrated' : 'legacy'
+def defaultBackendProfile = runClientRequested ? 'legacy-integrated' : 'none'
 def backendProfile = providers.gradleProperty('backendProfile').getOrElse(defaultBackendProfile)
 def integratedBase = ['cyclopscore', 'commoncapabilities', 'integrateddynamics']
 def integratedMin = integratedBase + ['integratedtunnels']
@@ -72,6 +74,7 @@ if ('toms_storage' in profiles[backendProfile]) profileClientFiles += ['toms-sto
 
 legacyForge {
     version = "${forge_minecraft_version}-${forge_version}"
+    addModdingDependenciesTo(sourceSets.gameTest)
     validateAccessTransformers = true
 
     runs {
@@ -81,17 +84,22 @@ legacyForge {
         }
         server {
             server()
-            gameDirectory = project.file('../../../runs/1.20.1/forge-server')
+            gameDirectory = project.file('../../../runs/1.20.1/forge-server-' + backendProfile)
             programArgument '--nogui'
         }
         gameTestServer {
             type = 'gameTestServer'
-            gameDirectory = project.file('../../../runs/1.20.1/forge-gametest')
-            systemProperty 'forge.enabledGameTestNamespaces', mod_id
+            sourceSet = sourceSets.gameTest
+            gameDirectory = project.file('../../../runs/1.20.1/forge-gametest-' + backendProfile)
+            systemProperty 'forge.enabledGameTestNamespaces', mod_id + ',digitalstorage_tests'
+            systemProperty 'digitalstorage.backendProfile', backendProfile
+            systemProperty 'digitalstorage.expectedBackends', profiles[backendProfile].findAll { it in ['ae2', 'refinedstorage', 'toms_storage', 'integrateddynamics'] }.join(',')
+            systemProperty 'digitalstorage.testReport', layout.buildDirectory.file('reports/integration/' + backendProfile + '/gametest.xml').get().asFile.absolutePath
         }
     }
 
     mods {
+        digitalstorage_tests { sourceSet sourceSets.gameTest }
         "${mod_id}" {
             sourceSet sourceSets.main
         }
@@ -107,9 +115,9 @@ dependencies {
     modCompileOnly 'maven.modrinth:toms-storage:XELeoPjZ'
     modRuntimeOnly 'maven.modrinth:sophisticated-core:e0UoBJSs'
     modRuntimeOnly 'maven.modrinth:sophisticated-backpacks:X7q2xTaV'
-    // Optional backends are only loaded for runClient and the selected profile.
-    if (runClientRequested) {
-        modRuntimeOnly "mezz.jei:jei-${minecraft_version}-forge:${jei_version}"
+    // The selected profile applies to clients, dedicated servers and tests.
+    if (runClientRequested || !profiles[backendProfile].isEmpty()) {
+        if (runClientRequested) modRuntimeOnly "mezz.jei:jei-${minecraft_version}-forge:${jei_version}"
         if ('ae2' in profiles[backendProfile]) {
             modRuntimeOnly 'maven.modrinth:ae2:jYgSnxye'
             modRuntimeOnly 'org.appliedenergistics:guideme:20.1.7'
@@ -176,13 +184,15 @@ tasks.register('prepareForgeClientMods', Copy) {
     }
 }
 
-tasks.register('prepareForgeGameTestMods', Copy) {
-    from({ sourceSets.main.runtimeClasspath.filter { it.name in [
-            'sophisticated-core-e0UoBJSs.jar',
-            'sophisticated-backpacks-X7q2xTaV.jar'
-    ] } })
-    into('../../../runs/1.20.1/forge-gametest/mods')
+tasks.register('prepareForgeGameTestMods', Sync) {
+    from({ sourceSets.main.runtimeClasspath.filter { it.name in profileClientFiles && !it.name.startsWith('jei-') } })
+    into('../../../runs/1.20.1/forge-gametest-' + backendProfile + '/mods')
 }
+tasks.register('prepareForgeServerMods', Sync) {
+    from({ sourceSets.main.runtimeClasspath.filter { it.name in profileClientFiles && !it.name.startsWith('jei-') } })
+    into('../../../runs/1.20.1/forge-server-' + backendProfile + '/mods')
+}
+tasks.named('runServer') { dependsOn 'prepareForgeServerMods' }
 
 tasks.named('runClient') {
     dependsOn(tasks.named('prepareForgeClientMods'))
@@ -276,6 +286,8 @@ tasks.named('jar', Jar).configure {
     // output so the dev server can discover them, but are excluded from jars.
     exclude '**/*Test.class'
     exclude '**/*Tests.class'
+    exclude '**/*Test$*.class'
+    exclude '**/*Tests$*.class'
     exclude "data/${mod_id}/structures/empty.nbt"
 }
 
@@ -386,3 +398,21 @@ apply from: rootProject.file('../../gradle/verify-forge-production-jar.gradle')
 
 
 version = "${mod_version}+${minecraft_version}-forge"
+
+legacyForge.runs.configureEach { run ->
+    run.loadedMods = run.name == 'gameTestServer' ? [legacyForge.mods[mod_id], legacyForge.mods.digitalstorage_tests] : [legacyForge.mods[mod_id]]
+}
+tasks.named('runGameTestServer') {
+    def report = layout.buildDirectory.file('reports/integration/' + backendProfile + '/gametest.xml')
+    doFirst { report.get().asFile.parentFile.mkdirs(); report.get().asFile.delete() }
+    doLast {
+        def xml = javax.xml.parsers.DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(report.get().asFile)
+        def cases = xml.getElementsByTagName('testcase')
+        def names = (0..<cases.length).collect { cases.item(it).getAttribute('name').toLowerCase() }
+        def required = ['profile']
+        if ('integratedtunnels' in profileBackends) required += ['topology', 'binding', 'unavailable', 'items', 'channelsandlongcounts', 'nativefilters', 'fluidsandcachedguard', 'nativeinterceptors', 'cachedbackpackguard', 'serviceconservation', 'restockbatches']
+        if (xml.getElementsByTagName('failure').length || xml.getElementsByTagName('error').length || xml.getElementsByTagName('skipped').length
+                || names.size() != names.toSet().size() || required.any { name -> names.count { it == name } != 1 }
+                || names.size() != 16 + required.size()) throw new GradleException('Incomplete Forge GameTest report: ' + names)
+    }
+}

@@ -12,10 +12,9 @@ public class StorageAdapterRegistryTest {
     public void optionalAdaptersStayUnavailableInTheBaseGameTestProfile() {
         assertTrue(ModList.get().isLoaded("sophisticatedcore"));
         assertTrue(ModList.get().isLoaded("sophisticatedbackpacks"));
-        assertFalse(ModList.get().isLoaded("ae2"));
-        assertFalse(ModList.get().isLoaded("refinedstorage"));
-        assertFalse(ModList.get().isLoaded("toms_storage"));
-        assertEquals(Set.of(), StorageAdapterRegistry.installedBackendIds());
+        var expected = new java.util.HashSet<>(java.util.List.of(System.getProperty("digitalstorage.expectedBackends", "").split(",")));
+        expected.remove("");
+        assertEquals(expected, StorageAdapterRegistry.installedBackendIds());
         assertThrows(UnsupportedOperationException.class,
                 () -> StorageAdapterRegistry.installedBackendIds().add("ae2"));
     }

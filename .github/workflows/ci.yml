@@ -96,3 +96,32 @@ jobs:
             targets/1.21.1/access-*.log
             runs/1.21.1/gametest-*/logs/**
           if-no-files-found: error
+
+  integration-forge:
+    name: Forge 1.20.1 Integrated / ${{ matrix.profile }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        profile: [none, integrated, full, all]
+    steps:
+      - uses: actions/checkout@v7
+        with: {persist-credentials: false}
+      - uses: radaeli-mc-mods/mc-ci/actions/setup-build@main
+        with: {java: '17'}
+      - name: Native contracts and preserved Forge regression suites
+        working-directory: targets/1.20.1
+        shell: bash
+        run: |
+          set -o pipefail
+          sh ./gradlew :forge:check -PbackendProfile=${{ matrix.profile }} --console=plain --stacktrace 2>&1 | tee integrated-${{ matrix.profile }}.log
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: integrated-forge-1.20.1-${{ matrix.profile }}
+          path: |
+            targets/1.20.1/forge/build/reports/**
+            targets/1.20.1/forge/build/test-results/**
+            targets/1.20.1/integrated-*.log
+            runs/1.20.1/forge-gametest-*/logs/**
+          if-no-files-found: error
