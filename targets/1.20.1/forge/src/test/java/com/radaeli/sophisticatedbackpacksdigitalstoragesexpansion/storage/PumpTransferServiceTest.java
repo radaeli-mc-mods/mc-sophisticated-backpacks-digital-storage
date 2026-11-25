@@ -20,6 +20,41 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class PumpTransferServiceTest extends MinecraftStorageTest {
     @Test
+    public void fillFailureKeepsOnlyTheLastKnownRemainderAndPersistsInFlight() {
+        for (boolean networkFirst : new boolean[]{true, false}) {
+            FluidTank first = tank(400, 0);
+            var upgrade = new ItemStack(Items.PAPER);
+            var registries = (net.minecraft.core.HolderLookup.Provider) null;
+            var reservation = com.radaeli.sophisticatedbackpacksdigitalstoragesexpansion.upgrade.PumpReservation.class;
+            FluidTank second = new FluidTank(1_000) {
+                @Override public int fill(FluidStack offered, FluidAction action) {
+                    if (action.execute()) {
+                        assertEquals(600, com.radaeli.sophisticatedbackpacksdigitalstoragesexpansion.upgrade.PumpReservation.fluid(upgrade, registries).getAmount());
+                        assertEquals(com.radaeli.sophisticatedbackpacksdigitalstoragesexpansion.upgrade.PumpReservation.State.IN_FLIGHT,
+                                com.radaeli.sophisticatedbackpacksdigitalstoragesexpansion.upgrade.PumpReservation.state(upgrade).orElseThrow());
+                        throw new IllegalStateException("injected second fill failure");
+                    }
+                    return offered.getAmount();
+                }
+            };
+            var source = tank(1_000, 1_000);
+            var router = new PumpStorageRouter(networkFirst ? first : second, networkFirst ? second : first, networkFirst);
+            assertTrue(PumpTransferService.transfer(source, router, 1_000, 1, stack -> true,
+                    remaining -> {
+                        if (remaining.isEmpty()) com.radaeli.sophisticatedbackpacksdigitalstoragesexpansion.upgrade.PumpReservation.clear(upgrade);
+                        else com.radaeli.sophisticatedbackpacksdigitalstoragesexpansion.upgrade.PumpReservation.reserve(upgrade, remaining, true, registries);
+                    }, true, () -> com.radaeli.sophisticatedbackpacksdigitalstoragesexpansion.upgrade.PumpReservation.setState(upgrade,
+                            com.radaeli.sophisticatedbackpacksdigitalstoragesexpansion.upgrade.PumpReservation.State.IN_FLIGHT)));
+            assertEquals(0, source.getFluidAmount());
+            assertEquals(400, first.getFluidAmount());
+            var restored = upgrade.copy();
+            assertEquals(600, com.radaeli.sophisticatedbackpacksdigitalstoragesexpansion.upgrade.PumpReservation.fluid(restored, registries).getAmount());
+            assertEquals(com.radaeli.sophisticatedbackpacksdigitalstoragesexpansion.upgrade.PumpReservation.State.IN_FLIGHT,
+                    com.radaeli.sophisticatedbackpacksdigitalstoragesexpansion.upgrade.PumpReservation.state(restored).orElseThrow());
+        }
+    }
+
+    @Test
     @Disabled("Forge capability tokens need the transformed mod runtime; port this case to GameTest")
     void realNeoForgeBucketCapabilitiesWorkInBothDirectionsWithNoBackpackTank() {
         var full = FluidUtil.getFluidHandler(new ItemStack(Items.WATER_BUCKET)).orElseThrow(() -> new AssertionError("Missing fluid capability"));

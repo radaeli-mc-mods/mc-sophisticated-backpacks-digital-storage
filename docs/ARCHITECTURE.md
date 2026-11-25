@@ -326,3 +326,7 @@ P01–P12: [registro do port](integrations/INTEGRATED_DYNAMICS_26_1_2.md) descre
 ## Conservação da coleta — F01, 2026-11-25
 
 P05/P08/P09/P10: Magnet nos três targets e Pickup imediato registram a custódia no item antes de entregar e persistem a sobra conhecida após cada destino. Uma exceção conserva a última parcela em quarentena, interrompe o fallback e devolve controle ao fluxo que reduz a entidade. A parcela incerta não fica disponível no drop nem é reenviada automaticamente; troca/desvínculo ficam bloqueados e a tooltip informa a pendência. O Pickup transacional de 26.1.2 mantém seu journal nativo. Isso preserva filtros, prioridade e os dados anteriores, sem prometer atomicidade entre storages e salvamento.
+
+## Checkpoints de preenchimento — F02, 2026-11-25
+
+P05/P08/P09/P10: nos três targets, preenchimento e recuperação persistem a sobra após cada destino e marcam IN_FLIGHT antes de cada chamada imediata. Uma exceção deixa somente a última sobra conhecida em quarentena; ticks seguintes não a reenviam, inclusive após reconstrução do wrapper. A transferência retorna ao chamador para que o recipiente já drenado seja atualizado. RESERVED/RECOVERING existentes e o limite de 1.000 mB continuam válidos. A quarentena não autoriza restituição integral.

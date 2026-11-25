@@ -64,6 +64,10 @@ public final class PumpStorageRouter implements IFluidHandler {
         return false;
     }
 
+    List<com.radaeli.sophisticatedbackpacksdigitalstoragesexpansion.transfer.CheckpointedDelivery.Step<FluidStack>> deliverySteps() {
+        return ordered.stream().map(handler -> FluidDelivery.step(handler == remote ? "remote" : "backpack", handler)).toList();
+    }
+
     @Override
     public int fill(FluidStack resource, FluidAction action) {
         int requested = Math.min(resource.getAmount(), PumpFluidHandlerFacade.MAX_OPERATION_MB);

@@ -40,19 +40,21 @@ public final class PumpTransferService {
     /** Returns true once the source changed, even if delivery leaves a pending reservation. */
     public static boolean transfer(IFluidHandler source, IFluidHandler destination, int maximum, int minimum,
             Predicate<FluidStack> filter, Consumer<FluidStack> persist, boolean restoreSource) {
+        return transfer(source, destination, maximum, minimum, filter, persist, restoreSource, () -> {});
+    }
+
+    public static boolean transfer(IFluidHandler source, IFluidHandler destination, int maximum, int minimum,
+            Predicate<FluidStack> filter, Consumer<FluidStack> persist, boolean restoreSource, Runnable inFlight) {
         for (FluidStack candidate : candidates(source, maximum, filter)) {
             int accepted = Math.max(0, Math.min(candidate.getAmount(), destination.fill(candidate.copy(), IFluidHandler.FluidAction.SIMULATE)));
             if (accepted < minimum) continue;
             FluidStack extracted = source.drain(com.radaeli.sophisticatedbackpacksdigitalstoragesexpansion.storage.FluidStacks.copyWithAmount(candidate, accepted), IFluidHandler.FluidAction.EXECUTE);
             if (extracted.isEmpty()) continue;
-            persist.accept(extracted.copy());
-            int inserted = Math.max(0, Math.min(extracted.getAmount(), destination.fill(extracted.copy(), IFluidHandler.FluidAction.EXECUTE)));
-            FluidStack remainder = com.radaeli.sophisticatedbackpacksdigitalstoragesexpansion.storage.FluidStacks.copyWithAmount(extracted, extracted.getAmount() - inserted);
-            persist.accept(remainder.copy());
+            var delivered = FluidDelivery.fill(destination, extracted, persist, inFlight);
+            if (delivered.uncertain()) return true;
+            FluidStack remainder = delivered.remainder();
             if (restoreSource && !remainder.isEmpty()) {
-                int restored = Math.max(0, Math.min(remainder.getAmount(), source.fill(remainder.copy(), IFluidHandler.FluidAction.EXECUTE)));
-                remainder.shrink(restored);
-                persist.accept(remainder.copy());
+                FluidDelivery.fill(source, remainder, persist, inFlight);
             }
             return true;
         }
