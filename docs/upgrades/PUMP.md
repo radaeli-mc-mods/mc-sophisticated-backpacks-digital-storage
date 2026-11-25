@@ -99,3 +99,9 @@ P01–P04/P07–P12: a [fase 1 da integração](../integrations/INTEGRATED_DYNAM
 ## Integrated Dynamics — porte 26.1.2
 
 P01–P12: o [port 26.1.2](../integrations/INTEGRATED_DYNAMICS_26_1_2.md) acrescenta o backend transacional aos serviços existentes desta função. Preserva Omni, filtros, prioridade aplicável, reservas e recuperação. Os GameTests nativos desta função fazem parte dos perfis integrated/terminals/full/all; comandos, evidências e limites ficam no registro. Nesta tarefa o usuário dispensou testes de interação com Java; nenhuma aprovação manual foi inferida.
+
+## Checkpoints de preenchimento — F02, 2026-11-25
+
+P05/P08/P09/P10: nos três targets, preenchimento e recuperação persistem a sobra após cada destino e marcam IN_FLIGHT antes de cada chamada imediata. Uma exceção deixa somente a última sobra conhecida em quarentena; ticks seguintes não a reenviam, inclusive após reconstrução do wrapper. A transferência retorna ao chamador para que o recipiente já drenado seja atualizado. RESERVED/RECOVERING existentes e o limite de 1.000 mB continuam válidos. A quarentena não autoriza restituição integral.
+
+Verificação F02: 18 testes de Pump/reserva passaram em cada NeoForge; os 16 GameTests preservados do Forge passaram, incluindo a regressão de preenchimento com falha nas duas ordens. A reconstrução conserva 600 mB e IN_FLIGHT após aceitação conhecida de 400 mB.

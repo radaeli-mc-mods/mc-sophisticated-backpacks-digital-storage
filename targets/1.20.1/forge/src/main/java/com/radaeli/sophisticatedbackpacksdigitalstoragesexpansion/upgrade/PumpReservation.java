@@ -17,7 +17,8 @@ public final class PumpReservation {
 
     public enum State {
         RESERVED,
-        RECOVERING
+        RECOVERING,
+        IN_FLIGHT
     }
 
     private PumpReservation() {

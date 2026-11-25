@@ -71,6 +71,7 @@ public final class ForgeStorageGameTests {
         PumpTransferServiceTest tests = new PumpTransferServiceTest();
         tests.realNeoForgeBucketCapabilitiesWorkInBothDirectionsWithNoBackpackTank();
         tests.splitExtractionPersistsFirstSourceBeforeCallingTheSecond();
+        tests.fillFailureKeepsOnlyTheLastKnownRemainderAndPersistsInFlight();
         tests.inputSplitsOneBucketBetweenNetworkAndBackpackInPriorityOrder();
         tests.outputCombinesMatchingFluidFromBothSourcesWithoutRequiringLocalTank();
         tests.backpackFirstAndNetworkUnavailableUseOnlyTheRequiredFallbackAmount();

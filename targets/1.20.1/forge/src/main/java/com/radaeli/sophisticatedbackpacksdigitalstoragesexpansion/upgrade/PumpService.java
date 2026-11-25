@@ -42,6 +42,7 @@ final class PumpService {
 
     static void tick(RemotePumpUpgradeWrapper wrapper, Entity entity, Level level, BlockPos pos) {
         if (!isInstalled(wrapper)) return;
+        if (PumpReservation.state(wrapper.getUpgradeStack()).orElse(null) == PumpReservation.State.IN_FLIGHT) return;
         ServerPlayer player = interactingPlayer(entity, level, pos).orElse(null);
         if (player == null) {
             wrapper.setOperationCooldown(level, 40, false);
@@ -238,7 +239,7 @@ final class PumpService {
         return PumpTransferService.transfer(source, destination, maximum, minimum,
                 candidate -> matches(wrapper, candidate) && PumpReservation.canEncode(candidate, level.registryAccess()),
                 pending -> persist(wrapper, pending,
-                        wrapper.isInput() ? storage.hasRemote() : storage.usedRemoteExtraction(), level), wrapper.isInput());
+                        wrapper.isInput() ? storage.hasRemote() : storage.usedRemoteExtraction(), level), wrapper.isInput(), () -> wrapper.setPendingState(PumpReservation.State.IN_FLIGHT));
     }
 
     private static void persist(RemotePumpUpgradeWrapper wrapper, FluidStack pending, boolean remoteOrigin, Level level) {
@@ -265,27 +266,15 @@ final class PumpService {
         FluidStorageConnection connection = FluidStorageAdapterRegistry.connect(player, wrapper.getEndpoint(),
                 source, FluidStorageAccess.INSERT);
         if (connection.status() == FluidStorageConnection.Status.UNSUPPORTED_FLUIDS) return;
-        if (wrapper.pendingFluidHasRemoteOrigin() && connection.target().isPresent()) {
-            FluidStorageTarget target = connection.target().get();
-            int attempted = (int) Math.max(0, Math.min(pending.getAmount(), target.simulateInsert(pending.copy(), player)));
-            if (attempted > 0) {
-                FluidStack offered = com.radaeli.sophisticatedbackpacksdigitalstoragesexpansion.storage.FluidStacks.copyWithAmount(pending, attempted);
-                FluidStack remainder = target.insert(offered, player);
-                int accepted = offered.getAmount() - (remainder.isEmpty() ? 0 : remainder.getAmount());
-                pending.shrink(Math.max(0, Math.min(attempted, accepted)));
-                // Persist after each destination, before trying the next one.
-                persist(wrapper, pending, true, level);
-            }
-        }
-        if (!pending.isEmpty()) {
-            IStorageFluidHandler local = wrapper.getStorageWrapper().getFluidHandler().orElse(null);
-            if (local != null) {
-                int accepted = Math.max(0, Math.min(pending.getAmount(), local.fill(pending.copy(), IFluidHandler.FluidAction.EXECUTE)));
-                pending.shrink(accepted);
-            }
-        }
-        persist(wrapper, pending, wrapper.pendingFluidHasRemoteOrigin(), level);
-        if (wrapper.hasPendingReservation()) wrapper.setPendingState(PumpReservation.State.RECOVERING);
+        IFluidHandler remote = wrapper.pendingFluidHasRemoteOrigin() ? connection.target()
+                .map(target -> (IFluidHandler) new PumpFluidHandlerFacade(target, player,
+                        PumpFluidHandlerFacade.Direction.HANDLER_TO_NETWORK)).orElse(null) : null;
+        IFluidHandler local = wrapper.getStorageWrapper().getFluidHandler().orElse(null);
+        boolean remoteOrigin = wrapper.pendingFluidHasRemoteOrigin();
+        var result = com.radaeli.sophisticatedbackpacksdigitalstoragesexpansion.storage.FluidDelivery.fill(new PumpStorageRouter(remote, local, true), pending,
+                remainder -> persist(wrapper, remainder, remoteOrigin, level),
+                () -> wrapper.setPendingState(PumpReservation.State.IN_FLIGHT));
+        if (!result.uncertain() && wrapper.hasPendingReservation()) wrapper.setPendingState(PumpReservation.State.RECOVERING);
     }
 
     private static boolean isInstalled(RemotePumpUpgradeWrapper wrapper) {
