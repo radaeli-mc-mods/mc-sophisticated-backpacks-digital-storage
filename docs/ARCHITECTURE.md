@@ -334,3 +334,7 @@ P05/P08/P09/P10: nos três targets, preenchimento e recuperação persistem a so
 ## Custódia do depósito — F03, 2026-11-25
 
 P08/P09/P10: Deposit persiste a oferta realmente extraída antes da inserção nos três targets. Registra cada sobra conhecida, inclusive na restauração por slot e no fallback do jogador. Falha comprovadamente sem commit permite recuperação síncrona; resultado desconhecido conserva a última oferta em quarentena, interrompe o pedido e bloqueia novas transferências/troca/desvínculo. A operação normal continua sem reserva duradoura; a exceção aprovada pela auditoria F03 mantém somente os dados necessários à resolução, sem refund integral de commits desconhecidos.
+
+## Continuação de abastecimento — F04, 2026-11-25
+
+P03/P08/P10/P11: um clique continua cada identidade enquanto houver estoque e capacidade. Cada oferta respeita o máximo nativo da stack, revalida instalação/acesso e calcula novamente o espaço. O pedido é síncrono, com orçamento global de 1.024 lotes; ao esgotá-lo, informa que outro clique continua. Não há tarefa persistida entre ticks. Identidades elegíveis permanecem congeladas antes da primeira inserção e sobras usam custódia/checkpoints, sem reenviar resultados incertos.

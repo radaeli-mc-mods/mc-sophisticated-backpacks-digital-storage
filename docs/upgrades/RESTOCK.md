@@ -87,3 +87,9 @@ P01–P04/P07–P12: a [fase 1 da integração](../integrations/INTEGRATED_DYNAM
 ## Integrated Dynamics — porte 26.1.2
 
 P01–P12: o [port 26.1.2](../integrations/INTEGRATED_DYNAMICS_26_1_2.md) acrescenta o backend transacional aos serviços existentes desta função. Preserva Omni, filtros, prioridade aplicável, reservas e recuperação. Os GameTests nativos desta função fazem parte dos perfis integrated/terminals/full/all; comandos, evidências e limites ficam no registro. Nesta tarefa o usuário dispensou testes de interação com Java; nenhuma aprovação manual foi inferida.
+
+## Continuação de abastecimento — F04, 2026-11-25
+
+P03/P08/P10/P11: um clique continua cada identidade enquanto houver estoque e capacidade. Cada oferta respeita o máximo nativo da stack, revalida instalação/acesso e calcula novamente o espaço. O pedido é síncrono, com orçamento global de 1.024 lotes; ao esgotá-lo, informa que outro clique continua. Não há tarefa persistida entre ticks. Identidades elegíveis permanecem congeladas antes da primeira inserção e sobras usam custódia/checkpoints, sem reenviar resultados incertos.
+
+Verificação F04: as regressões passaram nos três targets (JUnit nos NeoForge e driver GameTest Forge). Cobrem 256 pedras em um pedido, estoque parcial, itens não empilháveis, slots ampliados, extrações nativas parciais e esgotamento do orçamento. Os 16 GameTests Forge continuaram verdes.
