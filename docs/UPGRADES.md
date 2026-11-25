@@ -2,7 +2,9 @@
 
 ## Estado e referências
 
-Este documento consolida as decisões aprovadas e os critérios dos upgrades universais. Deposit, Restock, Pickup, Magnet, Refill, Feeding, Alchemy, Pump e Crafting têm implementação nos dois loaders. Consulte a arquitetura e cada plano individual para o estado da validação por função e backend.
+**Baseline de aceite — 2026-11-25 (P12):** o usuário informou validação em jogo nos três loaders e betas sem feedback negativo. Esse aceite substitui as anotações antigas de pendência geral de Integrated Dynamics, sem comprovar individualmente cada cenário das listas históricas. As correções desta auditoria têm evidência automatizada própria; não houve nova sessão manual de jogo nesta rodada. Veja o [relatório e a matriz de correções](relatorio-integrated-dynamics.md).
+
+Este documento consolida as decisões aprovadas e os critérios dos upgrades universais. Deposit, Restock, Pickup, Magnet, Refill, Feeding, Alchemy, Pump e Crafting têm implementação nos três targets dos dois loaders. Consulte a arquitetura e cada plano individual para o estado da validação por função e backend.
 
 Forge 1.20.1 e NeoForge 1.21.1 preservam suas suítes e os nove upgrades em builds independentes. Forge produz JAR reobfuscado. NeoForge 26.1.2 concentra a nova matriz de redes reais. Comandos, evidências e limites ficam em [MULTILOADER.md](MULTILOADER.md) e no [porte 26.1.2](PORT_26_1_2.md).
 
@@ -41,7 +43,7 @@ JEI é opcional no cliente e integra a grade Remote Crafting nos três targets: 
 
 JARs auditados no workspace: Core `1.5.1.2341`, Backpacks `3.26.3.2158`, AE2 `19.2.18`, RS `2.0.9`, Tom’s `2.4.2`. Mudanças de versão exigem nova conferência das assinaturas e dos pontos de Mixin.
 
-Integrated Dynamics segue seu [plano de integração](integrations/INTEGRATED_DYNAMICS.md): piloto 1.21.1 e porte Forge 1.20.1 implementado por autorização explícita antes do aceite manual; o porte 26.1.2 foi autorizado e implementado nesta rodada com validação automatizada, conforme [registro](integrations/INTEGRATED_DYNAMICS_26_1_2.md). A [fase 0](integrations/INTEGRATED_DYNAMICS_PHASE_0.md) fixa as dependências do piloto. A [fase 1](integrations/INTEGRATED_DYNAMICS_PHASE_1.md) acrescenta vínculo multipart por Omni, acesso revalidado e perfis/harness nativos no piloto. A [fase 2](integrations/INTEGRATED_DYNAMICS_PHASE_2.md) implementa os contratos básicos de itens/fluidos, traduções e quinto estado visual no piloto. A [fase 10](integrations/INTEGRATED_DYNAMICS_PHASE_10.md) registra o porte Forge, manifesto de dependências e compilação aprovada. A validação operacional de cada upgrade e o aceite manual continuam nas fases correspondentes. Preservar P02–P12 nas fases seguintes.
+Integrated Dynamics segue seu [plano de integração](integrations/INTEGRATED_DYNAMICS.md): piloto 1.21.1 e porte Forge 1.20.1 implementado por autorização explícita antes do aceite manual; o porte 26.1.2 foi autorizado e implementado nesta rodada com validação automatizada, conforme [registro](integrations/INTEGRATED_DYNAMICS_26_1_2.md). A [fase 0](integrations/INTEGRATED_DYNAMICS_PHASE_0.md) fixa as dependências do piloto. A [fase 1](integrations/INTEGRATED_DYNAMICS_PHASE_1.md) acrescenta vínculo multipart por Omni, acesso revalidado e perfis/harness nativos no piloto. A [fase 2](integrations/INTEGRATED_DYNAMICS_PHASE_2.md) implementa os contratos básicos de itens/fluidos, traduções e quinto estado visual no piloto. A [fase 10](integrations/INTEGRATED_DYNAMICS_PHASE_10.md) registra o porte Forge, manifesto de dependências e compilação aprovada. O aceite geral dos três loaders foi comunicado pelo usuário em 2026-11-25; registros de fase conservam a evidência histórica e não significam pendência geral atual. Preservar P02–P12 nas fases seguintes.
 
 <a id="P02"></a>
 ### P02 — Item universal e vínculo
@@ -208,4 +210,4 @@ Manter a arquitetura sincronizada com o código. A implementação foi compilada
 
 ## SCC 1.5.3
 
-NeoForge usa o adaptador SCC 1.5.3 nos nove upgrades. O Pump aceita fluidos sem componentes adicionais. Os cenários em jogo continuam descritos nas [fases do SCC](integrations/SCC.md) e no [plano de Crafting](upgrades/CRAFTING.md). No Forge, os backends são AE2, Refined Storage e Tom’s.
+NeoForge usa o adaptador SCC 1.5.3 nos nove upgrades. O Pump aceita fluidos sem componentes adicionais. Os cenários em jogo continuam descritos nas [fases do SCC](integrations/SCC.md) e no [plano de Crafting](upgrades/CRAFTING.md). No Forge, os backends são AE2, Refined Storage, Tom’s e Integrated Dynamics; SCC continua exclusivo dos targets NeoForge.

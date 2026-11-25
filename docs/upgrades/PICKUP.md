@@ -86,14 +86,17 @@ A entrega Pickup grava o marcador de operação em andamento antes de cada desti
 
 ## Integrated Dynamics — fundação e porte Forge
 
-P01–P04/P07–P12: a [fase 1 da integração](../integrations/INTEGRATED_DYNAMICS_PHASE_1.md) acrescenta vínculo universal por Omni e revalidação de acesso no piloto. O formato persistido e as reservas existentes permanecem preservados. A [fase 2](../integrations/INTEGRATED_DYNAMICS_PHASE_2.md) implementa os contratos básicos de itens/fluidos e o quinto estado visual do piloto. A [fase 10](../integrations/INTEGRATED_DYNAMICS_PHASE_10.md) porta esses contratos para Forge 1.20.1; `:forge:compileJava` passou. O gate operacional de Pickup e o aceite em jogo ainda estão pendentes, conforme o [plano Integrated](../integrations/INTEGRATED_DYNAMICS.md) e este plano individual.
+P01–P04/P07–P12: a [fase 1 da integração](../integrations/INTEGRATED_DYNAMICS_PHASE_1.md) acrescenta vínculo universal por Omni e revalidação de acesso no piloto. O formato persistido e as reservas existentes permanecem preservados. A [fase 2](../integrations/INTEGRATED_DYNAMICS_PHASE_2.md) implementa os contratos básicos de itens/fluidos e o quinto estado visual do piloto. A [fase 10](../integrations/INTEGRATED_DYNAMICS_PHASE_10.md) porta esses contratos para Forge 1.20.1; `:forge:compileJava` passou. O aceite geral em jogo dos três loaders foi comunicado pelo usuário em 2026-11-25. As evidências automatizadas das correções e seus limites estão no [relatório](../relatorio-integrated-dynamics.md); listas antigas não representam aceite individual de cada cenário.
 
 ## Integrated Dynamics — porte 26.1.2
 
-P01–P12: o [port 26.1.2](../integrations/INTEGRATED_DYNAMICS_26_1_2.md) acrescenta o backend transacional aos serviços existentes desta função. Preserva Omni, filtros, prioridade aplicável, reservas e recuperação. Os GameTests nativos desta função fazem parte dos perfis integrated/terminals/full/all; comandos, evidências e limites ficam no registro. Nesta tarefa o usuário dispensou testes de interação com Java; nenhuma aprovação manual foi inferida.
+P01–P12: o [port 26.1.2](../integrations/INTEGRATED_DYNAMICS_26_1_2.md) acrescenta o backend transacional aos serviços existentes desta função. Preserva Omni, filtros, prioridade aplicável, reservas e recuperação. Os GameTests nativos desta função fazem parte dos perfis integrated/terminals/full/all; comandos, evidências e limites ficam no registro. Na rodada original do port, o usuário dispensou testes de interação com Java; o aceite geral comunicado posteriormente está registrado acima.
 
 ## Conservação da coleta — F01, 2026-11-25
 
 P05/P08/P09/P10: Magnet nos três targets e Pickup imediato registram a custódia no item antes de entregar e persistem a sobra conhecida após cada destino. Uma exceção conserva a última parcela em quarentena, interrompe o fallback e devolve controle ao fluxo que reduz a entidade. A parcela incerta não fica disponível no drop nem é reenviada automaticamente; troca/desvínculo ficam bloqueados e a tooltip informa a pendência. O Pickup transacional de 26.1.2 mantém seu journal nativo. Isso preserva filtros, prioridade e os dados anteriores, sem prometer atomicidade entre storages e salvamento.
 
 Verificação F01: contrato comum passou; regressões ItemDeliveryTest passaram nos dois NeoForge (3 por target); suíte preservada e os novos cenários executados pelo Forge GameTest passaram. Aceite manual das mudanças excepcionais não foi inferido.
+
+
+P02/P09 — guarda de vínculo: a especialização combina a reserva própria com o bloqueio de custódia da classe base. O teste percorre todos os upgrades universais e recusa trocar/remover vínculo com entrega pendente nos três runtimes.

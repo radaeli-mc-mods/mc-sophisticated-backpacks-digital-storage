@@ -1,5 +1,8 @@
 # Integrated Dynamics — fase 0: dependências e baseline
 
+> Registro histórico da implementação. Em 2026-11-25, o usuário informou validação em jogo nos três loaders e betas sem feedback negativo. As pendências gerais de aceite abaixo descrevem aquela fase; não invalidam esse aceite nem comprovam cada cenário individual. Estado atual, commits e novas regressões: [relatório consolidado](../relatorio-integrated-dynamics.md).
+
+
 Registro de 2026-11-16, conforme a fase 0 do [plano aprovado](INTEGRATED_DYNAMICS.md). Premissas aplicáveis: [P01](../UPGRADES.md#P01), [P11](../UPGRADES.md#P11) e [P12](../UPGRADES.md#P12).
 
 **Fase 0 concluída.** A pilha do piloto é reproduzível e a baseline existente passou. O backend Integrated Dynamics ainda não está implementado; nenhuma operação ou aceitação em jogo dessa integração foi demonstrada.

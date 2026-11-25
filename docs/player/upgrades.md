@@ -1,6 +1,6 @@
 # Upgrade catalog
 
-All nine upgrades use the same item-linking system and can connect to AE2, Refined Storage, or Tom's Simple Storage. SCC 1.5.3+ is supported on NeoForge 1.21.1; use SCC 1.6.5 on NeoForge 26.1.2.
+All nine upgrades use the same item-linking system and can connect to AE2, Refined Storage, Tom's Simple Storage, or Integrated Dynamics with Integrated Tunnels on all three supported targets. SCC 1.5.3+ is supported on NeoForge 1.21.1; use SCC 1.6.5 on NeoForge 26.1.2.
 
 | Icon | Upgrade | Function |
 | --- | --- | --- |
@@ -16,3 +16,5 @@ All nine upgrades use the same item-linking system and can connect to AE2, Refin
 | <img src="https://raw.githubusercontent.com/radaelilucca/mc-sophisticated-backpacks-digital-storage/main/docs/gallery/upgrades/remote_crafting_upgrade.png" alt="Remote Crafting" width="32"> | Remote Crafting | Choose a recipe and fetch missing ingredients from the backpack and linked network, preserving occupied slots. |
 
 See [Linking upgrades](linking.md) and [Filters and source priority](filters.md) for setup and configuration details.
+
+Restock can retrieve several stacks of the same item in one click, up to available stock and backpack capacity. Very large requests may reach an operation limit; click again to continue.

@@ -1,5 +1,8 @@
 # Integrated Dynamics — porte Forge 1.20.1 (fase 10)
 
+> Registro histórico da implementação. Em 2026-11-25, o usuário informou validação em jogo nos três loaders e betas sem feedback negativo. As pendências gerais de aceite abaixo descrevem aquela fase; não invalidam esse aceite nem comprovam cada cenário individual. Estado atual, commits e novas regressões: [relatório consolidado](../relatorio-integrated-dynamics.md).
+
+
 Registro do porte solicitado em 2026-11-21, antes do aceite manual do piloto. O escopo é Forge 47.4.10 / Java 17; o porte 26.1.2 foi implementado posteriormente na mesma data, conforme [registro próprio](INTEGRATED_DYNAMICS_26_1_2.md). Este registro complementa o [plano canônico](INTEGRATED_DYNAMICS.md), as premissas [P01–P12](../UPGRADES.md) e os planos individuais dos nove upgrades, indexados em [UPGRADES.md](../UPGRADES.md).
 
 ## Implementação
@@ -33,4 +36,3 @@ O `:forge:runClient` usa por padrão `legacy-integrated`: mantém AE2/RS/Tom's d
 - `:forge:runClient -PbackendProfile=legacy-integrated` — iniciou com Forge 47.4.10 e os seis módulos Integrated; o log registrou a inicialização de Integrated Dynamics e as configurações de Integrated Terminals/Crafting, sem o crash de símbolos SRG do boot anterior. A execução fechou normalmente após a saída do mundo de teste; o perfil padrão contém agora os seis módulos.
 - Nenhuma suíte ou teste foi adicionado ou executado. Não houve execução de `build`, `check`, GameTests ou JAR de produção.
 - O boot do client comprova carregamento dos módulos, não os nove fluxos de upgrade, filtros nativos de item/fluidos, recuperação, multiplayer, animações ou gates do JAR Forge. A aceitação manual por plataforma e por upgrade permanece pendente conforme P12.
-

@@ -1,5 +1,8 @@
 # Integrated Dynamics — porte NeoForge 26.1.2
 
+> Registro histórico da implementação. Em 2026-11-25, o usuário informou validação em jogo nos três loaders e betas sem feedback negativo. As pendências gerais de aceite abaixo descrevem aquela fase; não invalidam esse aceite nem comprovam cada cenário individual. Estado atual, commits e novas regressões: [relatório consolidado](../relatorio-integrated-dynamics.md).
+
+
 Pedido explícito de 2026-11-21: antecipar o porte da fase 10 e entregar implementação, testes automatizados, verify, client iniciado e task VS Code com os módulos Integrated. O usuário dispensou testes de interação com Java nesta rodada. Não declara aceite visual ou multiplayer (P12).
 
 ## Contratos implementados
