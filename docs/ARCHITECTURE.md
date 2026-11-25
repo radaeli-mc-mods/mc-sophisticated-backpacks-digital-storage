@@ -238,7 +238,7 @@ Cada variante é um valor do enum `BackpackVariant` (`variant/`), que guarda o p
 | `scc` | `scc` | `scc:storage_connector` | `#E0A71E` | `#5A3A06` |
 | `id` | `integrateddynamics` | `integrateddynamics:crystalized_menril_chunk` | `#2FB8CC` | `#0F3F48` |
 
-A variante `id` (menril cristalizado ciano, `design/backpack-promo/paint_id.py`) existe só no piloto 1.21.1, como cosmético separado do backend; Forge 1.20.1 exclui sua receita e o 26.1.2 a recebe no porte da fase 10.
+A variante `id` (menril cristalizado ciano, `design/backpack-promo/paint_id.py`) está registrada no 1.21.1 e no 26.1.2, como cosmético separado do backend; Forge 1.20.1 exclui sua receita. No 26.1.2, reutiliza as três texturas compartilhadas e a mesma paleta, com ingrediente como string na receita condicional a `integrateddynamics`; o catálogo criativo e o JEI a incluem pelo enum, quando o mod está carregado.
 
 As cores são reservadas por variante e só servem de identidade e de aparência de contingência. Sem o mod, a mochila mantém o conteúdo e volta ao visual tingido padrão.
 

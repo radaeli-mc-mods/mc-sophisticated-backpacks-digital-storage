@@ -25,7 +25,8 @@ public enum BackpackVariant implements StringRepresentable {
     AE2("ae2", "ae2", "ae2:fluix_crystal", 0x6B46A8, 0x2B1F45),
     RS("rs", "refinedstorage", "refinedstorage:raw_advanced_processor", 0x3D7FC4, 0x16304F),
     TOMS("toms", "toms_storage", "toms_storage:inventory_connector", 0xA6763F, 0x3B2813),
-    SCC("scc", "scc", "scc:storage_connector", 0xE0A71E, 0x5A3A06);
+    SCC("scc", "scc", "scc:storage_connector", 0xE0A71E, 0x5A3A06),
+    ID("id", "integrateddynamics", "integrateddynamics:crystalized_menril_chunk", 0x2FB8CC, 0x0F3F48);
 
     public static final Codec<BackpackVariant> CODEC = StringRepresentable.fromEnum(BackpackVariant::values);
     public static final StreamCodec<ByteBuf, BackpackVariant> STREAM_CODEC =
