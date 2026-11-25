@@ -40,7 +40,7 @@ final class FeedingService {
         }
         boolean hurt = player.getHealth() < player.getMaxHealth() - 0.1F;
         List<UpgradeItemSources.SourceItem> candidates = UpgradeItemSources.find(wrapper, player,
-                wrapper.getSourcePriority(), stack -> isEligible(wrapper, player, stack, missingHunger, hurt));
+                wrapper.getSourcePriority(), stack -> isEligible(wrapper, player, stack, missingHunger, hurt), java.util.Optional.empty(), 1);
         for (UpgradeItemSources.SourceItem candidate : candidates) {
             ItemStack extracted = UpgradeItemSources.extract(wrapper, player, candidate, 1);
             if (extracted.isEmpty()) {

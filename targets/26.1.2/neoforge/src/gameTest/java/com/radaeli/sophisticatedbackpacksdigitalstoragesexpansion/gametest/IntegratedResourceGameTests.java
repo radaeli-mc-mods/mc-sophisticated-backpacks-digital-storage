@@ -299,4 +299,32 @@ public final class IntegratedResourceGameTests {
             h.succeed();
         });
     }
+
+
+    public static void selectivequeries(GameTestHelper h) {
+        var f = fixture(h, store -> {
+            var large = new net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler(4096);
+            large.set(0, net.neoforged.neoforge.transfer.item.ItemResource.of(Items.DIAMOND), 7);
+            for (int slot = 1; slot < 4096; slot++) {
+                var stack = new ItemStack(Items.STONE, 64);
+                stack.set(DataComponents.CUSTOM_NAME, Component.literal("variant-" + slot));
+                large.set(slot, net.neoforged.neoforge.transfer.item.ItemResource.of(stack), 64);
+            }
+            store.externalItems = large;
+        });
+        f.run(() -> {
+            var target = f.target();
+            target.queryItems(f.player, stack -> stack.is(Items.DIAMOND), Optional.of(Items.DIAMOND), 1);
+            long start = System.nanoTime();
+            var full = target.getAvailableItemAmounts(f.player);
+            long fullNanos = System.nanoTime() - start;
+            start = System.nanoTime();
+            var selected = target.queryItems(f.player, stack -> stack.is(Items.DIAMOND), Optional.of(Items.DIAMOND), 1);
+            long selectiveNanos = System.nanoTime() - start;
+            h.assertTrue(full.size() == 4096 && selected.size() == 1 && selected.getFirst().amount() == 7,
+                    "Selective query truncated quantities or lost alternatives");
+            System.out.println("Integrated query sample: variants=" + full.size() + ", fullNanos=" + fullNanos + ", selectiveNanos=" + selectiveNanos);
+            h.succeed();
+        });
+    }
 }

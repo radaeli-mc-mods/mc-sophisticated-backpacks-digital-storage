@@ -71,6 +71,7 @@ public final class UpgradeNetworkGameTests {
                 Map.entry("nativefilters", IntegratedResourceGameTests::nativefilters),
                 Map.entry("fluidsandcachedguard", IntegratedResourceGameTests::fluidsandcachedguard),
                 Map.entry("nativeinterceptors", IntegratedResourceGameTests::nativeinterceptors),
+                Map.entry("selectivequeries", IntegratedResourceGameTests::selectivequeries),
                 Map.entry("serviceconservation", IntegratedResourceGameTests::serviceconservation),
                 Map.entry("restockbatches", IntegratedResourceGameTests::restockbatches),
                 Map.entry("cachedbackpackguard", IntegratedResourceGameTests::cachedbackpackguard));

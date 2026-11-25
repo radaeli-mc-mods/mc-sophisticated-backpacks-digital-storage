@@ -338,3 +338,9 @@ P08/P09/P10: Deposit persiste a oferta realmente extraída antes da inserção n
 ## Continuação de abastecimento — F04, 2026-11-25
 
 P03/P08/P10/P11: um clique continua cada identidade enquanto houver estoque e capacidade. Cada oferta respeita o máximo nativo da stack, revalida instalação/acesso e calcula novamente o espaço. O pedido é síncrono, com orçamento global de 1.024 lotes; ao esgotá-lo, informa que outro clique continua. Não há tarefa persistida entre ticks. Identidades elegíveis permanecem congeladas antes da primeira inserção e sobras usam custódia/checkpoints, sem reenviar resultados incertos.
+
+## Consultas direcionadas e fontes adiadas — F06, 2026-11-25
+
+P03/P08/P11: os três targets expõem consulta seletiva por tipo. Integrated filtra variantes antes de agregá-las, preservando todas as identidades elegíveis e suas contagens long completas, mesmo com needed=1. Presença continua com saída antecipada. As fontes dos upgrades são snapshots locais à operação e a secundária só é consultada quando a iteração chega a ela; candidato visível sem extração mantém o fallback. Crafting pode materializar ambas quando precisa comparar alternativas. Refill restringe por tipo somente no modo ITEM. Nenhuma rede ou autorização é cacheada no wrapper.
+
+Verificação F06: common:test e check/full dos três targets passaram (29 GameTests Forge, 13 no 1.21.1, 33 no 26.1.2), incluindo contagens long com needed=1 e fallback. Amostra única de 4.096 variantes, snapshot completo / consulta direcionada: Forge 13.260,8 / 0,60 ms; 1.21.1 5,14 / 0,85 ms; 26.1.2 6,24 / 1,71 ms. Não é medição de TPS nem comparação controlada antes/depois; consultas amplas continuam necessárias quando não há tipo conhecido ou quando a operação precisa comparar todas as alternativas.

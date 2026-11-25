@@ -41,7 +41,7 @@ final class RefillService {
                 continue;
             }
             List<UpgradeItemSources.SourceItem> sources = UpgradeItemSources.find(wrapper, player,
-                    wrapper.getSourcePriority(), candidate -> filters.stackMatchesFilter(candidate, filter.getItem(), filter.getDamageValue(), filter.isDamageableItem(), filter.getComponents()), java.util.Optional.empty(), destination.missing());
+                    wrapper.getSourcePriority(), candidate -> filters.stackMatchesFilter(candidate, filter.getItem(), filter.getDamageValue(), filter.isDamageableItem(), filter.getComponents()), filters.getPrimaryMatch() == net.p3pp3rf1y.sophisticatedcore.upgrades.PrimaryMatch.ITEM ? java.util.Optional.of(filter.getItem()) : java.util.Optional.empty(), destination.missing());
             for (UpgradeItemSources.SourceItem source : sources) {
                 int requested = (int) Math.min(destination.missing(), Math.min(source.amount(), Integer.MAX_VALUE));
                 if (requested <= 0) {

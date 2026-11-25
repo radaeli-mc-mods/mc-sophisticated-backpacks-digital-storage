@@ -14,7 +14,7 @@ tasks.named('runGameTestServer') {
         def cases = xml.getElementsByTagName('testcase')
         def names = (0..<cases.length).collect { cases.item(it).getAttribute('name').toLowerCase() }
         def required = ['profile']
-        if ('integratedtunnels' in profileBackends) required += ['topology', 'binding', 'unavailable', 'items', 'channelsandlongcounts', 'nativefilters', 'fluidsandcachedguard', 'nativeinterceptors', 'cachedbackpackguard', 'serviceconservation', 'restockbatches']
+        if ('integratedtunnels' in profileBackends) required += ['topology', 'binding', 'unavailable', 'items', 'channelsandlongcounts', 'nativefilters', 'fluidsandcachedguard', 'nativeinterceptors', 'cachedbackpackguard', 'serviceconservation', 'restockbatches', 'selectivequeries']
         if (xml.getElementsByTagName('failure').length || xml.getElementsByTagName('error').length || xml.getElementsByTagName('skipped').length
                 || names.size() != required.size() || names.toSet().size() != required.size()
                 || required.any { name -> names.count { it == name } != 1 }) {

@@ -20,6 +20,14 @@ public interface StorageTarget {
         return false;
     }
 
+    default List<StoredItemAmount> queryItems(ServerPlayer player, java.util.function.Predicate<ItemStack> matches,
+            java.util.Optional<net.minecraft.world.item.Item> item, int needed) {
+        if (needed <= 0) return List.of();
+        return getAvailableItemAmounts(player).stream()
+                .filter(value -> item.map(type -> value.exemplar().is(type)).orElse(true))
+                .filter(value -> matches.test(value.exemplar())).toList();
+    }
+
     boolean isReachable(ServerPlayer player, SourceLocation source);
 
     /** Validates that an endpoint can be linked without requiring an item/fluid interface. */

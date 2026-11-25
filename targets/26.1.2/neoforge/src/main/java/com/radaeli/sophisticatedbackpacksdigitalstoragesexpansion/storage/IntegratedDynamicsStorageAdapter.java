@@ -57,14 +57,18 @@ public final class IntegratedDynamicsStorageAdapter implements StorageAdapter {
             var channel = IntegratedDynamicsAccessPolicy.liveChannel(resolved.get());
             var identities = item.map(type -> channel.iterator(new ItemStack(type), ItemMatch.ITEM)).orElseGet(channel::iterator);
             var amounts = new IngredientCollectionPrototypeMap<>(IngredientComponent.ITEMSTACK);
-            identities.forEachRemaining(amounts::add);
+            // Match before aggregating: irrelevant variants never enter the quantity map.
+            while (identities.hasNext()) {
+                var identity = identities.next();
+                if (!identity.isEmpty() && matches.test(identity.copyWithCount(1))) amounts.add(identity);
+            }
             var result = new ArrayList<StoredItemAmount>();
             var prototypes = amounts.prototypeIterator();
             while (prototypes.hasNext()) {
                 var entry = prototypes.next();
                 ItemStack identity = entry.getKey();
                 long amount = entry.getValue();
-                if (!identity.isEmpty() && amount > 0 && matches.test(identity.copyWithCount(1))) {
+                if (!identity.isEmpty() && amount > 0) {
                     result.add(new StoredItemAmount(identity, amount));
                 }
             }
