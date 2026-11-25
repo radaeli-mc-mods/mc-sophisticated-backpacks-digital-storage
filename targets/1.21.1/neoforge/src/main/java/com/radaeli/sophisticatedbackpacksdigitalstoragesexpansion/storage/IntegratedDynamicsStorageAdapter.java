@@ -1,8 +1,11 @@
 package com.radaeli.sophisticatedbackpacksdigitalstoragesexpansion.storage;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import net.minecraft.core.BlockPos;
-import net.minecraft.server.level.*;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Item;
@@ -16,13 +19,17 @@ import org.cyclops.cyclopscore.ingredient.collection.IngredientCollectionPrototy
 
 /** P03/P08/P11: native wildcard item channel, with fresh access validation on every call. */
 public final class IntegratedDynamicsStorageAdapter implements StorageAdapter {
+    @Override
     public String backendId() { return "integrateddynamics"; }
+    @Override
     public Optional<StorageEndpoint> identify(Level level, BlockPos pos) {
         return IntegratedDynamicsLinkDiscovery.identify(level, pos);
     }
+    @Override
     public Optional<StorageTarget> resolve(ServerLevel level, StorageEndpoint endpoint) {
         return resolve(level, endpoint, null);
     }
+    @Override
     public Optional<StorageTarget> resolve(ServerLevel level, StorageEndpoint endpoint, SourceLocation source) {
         if (!backendId().equals(endpoint.backendId()) || !level.dimension().equals(endpoint.dimension())
                 || !level.isLoaded(endpoint.pos())) return Optional.empty();
@@ -35,19 +42,25 @@ public final class IntegratedDynamicsStorageAdapter implements StorageAdapter {
         private Optional<INetworkIngredientsChannel<ItemStack, Integer>> channel(ServerPlayer player) {
             return network(player, source).map(network -> network.getChannel(IPositionedAddonsNetwork.WILDCARD_CHANNEL));
         }
+        @Override
         public boolean canBind(ServerPlayer player, SourceLocation origin) {
             return IntegratedDynamicsAccessPolicy.resolve(player, endpoint, origin).isPresent();
         }
+        @Override
         public boolean isReachable(ServerPlayer player, SourceLocation origin) { return canBind(player, origin); }
+        @Override
         public boolean canAccess(ServerPlayer player, SourceLocation origin, StorageOperation operation) {
             return network(player, origin).isPresent();
         }
+        @Override
         public IItemHandler getAvailableItems(ServerPlayer player) {
             return new SnapshotItemHandler(getAvailableItemAmounts(player).stream().map(StoredItemAmount::exemplar).toList());
         }
+        @Override
         public List<StoredItemAmount> getAvailableItemAmounts(ServerPlayer player) {
             return queryItems(player, stack -> true, Optional.empty(), Integer.MAX_VALUE);
         }
+        @Override
         public List<StoredItemAmount> queryItems(ServerPlayer player, java.util.function.Predicate<ItemStack> matches,
                 Optional<Item> item, int needed) {
             try (var positionScope = IntegratedPositionScope.open()) {
@@ -75,6 +88,7 @@ public final class IntegratedDynamicsStorageAdapter implements StorageAdapter {
                 return List.copyOf(result);
             }
         }
+        @Override
         public boolean hasStoredMatching(ServerPlayer player, java.util.function.Predicate<ItemStack> matches, Optional<Item> item) {
             try (var positionScope = IntegratedPositionScope.open()) {
                 var resolved = network(player, source);
@@ -94,9 +108,11 @@ public final class IntegratedDynamicsStorageAdapter implements StorageAdapter {
                 return channel(player).map(channel -> channel.insert(stack.copy(), simulate)).orElseGet(stack::copy);
             }
         }
+        @Override
         public int simulateInsert(ItemStack stack, ServerPlayer player) {
             return ItemInsertion.acceptedCount(stack, (long) stack.getCount() - insert(stack, player, true).getCount());
         }
+        @Override
         public ItemStack insert(ItemStack stack, ServerPlayer player) { return insert(stack, player, false); }
         private ItemStack extract(ItemStack identity, int amount, ServerPlayer player, boolean simulate) {
             try (var positionScope = IntegratedPositionScope.open()) {
@@ -108,7 +124,9 @@ public final class IntegratedDynamicsStorageAdapter implements StorageAdapter {
                 }).orElse(ItemStack.EMPTY);
             }
         }
+        @Override
         public int simulateExtract(ItemStack identity, int amount, ServerPlayer player) { return extract(identity, amount, player, true).getCount(); }
+        @Override
         public ItemStack extract(ItemStack identity, int amount, ServerPlayer player) { return extract(identity, amount, player, false); }
     }
 }
