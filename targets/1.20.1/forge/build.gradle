@@ -90,6 +90,8 @@ legacyForge {
         gameTestServer {
             type = 'gameTestServer'
             sourceSet = sourceSets.gameTest
+            programArgument '--mixin.config'
+            programArgument 'digitalstorage_tests.mixins.json'
             gameDirectory = project.file('../../../runs/1.20.1/forge-gametest-' + backendProfile)
             systemProperty 'forge.enabledGameTestNamespaces', mod_id + ',digitalstorage_tests'
             systemProperty 'digitalstorage.backendProfile', backendProfile
