@@ -97,7 +97,7 @@ final class AlchemyService {
                     ACTIVE.remove(storage);
                     AlchemyReservation.setState(wrapper.getUpgradeStack(), AlchemyReservation.State.IN_FLIGHT);
                     wrapper.saveReservationChange();
-                    com.mojang.logging.LogUtils.getLogger().error("Alchemy hook failed; endpoint={}, stage=start, reservation quarantined", wrapper.getEndpoint(), exception);
+                    com.mojang.logging.LogUtils.getLogger().error("Alchemy hook failed; {}, reservation quarantined", com.radaeli.sophisticatedbackpacksdigitalstoragesexpansion.storage.DeliveryDiagnostics.describe(wrapper.getUpgradeStack(), "start"), exception);
                 }
                 return;
             }
@@ -170,7 +170,7 @@ final class AlchemyService {
         } catch (RuntimeException failure) {
             AlchemyReservation.setState(wrapper.getUpgradeStack(), AlchemyReservation.State.IN_FLIGHT);
             wrapper.saveReservationChange();
-            com.mojang.logging.LogUtils.getLogger().error("Alchemy hook failed; endpoint={}, stage=finish, reservation quarantined", wrapper.getEndpoint(), failure);
+            com.mojang.logging.LogUtils.getLogger().error("Alchemy hook failed; {}, reservation quarantined", com.radaeli.sophisticatedbackpacksdigitalstoragesexpansion.storage.DeliveryDiagnostics.describe(wrapper.getUpgradeStack(), "finish"), failure);
         }
     }
 

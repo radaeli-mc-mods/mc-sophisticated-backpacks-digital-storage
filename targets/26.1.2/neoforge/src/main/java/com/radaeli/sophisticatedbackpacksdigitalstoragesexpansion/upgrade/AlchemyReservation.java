@@ -28,12 +28,15 @@ public final class AlchemyReservation {
     static com.radaeli.sophisticatedbackpacksdigitalstoragesexpansion.transfer.DeliveryJournal<ItemStack> journal(ItemStack upgrade,
             net.minecraft.core.HolderLookup.Provider registries, Runnable save) {
         return new com.radaeli.sophisticatedbackpacksdigitalstoragesexpansion.transfer.DeliveryJournal<>() {
+            private String deliveryStage = "recovery";
+            @Override public String description() { return com.radaeli.sophisticatedbackpacksdigitalstoragesexpansion.storage.DeliveryDiagnostics.describe(upgrade, deliveryStage); }
             @Override public void checkpoint(ItemStack remainder) {
                 updateStack(upgrade, remainder, registries);
                 setState(upgrade, State.RECOVERING);
                 save.run();
             }
             @Override public void beginDelivery(String stage) {
+                deliveryStage = stage;
                 setState(upgrade, State.IN_FLIGHT);
                 save.run();
             }

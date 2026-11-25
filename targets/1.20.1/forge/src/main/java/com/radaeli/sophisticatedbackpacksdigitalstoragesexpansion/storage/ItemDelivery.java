@@ -23,7 +23,7 @@ public final class ItemDelivery {
             List<CheckpointedDelivery.Step<ItemStack>> steps, DeliveryJournal<ItemStack> journal) {
         var result = CheckpointedDelivery.deliver(offered, steps, ItemStack::isEmpty, ItemStack::copy, journal);
         if (result.failure() != null) com.mojang.logging.LogUtils.getLogger().error(
-                "Item delivery failed; uncertain={}, last checkpoint retained by upgrade", result.uncertain(), result.failure());
+                "Item delivery failed; {}, uncertain={}; last checkpoint retained by upgrade", journal.description(), result.uncertain(), result.failure());
         return result;
     }
 }

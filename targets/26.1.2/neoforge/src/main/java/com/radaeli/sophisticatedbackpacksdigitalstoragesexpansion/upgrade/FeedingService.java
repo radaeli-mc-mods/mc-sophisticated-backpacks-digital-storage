@@ -93,8 +93,7 @@ final class FeedingService {
             player.setItemInHand(InteractionHand.MAIN_HAND, originalHand);
             handRestored = true;
             FeedingReservation.updateStack(wrapper.getUpgradeStack(), returned, player.registryAccess());
-            FeedingReservation.setState(wrapper.getUpgradeStack(), returned.isEmpty()
-                    ? FeedingReservation.State.RECOVERING : FeedingReservation.State.RECOVERING);
+            FeedingReservation.setState(wrapper.getUpgradeStack(), FeedingReservation.State.RECOVERING);
             wrapper.saveReservationChange();
             if (returned.isEmpty()) {
                 FeedingReservation.clear(wrapper.getUpgradeStack());
@@ -108,7 +107,7 @@ final class FeedingService {
         } catch (RuntimeException failure) {
             FeedingReservation.setState(wrapper.getUpgradeStack(), FeedingReservation.State.IN_FLIGHT);
             wrapper.saveReservationChange();
-            com.mojang.logging.LogUtils.getLogger().error("Feeding hook failed; endpoint={}, stage=consume, reservation quarantined", wrapper.getEndpoint(), failure);
+            com.mojang.logging.LogUtils.getLogger().error("Feeding hook failed; {}, reservation quarantined", com.radaeli.sophisticatedbackpacksdigitalstoragesexpansion.storage.DeliveryDiagnostics.describe(wrapper.getUpgradeStack(), "consume"), failure);
             return false;
         } finally {
             if (!handRestored) player.setItemInHand(InteractionHand.MAIN_HAND, originalHand);

@@ -45,16 +45,22 @@ public final class PumpTransferService {
 
     public static boolean transfer(IFluidHandler source, IFluidHandler destination, int maximum, int minimum,
             Predicate<FluidStack> filter, Consumer<FluidStack> persist, boolean restoreSource, Runnable inFlight) {
+        return transfer(source, destination, maximum, minimum, filter, persist, restoreSource, inFlight,
+                "backend=unspecified, endpoint=unspecified");
+    }
+
+    public static boolean transfer(IFluidHandler source, IFluidHandler destination, int maximum, int minimum,
+            Predicate<FluidStack> filter, Consumer<FluidStack> persist, boolean restoreSource, Runnable inFlight, String context) {
         for (FluidStack candidate : candidates(source, maximum, filter)) {
             int accepted = Math.max(0, Math.min(candidate.getAmount(), destination.fill(candidate.copy(), IFluidHandler.FluidAction.SIMULATE)));
             if (accepted < minimum) continue;
             FluidStack extracted = source.drain(com.radaeli.sophisticatedbackpacksdigitalstoragesexpansion.storage.FluidStacks.copyWithAmount(candidate, accepted), IFluidHandler.FluidAction.EXECUTE);
             if (extracted.isEmpty()) continue;
-            var delivered = FluidDelivery.fill(destination, extracted, persist, inFlight);
+            var delivered = FluidDelivery.fill(destination, extracted, persist, inFlight, context);
             if (delivered.uncertain()) return true;
             FluidStack remainder = delivered.remainder();
             if (restoreSource && !remainder.isEmpty()) {
-                FluidDelivery.fill(source, remainder, persist, inFlight);
+                FluidDelivery.fill(source, remainder, persist, inFlight, context);
             }
             return true;
         }
