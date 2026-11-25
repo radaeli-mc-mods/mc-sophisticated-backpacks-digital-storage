@@ -30,42 +30,48 @@ public final class IntegratedDynamicsFluidStorageAdapter implements FluidStorage
         }
         public boolean isReachable(ServerPlayer player, SourceLocation origin, FluidStorageAccess access) { return network(player, origin).isPresent(); }
         public List<FluidStorageAmount> getAvailableFluids(ServerPlayer player) {
-            var resolved = network(player, source);
-            if (resolved.isEmpty()) return List.of();
-            var amounts = new IngredientCollectionPrototypeMap<>(IngredientComponent.FLUIDSTACK);
-            IntegratedDynamicsAccessPolicy.liveChannel(resolved.get()).iterator().forEachRemaining(amounts::add);
-            var result = new ArrayList<FluidStorageAmount>();
-            var prototypes = amounts.prototypeIterator();
-            while (prototypes.hasNext()) {
-                var entry = prototypes.next();
-                FluidStack identity = entry.getKey();
-                long amount = entry.getValue();
-                if (!identity.isEmpty() && amount > 0) result.add(new FluidStorageAmount(FluidStorageKey.of(identity), amount));
+            try (var positionScope = IntegratedPositionScope.open()) {
+                var resolved = network(player, source);
+                if (resolved.isEmpty()) return List.of();
+                var amounts = new IngredientCollectionPrototypeMap<>(IngredientComponent.FLUIDSTACK);
+                IntegratedDynamicsAccessPolicy.liveChannel(resolved.get()).iterator().forEachRemaining(amounts::add);
+                var result = new ArrayList<FluidStorageAmount>();
+                var prototypes = amounts.prototypeIterator();
+                while (prototypes.hasNext()) {
+                    var entry = prototypes.next();
+                    FluidStack identity = entry.getKey();
+                    long amount = entry.getValue();
+                    if (!identity.isEmpty() && amount > 0) result.add(new FluidStorageAmount(FluidStorageKey.of(identity), amount));
+                }
+                return List.copyOf(result);
             }
-            return List.copyOf(result);
         }
         private FluidStack insert(FluidStack stack, ServerPlayer player, boolean simulate) {
-            if (stack.isEmpty()) return FluidStack.EMPTY;
-            var resolved = channel(player);
-            if (resolved.isEmpty()) return stack.copy();
-            try (Transaction tx = Transaction.openRoot()) {
-                var remainder = resolved.get().insert(stack.copy(), tx);
-                if (!simulate) tx.commit();
-                return remainder;
+            try (var positionScope = IntegratedPositionScope.open()) {
+                if (stack.isEmpty()) return FluidStack.EMPTY;
+                var resolved = channel(player);
+                if (resolved.isEmpty()) return stack.copy();
+                try (Transaction tx = Transaction.openRoot()) {
+                    var remainder = resolved.get().insert(stack.copy(), tx);
+                    if (!simulate) tx.commit();
+                    return remainder;
+                }
             }
         }
         public long simulateInsert(FluidStack stack, ServerPlayer player) { return (long) stack.getAmount() - insert(stack, player, true).getAmount(); }
         public FluidStack insert(FluidStack stack, ServerPlayer player) { return insert(stack, player, false); }
         private FluidStack extract(FluidStorageKey key, long amount, ServerPlayer player, boolean simulate) {
-            if (amount <= 0) return FluidStack.EMPTY;
-            var request = key.toStack((int) Math.min(Integer.MAX_VALUE, amount));
-            var resolved = network(player, source);
-            if (resolved.isEmpty()) return FluidStack.EMPTY;
-            try (Transaction tx = Transaction.openRoot()) {
-                var extracted = IntegratedDynamicsAccessPolicy.liveChannel(resolved.get()).extract(request,
-                        IngredientComponent.FLUIDSTACK.getMatcher().getExactMatchNoQuantityCondition(), tx);
-                if (!simulate) tx.commit();
-                return extracted;
+            try (var positionScope = IntegratedPositionScope.open()) {
+                if (amount <= 0) return FluidStack.EMPTY;
+                var request = key.toStack((int) Math.min(Integer.MAX_VALUE, amount));
+                var resolved = network(player, source);
+                if (resolved.isEmpty()) return FluidStack.EMPTY;
+                try (Transaction tx = Transaction.openRoot()) {
+                    var extracted = IntegratedDynamicsAccessPolicy.liveChannel(resolved.get()).extract(request,
+                            IngredientComponent.FLUIDSTACK.getMatcher().getExactMatchNoQuantityCondition(), tx);
+                    if (!simulate) tx.commit();
+                    return extracted;
+                }
             }
         }
         public long simulateExtract(FluidStorageKey key, long amount, ServerPlayer player) { return extract(key, amount, player, true).getAmount(); }

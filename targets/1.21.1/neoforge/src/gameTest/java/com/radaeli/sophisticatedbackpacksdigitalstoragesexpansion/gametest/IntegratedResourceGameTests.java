@@ -329,4 +329,31 @@ public final class IntegratedResourceGameTests {
             h.succeed();
         });
     }
+
+    @GameTest(template = "empty", templateNamespace = "digitalstorage_tests", timeoutTicks = 300)
+    public static void positionfailurecleanup(GameTestHelper h) {
+        var fail = new java.util.concurrent.atomic.AtomicBoolean(true);
+        var f = fixture(h, store -> store.externalItems = new net.neoforged.neoforge.items.ItemStackHandler(4) {
+            @Override public ItemStack insertItem(int slot, ItemStack offered, boolean simulate) {
+                if (!simulate && fail.get()) throw new IllegalStateException("Injected positioned storage failure");
+                return super.insertItem(slot, offered, simulate);
+            }
+        });
+        f.run(() -> {
+            var network = f.nativeItems();
+            var own = PartPos.of(h.getLevel(), f.itemPos.below(), Direction.UP);
+            var unrelated = PartPos.of(h.getLevel(), f.otherPos.below(), Direction.UP);
+            network.disablePosition(unrelated);
+            try {
+                try { f.target().insert(new ItemStack(Items.DIAMOND), f.player); throw new AssertionError("Failure not reached"); }
+                catch (IllegalStateException expected) { /* inspect native cleanup below */ }
+                h.assertTrue(!network.isPositionDisabled(own), "Storage exception left the native position disabled");
+                h.assertTrue(network.isPositionDisabled(unrelated), "Cleanup released a foreign position lock");
+                fail.set(false);
+                h.assertTrue(f.target().insert(new ItemStack(Items.DIAMOND), f.player).isEmpty(), "Storage did not recover after exception");
+                h.assertTrue(network.isPositionDisabled(unrelated), "A later operation released a foreign position lock");
+            } finally { network.enablePosition(unrelated); }
+            h.succeed();
+        });
+    }
 }

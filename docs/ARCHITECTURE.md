@@ -350,3 +350,9 @@ P02/P03/P11: os três targets exigem que a posição/face exatas do Omni constem
 
 
 Verificação R01: 30 GameTests Forge e 14 GameTests 1.21.1 passaram no perfil full, incluindo a reprodução de desserialização e as recusas por grupo/estado. O 26.1.2 já usava a associação exata nativa.
+## Limpeza de posições nativas — R02, 2026-11-25
+
+P03/P08/P10: a falha injetada em um storage real reproduziu a posição bloqueada no 26.1.2 antes da correção. As pontes de itens/fluidos abrem `IntegratedPositionScope`; um Mixin opcional registra exclusivamente os `disablePosition` adquiridos por chamadas nativas dentro desse escopo. `enablePosition` conhecido retira o registro; o `finally` da ponte libera apenas registros próprios ainda ativos. Bloqueios anteriores e escopos externos permanecem intactos, inclusive com chamadas aninhadas. Os descritores de todos os overloads são explícitos para cada API fixada. O addon não limpa globalmente o estado da biblioteca nem altera seus JARs.
+
+Verificação R02: perfis full passaram com 31 GameTests Forge, 15 no 1.21.1 e 34 cenários obrigatórios do addon no 26.1.2. O caso exige liberação após exceção, manutenção de bloqueio alheio e inserção posterior bem-sucedida. `check/none` 26.1.2 confirmou a ausência opcional. A proteção cobre chamadas pela ponte do addon; não declara corrigidas chamadas independentes de outros mods.
+
