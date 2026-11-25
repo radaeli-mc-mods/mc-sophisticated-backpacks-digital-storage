@@ -356,3 +356,7 @@ P03/P08/P10: a falha injetada em um storage real reproduziu a posição bloquead
 
 Verificação R02: perfis full passaram com 31 GameTests Forge, 15 no 1.21.1 e 34 cenários obrigatórios do addon no 26.1.2. O caso exige liberação após exceção, manutenção de bloqueio alheio e inserção posterior bem-sucedida. `check/none` 26.1.2 confirmou a ausência opcional. A proteção cobre chamadas pela ponte do addon; não declara corrigidas chamadas independentes de outros mods.
 
+
+## Retorno de consumíveis — R03, 2026-11-25
+
+P05/P08/P09/P10: Feeding/Alchemy registram a sobra de cada retorno remoto, slot local e recuperação do jogador. IN_FLIGHT pausa resultados desconhecidos após falha ou recarga, preservando os formatos e estados anteriores. Hooks de início/fim também marcam a fase antes da chamada: uma exceção não permite devolver automaticamente alimento já possivelmente consumido nem repetir efeitos. Alchemy retorna a USING somente após um início conhecido, mantendo a recuperação normal de um uso interrompido; recipientes são recursos separados do consumível original. Conclusões normais limpam somente sua reserva. A tooltip indica a quarentena.

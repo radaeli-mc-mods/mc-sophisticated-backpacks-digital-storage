@@ -12,7 +12,22 @@ final class FeedingReservation {
     private static final String STATE = "state";
     private static final String REMOTE = "remote";
 
-    enum State { RESERVED, USING, RECOVERING }
+    enum State { RESERVED, USING, RECOVERING, IN_FLIGHT }
+
+    static com.radaeli.sophisticatedbackpacksdigitalstoragesexpansion.transfer.DeliveryJournal<ItemStack> journal(ItemStack upgrade,
+            net.minecraft.core.HolderLookup.Provider registries, Runnable save) {
+        return new com.radaeli.sophisticatedbackpacksdigitalstoragesexpansion.transfer.DeliveryJournal<>() {
+            @Override public void checkpoint(ItemStack remainder) {
+                updateStack(upgrade, remainder, registries);
+                setState(upgrade, State.RECOVERING);
+                save.run();
+            }
+            @Override public void beginDelivery(String stage) {
+                setState(upgrade, State.IN_FLIGHT);
+                save.run();
+            }
+        };
+    }
 
     private FeedingReservation() {
     }

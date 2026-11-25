@@ -77,6 +77,9 @@ public final class ForgeStorageGameTests {
         tests.realNeoForgeBucketCapabilitiesWorkInBothDirectionsWithNoBackpackTank();
         tests.splitExtractionPersistsFirstSourceBeforeCallingTheSecond();
         tests.fillFailureKeepsOnlyTheLastKnownRemainderAndPersistsInFlight();
+        var consumption = new com.radaeli.sophisticatedbackpacksdigitalstoragesexpansion.upgrade.ConsumptionRecoveryTest();
+        consumption.eachConsumptionReservationCheckpointsPartialReturnsAndSurvivesReloadWithoutRetry();
+        consumption.knownCompleteReturnClearsOnlyTheCorrespondingReservation();
         tests.inputSplitsOneBucketBetweenNetworkAndBackpackInPriorityOrder();
         tests.outputCombinesMatchingFluidFromBothSourcesWithoutRequiringLocalTank();
         tests.backpackFirstAndNetworkUnavailableUseOnlyTheRequiredFallbackAmount();
