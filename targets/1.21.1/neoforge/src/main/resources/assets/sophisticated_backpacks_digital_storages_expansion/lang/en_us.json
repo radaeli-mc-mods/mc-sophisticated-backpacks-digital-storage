@@ -1,4 +1,5 @@
 {
+  "message.sophisticated_backpacks_digital_storages_expansion.restock_limit": "Restock operation limit reached; click again to continue.",
   "gui.sophisticated_backpacks_digital_storages_expansion.delivery_pending": "Uncertain delivery; automatic retry paused.",
   "backend.sophisticated_backpacks_digital_storages_expansion.integrateddynamics": "Integrated Dynamics",
   "backend.sophisticated_backpacks_digital_storages_expansion.integrateddynamics.short": "Integrated Dynamics",

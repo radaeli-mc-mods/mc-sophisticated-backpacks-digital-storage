@@ -54,6 +54,9 @@ public final class ForgeStorageGameTests {
         tests.movesOnlyMatchingStacksAndReportsActualCounts();
         tests.failingInsertRetainsCustodyAndNeverRetriesAnUnknownCommit();
         tests.provenAbortRestoresTheExtractedOfferWithoutQuarantine();
+        var restock = new RestockTransferServiceTest();
+        restock.aSingleRequestFillsFourStacksAndRespectsPartialStockAndUnstackables();
+        restock.upgradedSlotsAndNativePartialExtractionContinueWithBoundedWork();
         tests.restoresDifferenceBetweenSimulatedAndActualAcceptance();
         tests.zeroActualAcceptanceRestoresEverythingAndReportsNoMovement();
         for (int simulated : new int[]{0, -1, Integer.MIN_VALUE}) tests.nonPositiveSimulationNeverExtracts(simulated);
