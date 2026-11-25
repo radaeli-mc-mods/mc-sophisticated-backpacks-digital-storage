@@ -23,6 +23,21 @@ public final class DestinationItemFilter {
         remainder = local.apply(remainder);
         return remainder.isEmpty() ? remainder : remote.apply(remainder);
     }
+    /** Collection takes custody of an unknown remainder, so the native caller can safely reduce the drop. */
+    public static ItemStack routeDelivery(SourcePriority priority, ItemStack offered,
+            java.util.function.UnaryOperator<ItemStack> remote, java.util.function.UnaryOperator<ItemStack> local,
+            com.radaeli.sophisticatedbackpacksdigitalstoragesexpansion.storage.ItemDeliveryJournal journal) {
+        if (journal.hasPending()) return offered;
+        var remoteStep = com.radaeli.sophisticatedbackpacksdigitalstoragesexpansion.storage.ItemDelivery.step("remote", remote);
+        var localStep = com.radaeli.sophisticatedbackpacksdigitalstoragesexpansion.storage.ItemDelivery.step("backpack", local);
+        var result = com.radaeli.sophisticatedbackpacksdigitalstoragesexpansion.storage.ItemDelivery.deliver(offered,
+                priority == SourcePriority.NETWORK_FIRST ? java.util.List.of(remoteStep, localStep)
+                        : java.util.List.of(localStep, remoteStep), journal);
+        if (result.uncertain()) return ItemStack.EMPTY;
+        journal.clear();
+        return result.remainder();
+    }
+
     public static boolean local(ContentsFilterLogic filters, ItemStack offered) {
         return !offered.isEmpty() && filters.matchesFilter(offered);
     }

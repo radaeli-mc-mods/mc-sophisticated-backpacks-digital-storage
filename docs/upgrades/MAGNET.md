@@ -88,3 +88,9 @@ P01–P04/P07–P12: a [fase 1 da integração](../integrations/INTEGRATED_DYNAM
 ## Integrated Dynamics — porte 26.1.2
 
 P01–P12: o [port 26.1.2](../integrations/INTEGRATED_DYNAMICS_26_1_2.md) acrescenta o backend transacional aos serviços existentes desta função. Preserva Omni, filtros, prioridade aplicável, reservas e recuperação. Os GameTests nativos desta função fazem parte dos perfis integrated/terminals/full/all; comandos, evidências e limites ficam no registro. Nesta tarefa o usuário dispensou testes de interação com Java; nenhuma aprovação manual foi inferida.
+
+## Conservação da coleta — F01, 2026-11-25
+
+P05/P08/P09/P10: Magnet nos três targets e Pickup imediato registram a custódia no item antes de entregar e persistem a sobra conhecida após cada destino. Uma exceção conserva a última parcela em quarentena, interrompe o fallback e devolve controle ao fluxo que reduz a entidade. A parcela incerta não fica disponível no drop nem é reenviada automaticamente; troca/desvínculo ficam bloqueados e a tooltip informa a pendência. O Pickup transacional de 26.1.2 mantém seu journal nativo. Isso preserva filtros, prioridade e os dados anteriores, sem prometer atomicidade entre storages e salvamento.
+
+Verificação F01: ItemDeliveryTest passou nos três runtimes, cobrindo ambas as prioridades, falha antes/depois de mutação, reconstrução e ausência de reenvio. As suítes completas da primeira implementação passaram nos três targets.

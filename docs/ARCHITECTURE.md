@@ -322,3 +322,7 @@ Correção da hotbar no NeoForge 26.1.2 (P07/P12): atualizar o atlas de texturas
 ## Integrated Dynamics em NeoForge 26.1.2
 
 P01–P12: [registro do port](integrations/INTEGRATED_DYNAMICS_26_1_2.md) descreve os adaptadores transacionais de itens/fluidos, revalidação de energia sob transação de Pickup, isolamento opcional, perfis e verificações. Preserva vínculo Omni, wildcard, filtros e interceptadores nativos. O canvas visual passa de 5 para 6; Integrated ocupa 5. O source set junitSupport cria os mundos ausentes do servidor efêmero antes do evento de início; esse código e as fixtures são excluídos da distribuição. O usuário solicitou apenas validação automatizada nesta rodada, além de iniciar o client.
+
+## Conservação da coleta — F01, 2026-11-25
+
+P05/P08/P09/P10: Magnet nos três targets e Pickup imediato registram a custódia no item antes de entregar e persistem a sobra conhecida após cada destino. Uma exceção conserva a última parcela em quarentena, interrompe o fallback e devolve controle ao fluxo que reduz a entidade. A parcela incerta não fica disponível no drop nem é reenviada automaticamente; troca/desvínculo ficam bloqueados e a tooltip informa a pendência. O Pickup transacional de 26.1.2 mantém seu journal nativo. Isso preserva filtros, prioridade e os dados anteriores, sem prometer atomicidade entre storages e salvamento.
