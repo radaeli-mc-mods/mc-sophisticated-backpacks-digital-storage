@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.7.0] - 2026-11-22
+
+### Changed
+
+- Polished Integrated Dynamics support for remote upgrades on all loaders.
+
+### Added
+
+- Added the Integrated Dynamics backpack variant missing on 1.20.1 and 26.2.1.
+
 ## [0.7.0-beta.2] - 2026-11-22
 
 ### Added
